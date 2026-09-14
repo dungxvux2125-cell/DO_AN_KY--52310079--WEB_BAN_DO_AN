@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # FoodVD - Nền tảng đặt món trực tuyến
 
 ## 1. Thông tin sinh viên
@@ -105,3 +106,6 @@ pnpm preview
 ## 8. Ghi chú
 
 Phiên bản hiện tại là prototype front-end chạy bằng dữ liệu mẫu trong React state. Các chức năng backend như FastAPI, MongoDB, gửi email hóa đơn và mã hóa AES-256 được mô tả theo định hướng triển khai trong báo cáo/đề cương và có thể phát triển tiếp ở giai đoạn sau.
+=======
+# DO_AN_KY--52310079--WEB_BAN_DO_AN
+>>>>>>> 99373b10613b16c1953df5b4ff392240de219838
