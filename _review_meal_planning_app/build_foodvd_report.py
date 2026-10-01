@@ -11,6 +11,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
 
+#kkkk
 
 BASE = Path(__file__).resolve().parent
 OUT = BASE / "Bao_cao_do_an_FoodVD.docx"

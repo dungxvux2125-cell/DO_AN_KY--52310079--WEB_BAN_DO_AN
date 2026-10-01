@@ -238,7 +238,7 @@ export const initialDishes: Dish[] = [
   },
   {
     id: 14,
-    name: "Cà phê sữa đá",
+    name: "Cà phê sữa đá.",
     category: "Đồ uống",
     price: 25000,
     image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&h=680&fit=crop&auto=format",
