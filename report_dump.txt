@@ -1,0 +1,847 @@
+[0] (Normal): TRƯỜNG ĐẠI HỌC PHƯƠNG ĐÔNG
+[1] (Normal): KHOA CÔNG NGHỆ SỐ VÀ TRUYỀN THÔNG
+[2] (Normal): NGÀNH CÔNG NGHỆ THÔNG TIN
+[7] (Body): ĐỒ ÁN KỲ
+[8] (Body): ĐỀ TÀI:
+[9] (Body): XÂY DỰNG HỆ THỐNG TRÍ TUỆ NHÂN TẠO HỖ TRỢ SELLER PHÂN TÍCH VÀ KIỂM ĐỊNH ĐÁNH GIÁ SẢN PHẨM
+[13] (Body): Họ tên sinh viên: Lương Trọng Huy
+[14] (Body): MSSV: 523100156
+[15] (Body): Lớp: 523100C
+[16] (Body): Giáo viên hướng dẫn: ThS. Trấn Thị Hiền
+[25] (Normal): Hà Nội, 2026
+[29] (Normal): LỜI MỞ ĐẦU
+[30] (Normal (Web)): Trong bối cảnh bùng nổ thương mại điện tử đa kênh (TikTok Shop, Lazada, Tiki...), lượng phản hồi khổng lồ đổ về mỗi ngày vừa là nguồn tài nguyên quý giá để cải thiện sản phẩm, vừa gây áp lực quá tải thông tin nặng nề cho các nhà bán hàng (Seller) khi phải xử lý thủ công. Nghiêm trọng hơn, tình trạng đánh giá tiêu cực vô căn cứ, tài khoản ảo dìm hàng và đính kèm hình ảnh sai lệch thực tế ngày càng phổ biến, trong khi các công cụ quản trị sẵn có của sàn chỉ dừng ở mức lọc dữ liệu thô, hoàn toàn thiếu cơ chế tự động bóc tách khuyết tật và thẩm định độ tin cậy của bằng chứng.
+[31] (Normal (Web)): Nhận thấy khoảng trống công nghệ cấp thiết đó, đề tài *"Xây dựng chương trình trí tuệ nhân tạo hỗ trợ phân tích phản hồi và đánh giá sản phẩm (Customer Feedback Intelligence)"* được triển khai với kiến trúc Adapter linh hoạt, cho phép tích hợp và chuẩn hóa dữ liệu đa nền tảng. Ứng dụng các mô hình AI tiên tiến trong xử lý ngôn ngữ tự nhiên và thị giác máy tính, hệ thống không chỉ sàng lọc đánh giá ảo, kiểm định tính xác thực của hình ảnh mà còn tự động gợi ý hành động chiến lược, giúp Seller bảo vệ uy tín và tối ưu hóa quyết định kinh doanh.Đồ án được trình bày với cấu trúc gồm các chương chính:
+[32] (Normal): Chương 1: Tổng quan về bài toán phân tích phản hồi khách hàng trên các sàn TMĐT (TikTok Shop, Lazada, Tiki)
+[33] (Normal): Chương 2: Cơ sở lý thuyết và công nghệ ứng dụng (AI đa phương thức, Xử lý ngôn ngữ tự nhiên, Kiến trúc Adapter, FastAPI, React)
+[34] (Normal): Chương 3: Phân tích và thiết kế hệ thống
+[35] (Normal): Chương 4: Thực nghiệm và demo chương trình
+[36] (Normal (Web)): Trong quá trình thực hiện đồ án, do thời gian và kinh nghiệm thực tế còn có những hạn chế nhất định nên hệ thống không thể tránh khỏi những thiếu sót. Em rất mong nhận được những ý kiến đóng góp quý báu từ các Thầy, Cô giáo cùng các bạn để đồ án được hoàn thiện hơn.
+[37] (Normal (Web)): Em xin chân thành cảm ơn sự hướng dẫn, chỉ bảo tận tình của ThS. Trần Thị Hiền cùng toàn thể các Thầy, Cô trong khoa Công nghệ thông tin đã hỗ trợ em trong suốt quá trình nghiên cứu và hoàn thành đồ án tốt nghiệp này.
+[38] (Normal (Web)): MỤC LỤC
+[39] (Normal): LỜI MỞ ĐẦU	1
+[40] (Normal): CHƯƠNG 1: TỔNG QUAN VỀ BÀI TOÁN PHÂN TÍCH PHẢN HỒI KHÁCH HÀNG TRÊN SÀN THƯƠNG MẠI ĐIỆN TỬ	3
+[41] (Normal): 1.1 Bối cảnh thị trường thương mại điện tử hiện nay	3
+[42] (Normal): 1.2 Vai trò của đánh giá khách hàng đối với seller	4
+[43] (Normal): 1.3 Thực trạng xử lý đánh giá trên các sàn thương mại điện tử	4
+[44] (Normal): 1.4 Các vấn đề tồn tại	5
+[45] (Normal): 1.5 Lý do chọn đề tài	5
+[46] (Normal): 1.6 Mục tiêu của đề tài	6
+[47] (Normal): 1.7 Phạm vi của đề tài	6
+[48] (Normal): 1.8 Đối tượng sử dụng hệ thống	7
+[49] (Normal): 1.9 Ý nghĩa thực tiễn của đề tài	7
+[50] (Normal): 1.10 Bố cục của đồ án	7
+[51] (Normal): CHƯƠNG 2: CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ ỨNG DỤNG	9
+[52] (Normal): 2.1 Tổng quan về kiến trúc hệ thống	9
+[53] (Normal): 2.2 Ngôn ngữ lập trình Python	9
+[54] (Normal): 2.3 FastAPI	10
+[55] (Normal): 2.4 Uvicorn	10
+[56] (Normal): 2.5 Pydantic	11
+[57] (Normal): 2.6 Cơ sở dữ liệu MongoDB	11
+[58] (Normal): 2.7 PyMongo	12
+[59] (Normal): 2.8 Playwright	12
+[60] (Normal): 2.9 React và TypeScript	13
+[61] (Normal): 2.10 Vite	13
+[62] (Normal): 2.11 Lucide React và giao diện người dùng	14
+[63] (Normal): 2.12 Kiến trúc thu thập dữ liệu đa sàn	14
+[64] (Normal): 2.13 Mô hình CLIP và phân tích hình ảnh	15
+[65] (Normal): 2.14 Phân tích độ tin cậy của review	15
+[66] (Normal): 2.15 Git và GitHub	16
+[67] (Normal): 2.16 MongoDB Compass	16
+[68] (Normal): 2.17 DevTools, cURL và kiểm thử API	17
+[69] (Normal): CHƯƠNG 3: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG	18
+[70] (Normal): 3.1. Khảo Sát Hiện Trạng	18
+[71] (Normal): 3.1.1. Mô Tả Đề Tài	18
+[72] (Normal): 3.1.2. Chức Năng Hệ Thống	19
+[73] (Normal): 3.1.2.1. Backend	19
+[74] (Normal): 3.1.2.2. Frontend	20
+[75] (Normal): 3.2. Phân Tích Và Thiết Kế Hệ Thống	21
+[76] (Normal): 3.2.1. Mô Tả Nghiệp Vụ	21
+[77] (Normal): 3.2.1.1. Đối Với Seller	21
+[78] (Normal): 3.2.1.2. Đối Với Quản Trị Viên QTV	22
+[79] (Normal): 3.3. Xây Dựng Biểu Đồ Use Case	23
+[80] (Normal): 3.3.1. Use case tổng quát	23
+[81] (Normal): 3.3.2. Use case thao tác khi mở phiên sàn	24
+[82] (Normal): 3.3.3. Use case dán link sản phẩm	25
+[83] (Normal): 3.3.4. Use case xem dashboard	26
+[84] (Normal): 3.3.5. Use case xem review đáng chú ý	27
+[85] (Normal): 3.3.6. Use case lọc review theo số sao	28
+[86] (Normal): 3.3.7. Use case theo dõi log	29
+[87] (Normal): 3.3.8. Use case cấu hình hệ thống	30
+[88] (Normal): 3.3.9. Use case kéo dữ liệu review	31
+[89] (Normal): 3.3.10. Use case phân tích nội dung	32
+[90] (Normal): 3.3.11. Use case kiểm định hình ảnh	33
+[91] (Normal): 3.3.12. Use case tính điểm độ tin cậy	34
+[92] (Normal): 3.4. Biểu Đồ Hoạt Động (Activity Diagram)	35
+[93] (Normal): 3.4.1. Biểu đồ hoạt động tổng quát của hệ thống	35
+[94] (Normal): 3.4.2. Biểu đồ hoạt động chi tiết quy trình thu thập dữ liệu review	36
+[95] (Normal): 3.4.3. Biểu đồ hoạt động chi tiết quy trình phân tích AI và kiểm định ảnh	37
+[96] (Normal): 3.5. Biểu Đồ Trình Tự (Sequence Diagram)	38
+[97] (Normal): 3.5.1. Biểu đồ tuần tự Chức năng dán link sản phẩm	38
+[98] (Normal): 3.5.2. Biểu đồ tuần tự Chức năng mở phiên sàn và xác thực bảo mật	39
+[99] (Normal): 3.5.3. Biểu đồ tuần tự Chức năng thu thập dữ liệu review từ sàn	40
+[100] (Normal): 3.5.4. Biểu đồ tuần tự Chức năng phân tích nội dung văn bản bằng NLP	41
+[101] (Normal): 3.5.5. Biểu đồ tuần tự Chức năng kiểm định bằng chứng hình ảnh bằng mô hình CLIP	42
+[102] (Normal): 3.5.6. Biểu đồ tuần tự Chức năng tính điểm độ tin cậy và sinh khuyến nghị	43
+[103] (Normal): 3.5.7. Biểu đồ tuần tự Chức năng xem Dashboard phân tích	44
+[104] (Normal): 3.5.8. Biểu đồ tuần tự Chức năng lọc review theo số sao	45
+[105] (Normal): 3.6. Biểu Đồ Trạng Thái (State Machine Diagram)	46
+[106] (Normal): 3.6.1. Biểu đồ trạng thái vòng đời tác vụ thu thập Ingestion Job	46
+[107] (Normal): 3.7. Biểu Đồ Lớp Và Thiết Kế Cơ Sở Dữ Liệu	47
+[108] (Normal): 3.7.1. Biểu đồ lớp miền nghiệp vụ (Domain Class Model)	47
+[109] (Normal): 3.7.2. Thiết kế cấu trúc cơ sở dữ liệu MongoDB	48
+[110] (Normal): 3.8. Biểu Đồ Kiến Trúc Thành Phần Và Triển Khai	49
+[111] (Normal): 3.8.1. Biểu đồ thành phần kiến trúc hệ thống (Component Diagram)	49
+[112] (Normal): 3.8.2. Biểu đồ triển khai hệ thống (Deployment Diagram)	50
+[113] (Normal): CHƯƠNG 4: THỰC NGHIỆM VÀ DEMO CHƯƠNG TRÌNH	52
+[114] (Normal): 4.1. Môi Trường Cài Đặt Và Cấu Hình Thử Nghiệm	52
+[115] (Normal): 4.2. Giao Diện Tổng Quan Của Hệ Thống (Trạng Thái Khởi Đầu)	53
+[116] (Normal): 4.3. Demo Quy Trình Đọc Link Sản Phẩm Và Cơ Chế Nhận Diện Sàn	54
+[117] (Normal): 4.4. Demo Quy Trình Mở Phiên Sàn Và Cơ Chế Vượt Xác Thực Bảo Mật	55
+[118] (Normal): 4.5. Demo Tiến Trình Thu Thập Review Tự Động Và Giao Diện Chờ Xử Lý	56
+[119] (Normal): 4.6. Demo Bảng Điều Khiển Dashboard Và Phân Tích Chỉ Số	58
+[120] (Normal): 4.7. Demo Chức Năng Lọc Review Và Phát Hiện Đánh Giá Cần Chú Ý	59
+[121] (Normal): 4.8. Demo Module Kiểm Định Bằng Chứng Hình Ảnh Bằng Mô Hình CLIP	60
+[122] (Normal): 4.9. Demo Tính Năng Sinh Gợi Ý Hành Động Chiến Lược Cho Seller	64
+[123] (Normal): 4.10. Đánh Giá Kết Quả Thực Nghiệm Và Hiệu Năng Vận Hành	65
+[124] (Normal): KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN	66
+[125] (Normal): TÀI LIỆU THAM KHẢO	68
+[126] (Normal): LỜI CAM ĐOAN	70
+[128] (Normal): DANH MỤC HÌNH ẢNH
+[129] (Normal): Hình 3.2: Biểu đồ Use case thao tác khi mở phiên sàn	24
+[130] (Normal): Hình 3.3: Biểu đồ Use case dán link sản phẩm	25
+[131] (Normal): Hình 3.4: Biểu đồ Use case xem dashboard	26
+[132] (Normal): Hình 3.5: Biểu đồ Use case xem review đáng chú ý	27
+[133] (Normal): Hình 3.6: Biểu đồ Use case lọc review theo số sao	28
+[134] (Normal): Hình 3.7: Biểu đồ Use case theo dõi log	29
+[135] (Normal): Hình 3.8: Biểu đồ Use case cấu hình hệ thống	30
+[136] (Normal): Hình 3.9: Biểu đồ Use case kéo dữ liệu review	31
+[137] (Normal): Hình 3.10: Biểu đồ Use case phân tích nội dung	32
+[138] (Normal): Hình 3.11: Biểu đồ Use case kiểm định hình ảnh	33
+[139] (Normal): Hình 3.12: Biểu đồ Use case tính điểm độ tin cậy	34
+[140] (Normal): Hình 3.13: Biểu đồ hoạt động tổng quát của hệ thống	35
+[141] (Normal): Hình 3.14: Biểu đồ hoạt động chi tiết quy trình thu thập dữ liệu review	36
+[142] (Normal): Hình 3.15: Biểu đồ hoạt động chi tiết quy trình phân tích AI và kiểm định ảnh	37
+[143] (Normal): Hình 3.16: Biểu đồ tuần tự Chức năng dán link sản phẩm	38
+[144] (Normal): Hình 3.17: Biểu đồ tuần tự Chức năng mở phiên sàn và xác thực bảo mật	39
+[145] (Normal): Hình 3.18: Biểu đồ tuần tự Chức năng thu thập dữ liệu review từ sàn	40
+[146] (Normal): Hình 3.19: Biểu đồ tuần tự Chức năng phân tích nội dung văn bản bằng NLP	41
+[147] (Normal): Hình 3.20: Biểu đồ tuần tự Chức năng kiểm định bằng chứng hình ảnh bằng mô hình CLIP	42
+[148] (Normal): Hình 3.21: Biểu đồ tuần tự Chức năng tính điểm độ tin cậy và sinh khuyến nghị	43
+[149] (Normal): Hình 3.22: Biểu đồ tuần tự Chức năng xem Dashboard phân tích	44
+[150] (Normal): Hình 3.23: Biểu đồ tuần tự Chức năng lọc review theo số sao	45
+[151] (Normal): Hình 3.24: Biểu đồ trạng thái vòng đời tác vụ thu thập Ingestion Job	46
+[152] (Normal): Hình 3.25: Biểu đồ lớp miền nghiệp vụ	47
+[153] (Normal): Hình 3.26: Biểu đồ cấu trúc cơ sở dữ liệu MongoDB	48
+[154] (Normal): Hình 3.27: Biểu đồ thành phần kiến trúc hệ thống	49
+[155] (Normal): Hình 3.28: Biểu đồ triển khai hệ thống	50
+[156] (Normal): Hình 4.1: Giao diện tổng quan hệ thống ở trạng thái khởi đầu chưa nạp sản phẩm	53
+[157] (Normal): Hình 4.2: Giao diện đọc thông tin sản phẩm từ liên kết sàn TMĐT	54
+[158] (Normal): Hình 4.3: Giao diện mở phiên trình duyệt xác thực bảo mật	55
+[159] (Normal): Hình 4.4: Giao diện tiến trình thu thập và phân tích dữ liệu tự động	56
+[160] (Normal): Hình 4.5: Bảng điều khiển Dashboard phân tích phản hồi và phân bổ đánh giá	58
+[161] (Normal): Hình 4.6: Giao diện danh sách đánh giá đáng chú ý và bộ lọc số sao	59
+[162] (Normal): Hình 4.7: Giao diện đối chiếu và kiểm định bằng chứng hình ảnh bằng mô hình CLIP	60
+[163] (Normal): Hình 4.8: Giao diện gợi ý hành động xử lý cho seller và kịch bản chăm sóc khách hàng	64
+[165] (Normal): CHƯƠNG 1: TỔNG QUAN VỀ BÀI TOÁN PHÂN TÍCH PHẢN HỒI KHÁCH HÀNG TRÊN SÀN THƯƠNG MẠI ĐIỆN TỬ
+[166] (Normal): 1.1 Bối cảnh thị trường thương mại điện tử hiện nay
+[167] (Normal): Sự phát triển mạnh mẽ của các nền tảng thương mại điện tử (TMĐT) như TikTok Shop, Shopee, Lazada và Tiki đã làm thay đổi hoàn toàn hành vi mua sắm của người tiêu dùng. Cùng với sự bùng nổ của xu hướng mua sắm trực tuyến, lượng dữ liệu phản hồi, bình luận và đánh giá từ khách hàng đổ về mỗi ngày là vô cùng khổng lồ. Đối với các nhà bán hàng (Seller), những phản hồi này là nguồn tài nguyên vô giá để đánh giá chất lượng dịch vụ, lắng nghe thị trường và tối ưu hóa sản phẩm.
+[168] (Normal): Tuy nhiên, thị trường TMĐT Việt Nam đang chứng kiến sự dịch chuyển rõ rệt về thị phần. Trong khi Shopee và TikTok Shop đang chiếm ưu thế về lưu lượng truy cập, các nền tảng như Tiki và Lazada lại có dấu hiệu sụt giảm lượt truy cập tự nhiên và số lượng đơn hàng so với thời kỳ trước. Dưới góc độ quản trị gian hàng, chính vì lượt mua và đánh giá mới trên các sàn này ít đi, mỗi một đánh giá tiêu cực (1-2 sao) hoặc đánh giá bôi xấu đều gây sụt giảm tỷ lệ đánh giá uy tín (Rating Health) nặng nề hơn rất nhiều so với các sàn có hàng chục nghìn lượt đánh giá. Điều này đặt ra yêu cầu cấp thiết cho các nhà bán hàng trong việc phải kiểm soát chặt chẽ, phát hiện sớm và xử lý kịp thời các phản hồi bất thường.
+[169] (Normal): 1.2 Vai trò của đánh giá khách hàng đối với seller
+[170] (Normal): Đánh giá khách hàng có ảnh hưởng trực tiếp đến hình ảnh của sản phẩm và độ tin cậy của gian hàng. Trước khi mua hàng, người tiêu dùng thường tham khảo số sao, nội dung bình luận và hình ảnh do khách hàng trước đó đăng tải. Những đánh giá tích cực có thể góp phần tăng tỷ lệ chuyển đổi, trong khi các đánh giá tiêu cực có thể khiến khách hàng mới e ngại và ảnh hưởng đến doanh thu của seller.
+[171] (Normal): Đối với người bán, đánh giá khách hàng còn đóng vai trò như một kênh phản hồi thực tế. Thông qua review, seller có thể phát hiện các vấn đề liên quan đến chất lượng sản phẩm, sai lệch mô tả, đóng gói chưa tốt, giao hàng chậm, thiếu hàng hoặc sản phẩm bị hư hỏng. Những phản hồi này giúp seller điều chỉnh quy trình vận hành, cải thiện sản phẩm và nâng cao trải nghiệm khách hàng.
+[172] (Normal): Tuy nhiên, không phải đánh giá nào cũng có giá trị như nhau. Một số đánh giá có nội dung rất ngắn, chỉ có số sao nhưng không nêu lý do cụ thể. Một số đánh giá có hình ảnh nhưng hình ảnh không liên quan đến sản phẩm hoặc không chứng minh được nội dung phản ánh. Ngoài ra, cũng có trường hợp số sao, nội dung bình luận và hình ảnh đi kèm không thống nhất với nhau. Vì vậy, seller cần một công cụ hỗ trợ để xác định những đánh giá nào cần ưu tiên kiểm tra và xử lý trước.
+[173] (Normal): 1.3 Thực trạng xử lý đánh giá trên các sàn thương mại điện tử
+[174] (Normal): Hiện nay, seller có thể xem đánh giá của khách hàng trực tiếp trên hệ thống của từng sàn thương mại điện tử. Tuy nhiên, khi số lượng sản phẩm và số lượng review tăng lên, việc đọc và phân loại thủ công trở nên mất nhiều thời gian. Seller thường phải tự kiểm tra từng bình luận, tự xác định review nào tiêu cực, review nào có ảnh đáng nghi và review nào cần phản hồi.
+[175] (Normal): Một khó khăn khác là dữ liệu đánh giá thường phân tán theo từng sản phẩm, từng mức sao và từng nền tảng. Nếu seller kinh doanh trên nhiều sàn khác nhau, việc tổng hợp phản hồi để có cái nhìn tổng quan càng phức tạp hơn. Bên cạnh đó, các đánh giá thấp sao thường cần được xử lý nhanh, nhưng không phải đánh giá thấp sao nào cũng phản ánh đúng vấn đề thực tế. Nếu seller chỉ dựa vào số sao mà không xem xét nội dung và bằng chứng hình ảnh, việc xử lý phản hồi có thể thiếu chính xác.
+[176] (Normal): Đặc biệt, với các đánh giá có kèm hình ảnh, seller cần kiểm tra xem hình ảnh đó có thực sự liên quan đến sản phẩm hay không. Có trường hợp ảnh review là ảnh sản phẩm thật, nhưng cũng có trường hợp ảnh là ảnh chụp màn hình, ảnh bao bì, ảnh không liên quan hoặc ảnh không đủ căn cứ để chứng minh nội dung bình luận. Điều này đặt ra nhu cầu xây dựng một hệ thống có khả năng hỗ trợ phân tích nội dung và kiểm chứng hình ảnh trong review.
+[177] (Normal): 1.4 Các vấn đề tồn tại
+[178] (Normal): Từ thực trạng trên, có thể nhận thấy một số vấn đề chính trong quá trình xử lý đánh giá khách hàng của seller:
+[179] (Normal): Thứ nhất, khối lượng đánh giá lớn khiến seller khó đọc và phân loại thủ công toàn bộ review. Khi sản phẩm có nhiều lượt mua, số lượng bình luận có thể tăng nhanh, đặc biệt trong các chương trình khuyến mãi hoặc livestream bán hàng.
+[180] (Normal): Thứ hai, seller khó xác định review nào cần ưu tiên xử lý trước. Các review từ 1 đến 3 sao thường quan trọng hơn, nhưng vẫn cần đánh giá thêm nội dung, hình ảnh và mức độ tin cậy trước khi đưa ra hành động phù hợp.
+[181] (Normal): Thứ ba, bằng chứng hình ảnh trong review chưa chắc đã phản ánh đúng sản phẩm hoặc đúng nội dung khách hàng đề cập. Nếu ảnh không khớp sản phẩm hoặc không hỗ trợ nội dung bình luận, seller cần xem xét kỹ trước khi sử dụng review đó làm căn cứ xử lý.
+[182] (Normal): Thứ tư, nội dung review có thể mâu thuẫn với số sao. Ví dụ, khách hàng đánh giá 5 sao nhưng lại có nội dung phàn nàn, hoặc đánh giá thấp sao nhưng nội dung không nêu lý do rõ ràng. Những trường hợp này cần được phát hiện để seller tránh hiểu sai dữ liệu phản hồi.
+[183] (Normal): Thứ năm, seller thiếu một dashboard tổng hợp giúp xem nhanh tình hình review, số lượng đánh giá cần chú ý, mức độ tin cậy và trạng thái phân tích hình ảnh. Việc thiếu công cụ trực quan khiến quá trình theo dõi phản hồi khách hàng kém hiệu quả.
+[184] (Normal): 1.5 Lý do chọn đề tài
+[185] (Normal): Xuất phát từ những vấn đề trên, đề tài “Hệ thống hỗ trợ seller phân tích và kiểm chứng đánh giá khách hàng trên sàn thương mại điện tử” được lựa chọn nhằm xây dựng một công cụ hỗ trợ người bán trong quá trình theo dõi và xử lý review. Thay vì chỉ hiển thị danh sách đánh giá, hệ thống tập trung vào việc thu thập, phân loại, đánh giá độ tin cậy và kiểm tra bằng chứng hình ảnh đi kèm review.
+[186] (Normal): Đề tài hướng đến việc hỗ trợ seller phát hiện nhanh các đánh giá cần chú ý, đặc biệt là các review có số sao thấp, nội dung tiêu cực, hình ảnh không rõ ràng hoặc có dấu hiệu không khớp với sản phẩm. Hệ thống không thay thế hoàn toàn quyết định của seller, mà đóng vai trò như một công cụ sàng lọc và gợi ý, giúp seller tiết kiệm thời gian và tập trung vào những phản hồi quan trọng hơn.
+[187] (Normal): Bên cạnh đó, đề tài cũng có ý nghĩa thực tiễn vì phù hợp với nhu cầu quản lý phản hồi khách hàng trong môi trường kinh doanh trực tuyến. Việc ứng dụng phân tích dữ liệu, xử lý nội dung và kiểm chứng hình ảnh giúp nâng cao khả năng khai thác dữ liệu review, từ đó hỗ trợ seller cải thiện chất lượng sản phẩm và dịch vụ.
+[188] (Normal): 1.6 Mục tiêu của đề tài
+[189] (Normal): Mục tiêu chính của đề tài là xây dựng một hệ thống hỗ trợ seller thu thập và phân tích đánh giá khách hàng từ các sàn thương mại điện tử, từ đó giúp seller ưu tiên xử lý các review cần chú ý.
+[190] (Normal): Các mục tiêu cụ thể bao gồm:
+[191] (Normal): - Xây dựng chức năng cho phép seller dán link sản phẩm để hệ thống nhận diện nền tảng và mã sản phẩm.
+[192] (Normal): - Thu thập dữ liệu review từ các nền tảng như Lazada, Tiki và TikTok Shop.
+[193] (Normal): - Lưu trữ thông tin sản phẩm, đánh giá, hình ảnh review và kết quả phân tích vào cơ sở dữ liệu MongoDB.
+[194] (Normal): - Phân tích nội dung review để xác định các đánh giá tiêu cực, đánh giá có dấu hiệu bất thường hoặc đánh giá cần seller kiểm tra.
+[195] (Normal): - Đánh giá độ tin cậy của review dựa trên số sao, nội dung bình luận, mức độ cụ thể của phản hồi và bằng chứng hình ảnh.
+[196] (Normal): - Thu thập ảnh gốc sản phẩm và so sánh với ảnh review nhằm kiểm tra mức độ phù hợp của hình ảnh.
+[197] (Normal): - Xây dựng dashboard trực quan giúp seller xem tổng quan số lượng review, review có ảnh, review cần chú ý và kết quả phân tích.
+[198] (Normal): - Hỗ trợ lọc review theo nền tảng, mã sản phẩm và số sao để seller dễ dàng tra cứu.
+[199] (Normal): 1.7 Phạm vi của đề tài
+[200] (Normal): Trong phạm vi đồ án, hệ thống tập trung vào bài toán hỗ trợ seller phân tích đánh giá khách hàng trên một số sàn thương mại điện tử phổ biến. Dữ liệu đầu vào chủ yếu được lấy từ link sản phẩm do người dùng cung cấp. Hệ thống xử lý các thông tin chính gồm số sao, nội dung review, thời gian đánh giá, ảnh review và ảnh gốc sản phẩm.
+[201] (Normal): Đề tài tập trung vào các chức năng chính như thu thập review, lưu trữ dữ liệu, phân tích độ tin cậy, kiểm chứng hình ảnh và hiển thị dashboard. Hệ thống chưa tích hợp API chính thức của Seller Center để phản hồi trực tiếp lên sàn. Chức năng tự động phản hồi khách hàng được định hướng là hướng phát triển trong tương lai, trong đó seller vẫn cần duyệt nội dung phản hồi trước khi gửi.
+[202] (Normal): Ngoài ra, việc thu thập dữ liệu từ các nền tảng thương mại điện tử có thể phụ thuộc vào cấu trúc trang, API nội bộ và cơ chế bảo vệ của từng sàn. Vì vậy, trong phạm vi đề tài, hệ thống ưu tiên xây dựng cơ chế thu thập và phân tích phục vụ mục đích nghiên cứu, thử nghiệm và minh họa quy trình hỗ trợ seller.
+[203] (Normal): 1.8 Đối tượng sử dụng hệ thống
+[204] (Normal): Đối tượng sử dụng chính của hệ thống là seller hoặc nhân sự phụ trách vận hành gian hàng trên các sàn thương mại điện tử. Người dùng có thể sử dụng hệ thống để theo dõi tình hình đánh giá sản phẩm, phát hiện các review cần xử lý và kiểm tra mức độ phù hợp của ảnh review.
+[205] (Normal): Ngoài seller, hệ thống cũng có thể hỗ trợ quản trị viên hoặc người quản lý vận hành trong việc tổng hợp phản hồi khách hàng, đánh giá chất lượng dịch vụ và đưa ra quyết định cải thiện sản phẩm.
+[218] (Heading 1): CHƯƠNG 2: CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ SỬ DỤNG
+[219] (Heading 2): 2.1 Tổng quan về công nghệ sử dụng trong hệ thống
+[220] (Normal (Web)): Đề tài xây dựng hệ thống hỗ trợ seller phân tích và kiểm chứng đánh giá khách hàng trên các sàn thương mại điện tử. Hệ thống cần xử lý nhiều nhóm chức năng khác nhau như thu thập dữ liệu review từ link sản phẩm, lưu trữ dữ liệu, phân tích nội dung đánh giá, kiểm chứng hình ảnh, tính toán độ tin cậy và hiển thị dashboard trực quan cho người dùng. Vì vậy, việc lựa chọn công nghệ cần đảm bảo các yếu tố như khả năng phát triển nhanh, dễ mở rộng, phù hợp với xử lý dữ liệu, hỗ trợ API và có khả năng tích hợp các mô hình phân tích hình ảnh.
+[221] (Normal (Web)): Hệ thống được xây dựng theo mô hình ứng dụng web gồm ba phần chính: giao diện người dùng, máy chủ xử lý nghiệp vụ và cơ sở dữ liệu. Phía giao diện người dùng sử dụng React, TypeScript và Vite để xây dựng dashboard tương tác. Phía máy chủ sử dụng Python kết hợp FastAPI để xây dựng API xử lý dữ liệu. Cơ sở dữ liệu sử dụng MongoDB để lưu trữ thông tin sản phẩm, review, kết quả phân tích và các dữ liệu trung gian. Ngoài ra, hệ thống còn sử dụng Playwright để hỗ trợ mở phiên trình duyệt khi cần thu thập dữ liệu từ các nền tảng có cơ chế xác minh người dùng, cùng với mô hình CLIP để phân tích sự phù hợp giữa ảnh review và sản phẩm.
+[222] (Normal (Web)): Việc kết hợp các công nghệ trên giúp hệ thống vừa có khả năng xử lý dữ liệu linh hoạt, vừa có giao diện trực quan cho seller sử dụng. Đồng thời, kiến trúc này cũng thuận tiện cho việc mở rộng thêm nền tảng thương mại điện tử, bổ sung thuật toán phân tích mới hoặc tích hợp các chức năng nâng cao trong tương lai.
+[223] (Heading 2): 2.2 Ngôn ngữ lập trình Python
+[224] (Normal (Web)): Python là ngôn ngữ lập trình bậc cao, có cú pháp rõ ràng, dễ đọc và được sử dụng rộng rãi trong nhiều lĩnh vực như phát triển web, xử lý dữ liệu, trí tuệ nhân tạo và tự động hóa. Trong đề tài này, Python được sử dụng làm ngôn ngữ chính cho phía backend.
+[225] (Normal (Web)): Lý do lựa chọn Python xuất phát từ đặc điểm của bài toán. Hệ thống không chỉ xử lý các request API thông thường mà còn cần thu thập dữ liệu, chuẩn hóa dữ liệu review, tính toán điểm tin cậy và tích hợp mô hình phân tích hình ảnh. Python có hệ sinh thái thư viện phong phú, đặc biệt mạnh trong xử lý dữ liệu và machine learning, do đó phù hợp với yêu cầu của đề tài.
+[226] (Normal (Web)): Trong hệ thống, Python đảm nhiệm các vai trò chính như xây dựng API với FastAPI, xử lý dữ liệu review sau khi thu thập, chuẩn hóa dữ liệu từ các sàn thương mại điện tử, phân tích độ tin cậy của đánh giá và gọi mô hình CLIP để kiểm chứng hình ảnh. Ngoài ra, Python cũng được sử dụng để viết các script hỗ trợ thu thập review từ Tiki, Lazada và TikTok Shop.
+[227] (Normal (Web)): Ưu điểm của Python là dễ phát triển, dễ bảo trì và có nhiều thư viện hỗ trợ. Với cú pháp gần gũi, Python giúp quá trình xây dựng logic phân tích dữ liệu trở nên thuận tiện hơn. Đặc biệt, các thư viện như requests, Pillow, torch, open_clip và pymongo giúp hệ thống có thể kết nối API, xử lý ảnh, chạy mô hình học máy và làm việc với MongoDB một cách hiệu quả.
+[228] (Normal (Web)): Tuy nhiên, Python cũng có một số hạn chế. So với các ngôn ngữ biên dịch như Java hoặc Go, Python có tốc độ thực thi thấp hơn trong một số tác vụ tính toán nặng. Đối với hệ thống có lượng truy cập rất lớn, cần tối ưu thêm về xử lý bất đồng bộ, hàng đợi tác vụ hoặc triển khai phân tán. Trong phạm vi đồ án, Python vẫn là lựa chọn phù hợp vì ưu tiên của hệ thống là khả năng phát triển nhanh, dễ tích hợp AI và dễ thử nghiệm thuật toán.
+[229] (Heading 2): 2.3 FastAPI
+[230] (Normal (Web)): FastAPI là framework hiện đại của Python dùng để xây dựng RESTful API. Framework này được thiết kế dựa trên chuẩn ASGI, hỗ trợ xử lý bất đồng bộ và có hiệu năng tốt. FastAPI cũng tích hợp chặt chẽ với Pydantic để kiểm tra dữ liệu đầu vào, đồng thời tự động sinh tài liệu API thông qua Swagger UI.
+[231] (Normal (Web)): Trong đề tài, FastAPI được sử dụng để xây dựng backend API cho hệ thống. Các API chính bao gồm đọc link sản phẩm, kéo review từ sàn thương mại điện tử, lấy danh sách review cần seller chú ý, lấy kết quả phân tích ảnh, thống kê dashboard và phân tích ảnh review. Giao diện frontend sẽ gọi các API này để hiển thị dữ liệu cho người dùng.
+[232] (Normal (Web)): Lý do lựa chọn FastAPI là vì framework này phù hợp với các hệ thống cần xây dựng API nhanh, rõ ràng và dễ kiểm thử. FastAPI cho phép định nghĩa endpoint một cách ngắn gọn, dễ hiểu. Bên cạnh đó, tài liệu API tự động giúp quá trình kiểm thử bằng trình duyệt hoặc Swagger UI thuận tiện hơn. Trong quá trình phát triển hệ thống, Swagger UI hỗ trợ kiểm tra nhanh các endpoint như /resolve-product-link, /ingest-product-link, /reviews, /summary và /image-comparisons.
+[233] (Normal (Web)): Một ưu điểm quan trọng của FastAPI là khả năng kết hợp tốt với kiểu dữ liệu Python hiện đại. Khi sử dụng cùng Pydantic, dữ liệu request và response có thể được mô tả rõ ràng, giúp giảm lỗi trong quá trình truyền dữ liệu giữa frontend và backend. Điều này đặc biệt hữu ích với hệ thống có nhiều loại dữ liệu như review, sản phẩm, ảnh, điểm tin cậy và kết quả phân tích.
+[234] (Normal (Web)): Ngoài ra, FastAPI có hiệu năng tốt do được xây dựng trên Starlette và Pydantic. Framework này phù hợp với các ứng dụng cần xử lý nhiều request API, đồng thời vẫn giữ được cấu trúc code rõ ràng. Với đề tài này, FastAPI giúp backend dễ mở rộng thêm các nền tảng khác như Shopee hoặc bổ sung các module phân tích mới trong tương lai.
+[235] (Heading 2): 2.4 Uvicorn
+[236] (Normal (Web)): Uvicorn là ASGI server dùng để chạy các ứng dụng Python bất đồng bộ, đặc biệt phổ biến khi triển khai FastAPI. Trong hệ thống, Uvicorn được sử dụng để khởi chạy backend server và phục vụ các request từ frontend.
+[237] (Normal (Web)): Khi phát triển, Uvicorn thường được chạy ở chế độ --reload. Chế độ này giúp server tự động khởi động lại khi phát hiện thay đổi trong mã nguồn. Điều này thuận tiện trong quá trình lập trình vì lập trình viên không cần restart server thủ công sau mỗi lần chỉnh sửa code. Tuy nhiên, khi chạy demo hoặc khi thực hiện các tác vụ kéo dữ liệu dài, chế độ --reload có thể gây ảnh hưởng nếu server restart giữa lúc đang xử lý request. Vì vậy, trong môi trường demo ổn định, hệ thống nên chạy Uvicorn không dùng --reload.
+[238] (Normal (Web)): Vai trò của Uvicorn trong hệ thống là cầu nối giữa ứng dụng FastAPI và môi trường chạy thực tế. Nó nhận request HTTP từ frontend, chuyển request đến FastAPI xử lý và trả response về cho trình duyệt. Đây là thành phần quan trọng để hệ thống backend hoạt động như một web service.
+[239] (Heading 2): 2.5 Pydantic
+[240] (Normal (Web)): Pydantic là thư viện Python dùng để kiểm tra, xác thực và chuyển đổi dữ liệu dựa trên type hint. FastAPI sử dụng Pydantic để định nghĩa schema cho request và response. Trong đề tài, Pydantic được sử dụng để định nghĩa các lớp dữ liệu như yêu cầu đọc link sản phẩm, yêu cầu kéo dữ liệu review, yêu cầu phân tích ảnh sản phẩm và yêu cầu mở phiên trình duyệt.
+[241] (Normal (Web)): Việc sử dụng Pydantic giúp hệ thống đảm bảo dữ liệu đầu vào có cấu trúc rõ ràng. Ví dụ, khi frontend gửi link sản phẩm lên backend, Pydantic giúp kiểm tra request có chứa trường product_url. Khi gọi API phân tích ảnh, Pydantic giúp xác định các thông tin như platform_code, external_product_id, product_id, limit và max_images_per_review.
+[242] (Normal (Web)): Pydantic giúp giảm lỗi do dữ liệu sai định dạng, đồng thời làm cho code backend dễ đọc hơn. Thay vì xử lý request dưới dạng dictionary không rõ cấu trúc, lập trình viên có thể định nghĩa các model dữ liệu cụ thể. Điều này phù hợp với hệ thống có nhiều endpoint và nhiều loại dữ liệu khác nhau.
+[243] (Heading 2): 2.6 React
+[244] (Normal (Web)): React là thư viện JavaScript phổ biến dùng để xây dựng giao diện người dùng. React hoạt động dựa trên mô hình component, cho phép chia giao diện thành các thành phần nhỏ, dễ quản lý và tái sử dụng. Trong đề tài, React được sử dụng để xây dựng phần frontend của dashboard phân tích review.
+[245] (Normal (Web)): Giao diện hệ thống cần hiển thị nhiều loại dữ liệu khác nhau như tổng số review, số review có ảnh, danh sách review cần chú ý, bảng kiểm tra ảnh, chi tiết review và ảnh gốc sản phẩm. React phù hợp với yêu cầu này vì có khả năng cập nhật giao diện linh hoạt khi dữ liệu thay đổi. Khi seller dán link sản phẩm, bấm kéo dữ liệu hoặc lọc review theo số sao, React có thể cập nhật lại trạng thái giao diện mà không cần tải lại toàn bộ trang.
+[246] (Normal (Web)): Trong hệ thống, các state như link sản phẩm, bộ lọc nền tảng, mã sản phẩm, trạng thái loading, danh sách review và kết quả phân tích được quản lý bằng React Hooks. Điều này giúp giao diện phản hồi nhanh với thao tác của người dùng. Ví dụ, khi người dùng bấm “Kéo dữ liệu”, giao diện hiển thị trạng thái đang xử lý; sau khi backend trả kết quả, dashboard được tải lại để hiển thị dữ liệu mới.
+[247] (Normal (Web)): React cũng giúp tổ chức giao diện thành các phần rõ ràng như khối nhập link, khối thống kê, bảng review cần chú ý, bảng so sánh ảnh và panel chi tiết review. Nhờ đó, mã nguồn frontend dễ bảo trì và có thể mở rộng thêm các thành phần mới trong tương lai.
+[248] (Heading 2): 2.7 TypeScript
+[249] (Normal (Web)): TypeScript là ngôn ngữ mở rộng của JavaScript, bổ sung hệ thống kiểu tĩnh. Trong đề tài, TypeScript được sử dụng cùng React để tăng độ an toàn khi phát triển frontend.
+[250] (Normal (Web)): Lý do sử dụng TypeScript là vì hệ thống trao đổi nhiều loại dữ liệu phức tạp giữa frontend và backend. Ví dụ, dữ liệu review có các trường như external_review_id, rating, review_text, image_urls, trust, image_fit và seller_action. Dữ liệu phân tích ảnh có các trường như image_relevance_score, claim_evidence_score, expected_product_labels và analysis_status. Nếu chỉ dùng JavaScript thuần, việc truy cập sai trường dữ liệu hoặc truyền sai kiểu dữ liệu dễ xảy ra hơn.
+[251] (Normal (Web)): TypeScript giúp định nghĩa rõ các kiểu dữ liệu như SellerReviewDecision, ImageComparison, SellerFeedbackSummary, ProductLinkResolution và ProductLinkIngestResult. Nhờ đó, trong quá trình lập trình, công cụ phát triển có thể cảnh báo lỗi sớm nếu dùng sai kiểu dữ liệu. Điều này giúp giảm lỗi runtime và giúp code dễ đọc hơn.
+[252] (Normal (Web)): Ngoài ra, TypeScript giúp quá trình bảo trì hệ thống thuận lợi hơn. Khi backend thay đổi response hoặc bổ sung trường dữ liệu mới, frontend có thể cập nhật type tương ứng. Điều này đặc biệt hữu ích với đề tài vì hệ thống liên tục mở rộng thêm chức năng như lọc số sao, hiển thị ảnh gốc sản phẩm và phân tích ảnh review.
+[253] (Heading 2): 2.8 Vite
+[254] (Normal (Web)): Vite là công cụ build frontend hiện đại, được sử dụng để tạo và chạy ứng dụng React trong đề tài. Vite có tốc độ khởi động nhanh, hỗ trợ hot module replacement và tối ưu quá trình build production.
+[255] (Normal (Web)): Trong quá trình phát triển, Vite giúp lập trình viên xem thay đổi giao diện gần như ngay lập tức sau khi chỉnh sửa code. Điều này rất thuận tiện khi xây dựng dashboard, vì giao diện cần được tinh chỉnh nhiều lần để đảm bảo dễ nhìn, dễ sử dụng và phù hợp với người dùng là seller.
+[256] (Normal (Web)): Vite cũng hỗ trợ build ứng dụng frontend thành các file tĩnh để triển khai. Khi chạy lệnh build, Vite sẽ tối ưu mã nguồn, gom các file JavaScript và CSS, từ đó tạo ra bản frontend sẵn sàng để đưa vào môi trường chạy thực tế.
+[257] (Normal (Web)): So với một số công cụ build cũ, Vite có cấu hình đơn giản và hiệu năng tốt. Đây là lựa chọn phù hợp cho các ứng dụng React hiện đại, đặc biệt trong các đồ án cần phát triển nhanh và dễ kiểm thử.
+[258] (Heading 2): 2.9 CSS và thiết kế giao diện
+[259] (Normal (Web)): CSS được sử dụng để định dạng giao diện người dùng của hệ thống. Giao diện của đề tài không hướng đến phong cách quảng bá sản phẩm mà tập trung vào tính thực dụng của một công cụ hỗ trợ seller. Vì vậy, thiết kế giao diện ưu tiên sự rõ ràng, dễ đọc, dễ thao tác và dễ quan sát dữ liệu.
+[260] (Normal (Web)): Các thành phần giao diện chính bao gồm khu vực dán link sản phẩm, nút đọc link, nút mở phiên sàn, nút kéo dữ liệu, khu vực hiển thị ảnh gốc sản phẩm, các thẻ thống kê, bảng review cần seller chú ý, bộ lọc số sao, bảng kiểm tra ảnh review và panel chi tiết review. CSS giúp tổ chức các thành phần này thành bố cục rõ ràng, hạn chế rối mắt và hỗ trợ người dùng thao tác theo đúng quy trình.
+[261] (Normal (Web)): Giao diện cũng sử dụng màu sắc nhất quán, chủ yếu là các màu trung tính kết hợp với màu xanh đậm để nhấn mạnh các hành động chính. Các trạng thái xử lý như đang đọc link, đang kéo dữ liệu hoặc đang phân tích ảnh được hiển thị trực quan để người dùng biết hệ thống đang hoạt động, tránh hiểu nhầm rằng ứng dụng bị treo.
+[262] (Normal (Web)): Việc thiết kế dashboard theo hướng đơn giản và trực quan là cần thiết vì đối tượng sử dụng chính là seller hoặc người vận hành gian hàng. Họ cần xem nhanh review nào cần xử lý, ảnh nào đáng nghi và mức độ tin cậy của đánh giá, thay vì phải thao tác qua nhiều màn hình phức tạp.
+[263] (Heading 2): 2.10 MongoDB
+[264] (Normal (Web)): MongoDB là hệ quản trị cơ sở dữ liệu NoSQL lưu trữ dữ liệu dưới dạng document. Trong đề tài, MongoDB được sử dụng để lưu trữ thông tin nền tảng, sản phẩm, review, kết quả phân tích độ tin cậy và kết quả phân tích ảnh.
+[265] (Normal (Web)): Lý do lựa chọn MongoDB là vì dữ liệu review từ các sàn thương mại điện tử có cấu trúc không hoàn toàn giống nhau. Review từ Lazada, Tiki và TikTok Shop có thể khác nhau về tên trường dữ liệu, cách lưu ảnh, thời gian đánh giá, thông tin người mua hoặc metadata đi kèm. MongoDB phù hợp với dạng dữ liệu bán cấu trúc như vậy vì không yêu cầu schema cứng như cơ sở dữ liệu quan hệ.
+[266] (Normal (Web)): Trong hệ thống, MongoDB lưu các collection như platforms, products, reviews, review_aspects, review_trust_analyses và các collection hỗ trợ khác. Dữ liệu sản phẩm có thể chứa tên sản phẩm, mô tả, link sản phẩm và ảnh gốc sản phẩm. Dữ liệu review có thể chứa số sao, nội dung bình luận, ảnh review, thời gian đánh giá, nền tảng và mã sản phẩm bên ngoài. Kết quả phân tích được lưu trực tiếp vào review hoặc collection phân tích riêng để phục vụ truy vấn dashboard.
+[267] (Normal (Web)): MongoDB giúp hệ thống dễ mở rộng khi bổ sung thêm trường dữ liệu mới. Ví dụ, khi hệ thống thêm chức năng phân tích ảnh, có thể lưu thêm trường image_evidence, image_relevance_score, claim_evidence_status mà không cần thay đổi cấu trúc bảng phức tạp. Điều này phù hợp với quá trình phát triển thử nghiệm của đề tài.
+[268] (Normal (Web)): Ngoài ra, MongoDB hỗ trợ truy vấn linh hoạt theo nền tảng, mã sản phẩm, số sao, trạng thái phân tích ảnh và các điều kiện cần seller chú ý. Nhờ đó, frontend có thể hiển thị các bảng lọc review một cách nhanh chóng.
+[269] (Heading 2): 2.11 Playwright
+[270] (Normal (Web)): Playwright là thư viện tự động hóa trình duyệt, hỗ trợ điều khiển các trình duyệt như Chromium, Firefox và WebKit. Trong đề tài, Playwright được sử dụng để mở phiên trình duyệt thật cho các nền tảng có cơ chế bảo vệ hoặc yêu cầu xác minh người dùng.
+[271] (Normal (Web)): Một số sàn thương mại điện tử có cơ chế chống bot, captcha hoặc yêu cầu phiên người dùng hợp lệ khi truy cập API review. Nếu chỉ gửi request trực tiếp từ backend, hệ thống có thể bị từ chối hoặc trả về lỗi xác minh. Playwright giúp xử lý vấn đề này bằng cách mở một cửa sổ trình duyệt thật để seller đăng nhập hoặc xác minh nếu cần. Sau đó, backend có thể sử dụng phiên trình duyệt đó để thực hiện việc thu thập review ổn định hơn.
+[272] (Normal (Web)): Trong hệ thống, Playwright được sử dụng cho Lazada và TikTok Shop. Khi người dùng bấm “Mở phiên”, hệ thống mở trình duyệt với profile riêng. Seller có thể đăng nhập hoặc giải captcha nếu sàn yêu cầu. Khi phiên đã hợp lệ, hệ thống sử dụng phiên đó để gọi API review và kéo dữ liệu về.
+[273] (Normal (Web)): Việc sử dụng Playwright giúp hệ thống thân thiện hơn với người dùng so với cách yêu cầu seller copy cookie hoặc copy request từ DevTools. Với cơ chế này, người dùng chỉ cần dán link sản phẩm, mở phiên sàn khi cần và bấm kéo dữ liệu. Đây là một cải tiến quan trọng giúp quy trình sử dụng hệ thống gần với thực tế hơn.
+[274] (Normal (Web)): Tuy nhiên, Playwright cũng có một số hạn chế. Việc mở trình duyệt có thể tốn tài nguyên hơn so với request trực tiếp. Ngoài ra, nếu nền tảng thay đổi cơ chế bảo vệ hoặc giao diện xác minh, hệ thống có thể cần điều chỉnh. Trong phạm vi đề tài, Playwright được sử dụng như một giải pháp hỗ trợ thu thập dữ liệu trong trường hợp API trực tiếp bị giới hạn.
+[275] (Heading 2): 2.12 Thu thập dữ liệu từ các sàn thương mại điện tử
+[276] (Normal (Web)): Một phần quan trọng của hệ thống là khả năng thu thập dữ liệu review từ link sản phẩm. Khi seller dán link sản phẩm, backend cần nhận diện nền tảng, trích xuất mã sản phẩm và gọi cơ chế thu thập tương ứng.
+[277] (Normal (Web)): Với Tiki, hệ thống có thể sử dụng API review tương đối trực tiếp. Với Lazada và TikTok Shop, quá trình thu thập có thể phức tạp hơn do các nền tảng này có cơ chế bảo vệ request. Hệ thống kết hợp hai hướng tiếp cận: gửi request trực tiếp khi có thể và sử dụng phiên trình duyệt Playwright khi cần xác minh.
+[278] (Normal (Web)): Sau khi dữ liệu được thu thập, hệ thống chuẩn hóa review về một định dạng chung. Việc chuẩn hóa này giúp các review từ nhiều nền tảng khác nhau có thể được lưu trữ và xử lý thống nhất. Các trường dữ liệu chính gồm mã review, mã sản phẩm, nền tảng, số sao, nội dung đánh giá, thời gian đánh giá và danh sách ảnh review.
+[279] (Normal (Web)): Quá trình thu thập dữ liệu không chỉ lấy review mà còn lấy ảnh gốc sản phẩm từ trang sản phẩm. Ảnh gốc này được sử dụng trong bước phân tích hình ảnh để so sánh với ảnh do khách hàng đăng trong review. Việc lấy được ảnh gốc sản phẩm giúp hệ thống có thêm căn cứ khi đánh giá ảnh review có phù hợp với sản phẩm hay không.
+[280] (Heading 2): 2.13 Mô hình CLIP và phân tích hình ảnh
+[281] (Normal (Web)): CLIP là mô hình học sâu có khả năng liên kết hình ảnh và ngôn ngữ tự nhiên trong cùng một không gian biểu diễn. Mô hình có thể tính toán mức độ tương đồng giữa ảnh và văn bản, hoặc giữa ảnh với ảnh. Trong đề tài, CLIP được sử dụng để hỗ trợ kiểm chứng ảnh review.
+[282] (Normal (Web)): Hệ thống sử dụng mô hình CLIP để thực hiện nhiều dạng so sánh. Thứ nhất, hệ thống so sánh ảnh review với ảnh gốc sản phẩm nhằm đánh giá mức độ tương đồng trực quan. Thứ hai, hệ thống so sánh ảnh review với tên, mô tả hoặc thông tin sản phẩm để xem ảnh có phù hợp với sản phẩm được mua hay không. Thứ ba, hệ thống so sánh ảnh review với các nhóm nhãn mong đợi như mỹ phẩm, sách, điện thoại, quần áo hoặc bao bì giao hàng. Thứ tư, hệ thống xem xét nội dung review để xác định người dùng đang phản ánh vấn đề gì, sau đó đánh giá ảnh có hỗ trợ nội dung phản ánh đó hay không.
+[283] (Normal (Web)): Ví dụ, nếu review nói rằng hộp sản phẩm bị móp, hệ thống sẽ kiểm tra ảnh review có dấu hiệu liên quan đến bao bì, thùng hàng hoặc kiện hàng bị hư hỏng hay không. Nếu review nói sản phẩm bị lỗi, hệ thống sẽ kiểm tra ảnh có dấu hiệu của sản phẩm hư hỏng, vỡ, nứt hoặc lỗi chất lượng hay không. Cách phân tích này giúp hệ thống không chỉ xem ảnh có giống sản phẩm hay không, mà còn xem ảnh có thực sự hỗ trợ nội dung bình luận hay không.
+[284] (Normal (Web)): Kết quả phân tích ảnh được biểu diễn qua các điểm số như image_relevance_score, product_image_score, text_score, category_score và claim_evidence_score. Từ các điểm số này, hệ thống đưa ra trạng thái như ảnh có khả năng phù hợp với sản phẩm, ảnh có vẻ liên quan, ảnh chưa rõ hoặc ảnh có dấu hiệu không phù hợp với sản phẩm.
+[285] (Normal (Web)): Việc sử dụng CLIP trong đề tài giúp tăng khả năng đánh giá review có ảnh. Tuy nhiên, kết quả của mô hình chỉ mang tính hỗ trợ, không thay thế hoàn toàn quyết định của seller. Ảnh review thực tế có thể khác nhiều so với ảnh catalog, do góc chụp, ánh sáng, bối cảnh hoặc chất lượng ảnh. Vì vậy, hệ thống kết hợp nhiều tiêu chí khác nhau để hạn chế việc đánh giá sai.
+[286] (Heading 2): 2.14 Phân tích độ tin cậy của review
+[287] (Normal (Web)): Bên cạnh phân tích hình ảnh, hệ thống còn đánh giá độ tin cậy của review dựa trên nội dung bình luận, số sao và bằng chứng đi kèm. Mục tiêu của bước này là xác định review nào có thể dùng làm căn cứ tham khảo, review nào cần kiểm tra thêm và review nào có dấu hiệu không đủ rõ ràng.
+[288] (Normal (Web)): Một review có độ tin cậy cao thường có nội dung cụ thể, mô tả rõ trải nghiệm của khách hàng và có bằng chứng phù hợp. Ngược lại, một review chỉ có số sao, nội dung quá ngắn hoặc ảnh không liên quan sẽ có độ tin cậy thấp hơn. Hệ thống cũng kiểm tra các trường hợp bất thường như số sao thấp nhưng không có lý do rõ ràng, số sao cao nhưng nội dung lại phàn nàn, hoặc ảnh review không hỗ trợ nội dung bình luận.
+[289] (Normal (Web)): Kết quả phân tích độ tin cậy được sử dụng để xếp loại review theo các mức như tốt, trung bình, yếu hoặc rất yếu. Các review có số sao thấp, độ tin cậy thấp hoặc có dấu hiệu bất thường sẽ được đưa vào nhóm cần seller chú ý. Nhờ đó, seller không cần đọc toàn bộ review mà có thể tập trung trước vào các review có rủi ro hoặc có khả năng ảnh hưởng đến uy tín gian hàng.
+[290] (Heading 2): 2.15 Git và GitHub
+[291] (Normal (Web)): Git là hệ thống quản lý phiên bản mã nguồn, được sử dụng để theo dõi quá trình phát triển phần mềm. Trong đề tài, Git giúp quản lý các thay đổi của mã nguồn frontend, backend, script thu thập dữ liệu và tài liệu liên quan.
+[292] (Normal (Web)): Việc sử dụng Git giúp quá trình phát triển an toàn hơn. Khi có thay đổi trong code, lập trình viên có thể theo dõi file nào đã sửa, nội dung nào đã thay đổi và có thể quay lại phiên bản trước nếu cần. Điều này đặc biệt quan trọng trong quá trình xây dựng đề tài vì hệ thống có nhiều lần thay đổi chức năng như bổ sung nền tảng TikTok Shop, thêm Playwright cho Lazada, thay đổi giao diện dashboard và bổ sung bộ lọc review theo số sao.
+[293] (Normal (Web)): GitHub có thể được sử dụng để lưu trữ mã nguồn trực tuyến, hỗ trợ sao lưu và quản lý phiên bản từ xa. Trong môi trường làm việc nhóm, GitHub còn giúp nhiều thành viên cùng phát triển, review code và quản lý tiến độ thông qua branch, pull request hoặc issue. Trong phạm vi đồ án cá nhân, Git/GitHub vẫn là công cụ hữu ích để quản lý lịch sử phát triển và đảm bảo mã nguồn không bị thất lạc.
+[294] (Heading 2): 2.16 MongoDB Compass
+[295] (Normal (Web)): MongoDB Compass là công cụ giao diện đồ họa dùng để quản lý và quan sát dữ liệu trong MongoDB. Trong đề tài, MongoDB Compass được sử dụng để kiểm tra các collection, xem dữ liệu sản phẩm, review và kết quả phân tích được lưu trong cơ sở dữ liệu.
+[296] (Normal (Web)): Thông qua MongoDB Compass, người phát triển có thể kiểm tra xem dữ liệu review đã được import thành công hay chưa, ảnh review có được lưu đúng không, sản phẩm có ảnh gốc hay không và kết quả phân tích đã được cập nhật vào document review chưa. Công cụ này hỗ trợ rất nhiều trong quá trình debug và kiểm thử hệ thống.
+[297] (Normal (Web)): Ví dụ, sau khi seller bấm kéo dữ liệu từ link sản phẩm, MongoDB Compass có thể được dùng để kiểm tra collection reviews và xác nhận số lượng review đã được lưu. Khi hệ thống phân tích ảnh, có thể kiểm tra trường image_evidence để xem điểm ảnh, trạng thái ảnh và các nhãn phân tích. Đây là công cụ quan trọng giúp đảm bảo dữ liệu backend xử lý đúng như mong muốn.
+[298] (Heading 2): 2.17 DevTools, cURL và kiểm thử API
+[299] (Normal (Web)): Trong quá trình xây dựng hệ thống, trình duyệt DevTools và cURL được sử dụng để kiểm tra request, quan sát API của các nền tảng thương mại điện tử và debug quá trình thu thập dữ liệu. DevTools giúp xem network request khi truy cập trang sản phẩm hoặc danh sách review, từ đó hiểu cách nền tảng trả dữ liệu về cho frontend của họ.
+[300] (Normal (Web)): cURL được sử dụng để kiểm thử API độc lập với giao diện. Khi cần kiểm tra một endpoint backend, có thể gửi request bằng cURL để xem response trả về. Điều này giúp xác định lỗi nằm ở frontend, backend hay dữ liệu đầu vào. Trong giai đoạn đầu, cURL và DevTools cũng hỗ trợ việc phân tích request review của các sàn như Lazada và TikTok Shop.
+[301] (Normal (Web)): Tuy nhiên, để hướng tới trải nghiệm người dùng tốt hơn, hệ thống không yêu cầu seller thao tác thủ công với DevTools hay copy cURL trong quá trình sử dụng thông thường. Các công cụ này chủ yếu phục vụ quá trình phát triển, kiểm thử và debug.
+[317] (Normal): CHƯƠNG 3: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
+[318] (Heading 2): 3.1. Khảo Sát Hiện Trạng
+[319] (Normal (Web)): Mục này dùng để nói vấn đề thực tế đang tồn tại trước khi có hệ thống.
+[320] (Normal (Web)): Hiện nay seller trên các sàn TMĐT như Tiki, Lazada, TikTok Shop thường phải theo dõi phản hồi khách hàng thủ công. Khi sản phẩm có nhiều đơn hàng, số lượng review tăng lên nhanh, seller khó đọc hết toàn bộ bình luận, khó biết review nào cần xử lý trước, review nào chỉ mang tính tham khảo.
+[321] (Normal (Web)): Ngoài ra, nhiều review có ảnh nhưng seller vẫn phải tự mở từng ảnh để kiểm tra xem ảnh đó có liên quan đến sản phẩm hay không. Việc này tốn thời gian và dễ bỏ sót các đánh giá tiêu cực, đánh giá có bằng chứng hình ảnh hoặc đánh giá ảnh hưởng trực tiếp đến uy tín gian hàng.
+[322] (Normal (Web)): Vì vậy cần một hệ thống hỗ trợ seller tự động thu thập review, phân tích nội dung, kiểm tra hình ảnh và ưu tiên các review đáng chú ý.
+[323] (Heading 2): 3.1.1. Mô Tả Đề Tài
+[324] (Normal (Web)): Mục này giới thiệu ngắn gọn đề tài của bạn làm gì.
+[325] (Normal (Web)): Đề tài xây dựng hệ thống trí tuệ nhân tạo hỗ trợ phân tích phản hồi và đánh giá sản phẩm trên các sàn thương mại điện tử. Seller chỉ cần dán link sản phẩm vào hệ thống, hệ thống sẽ tự động nhận diện sàn, lấy mã sản phẩm, thu thập review, lưu dữ liệu vào MongoDB và phân tích các đánh giá đó.
+[326] (Normal (Web)): Hệ thống tập trung vào các nhiệm vụ chính:
+[327] (Normal): - Thu thập review từ link sản phẩm.
+[328] (Normal): - Phân tích nội dung bình luận.
+[329] (Normal): - Kiểm tra review có ảnh hay không.
+[330] (Normal): - So sánh ảnh review với ảnh gốc sản phẩm.
+[331] (Normal): - Tính điểm độ tin cậy.
+[332] (Normal): - Hiển thị dashboard giúp seller ưu tiên xử lý review cần chú ý.
+[333] (Heading 2): 3.1.2. Chức Năng Hệ Thống
+[334] (Normal (Web)): Mục này liệt kê các chức năng lớn của toàn bộ hệ thống.
+[335] (Normal (Web)): Hệ thống gồm hai phần chính: backend và frontend. Backend đảm nhiệm xử lý dữ liệu, thu thập review, phân tích AI và lưu trữ. Frontend cung cấp giao diện để seller thao tác và theo dõi kết quả.
+[336] (Normal (Web)): Các chức năng tổng quát gồm:
+[337] (Normal): - Nhận link sản phẩm từ seller.
+[338] (Normal): - Nhận diện sàn thương mại điện tử.
+[339] (Normal): - Tách mã sản phẩm từ URL.
+[340] (Normal): - Thu thập review từ Tiki, Lazada, TikTok Shop.
+[341] (Normal): - Mở phiên trình duyệt khi sàn yêu cầu xác minh.
+[342] (Normal): - Chuẩn hóa dữ liệu review.
+[343] (Normal): - Lưu dữ liệu vào MongoDB.
+[344] (Normal): - Phân tích nội dung review.
+[345] (Normal): - Kiểm định bằng chứng hình ảnh.
+[346] (Normal): - Tính điểm độ tin cậy.
+[347] (Normal): - Hiển thị dashboard phân tích.
+[348] (Normal): - Lọc review theo số sao.
+[349] (Normal): - Theo dõi log và trạng thái xử lý.
+[350] (Heading 2): 3.1.2.1. Backend
+[351] (Normal (Web)): Backend là phần xử lý nghiệp vụ chính của hệ thống. Trong đề tài, backend được xây dựng bằng Python, FastAPI, Uvicorn và Pydantic.
+[352] (Normal (Web)): Backend có các nhiệm vụ chính:
+[353] (Normal): - Tiếp nhận request từ frontend.
+[354] (Normal): - Xử lý link sản phẩm.
+[355] (Normal): - Xác định sàn và mã sản phẩm.
+[356] (Normal): - Gọi crawler/API để thu thập review.
+[357] (Normal): - Quản lý phiên trình duyệt Playwright khi cần đăng nhập hoặc xác minh captcha.
+[358] (Normal): - Chuẩn hóa dữ liệu review từ nhiều sàn về cùng một cấu trúc.
+[359] (Normal): - Lưu sản phẩm, review, kết quả phân tích vào MongoDB.
+[360] (Normal): - Gọi module AI để phân tích nội dung và hình ảnh.
+[361] (Normal): - Cung cấp API cho frontend lấy dashboard, review cần chú ý và kết quả so sánh ảnh.
+[362] (Normal (Web)): Nói đơn giản, backend là “bộ não xử lý” của hệ thống. Frontend chỉ gửi yêu cầu và hiển thị kết quả, còn toàn bộ việc đọc link, kéo dữ liệu, phân tích và lưu trữ đều do backend đảm nhiệm.
+[363] (Heading 2): 3.1.2.2. Frontend
+[364] (Normal (Web)): Frontend là phần giao diện mà seller nhìn thấy và thao tác trực tiếp. Trong đề tài, frontend được xây dựng bằng React, TypeScript và Vite.
+[365] (Normal (Web)): Frontend có các nhiệm vụ chính:
+[366] (Normal): - Hiển thị ô nhập link sản phẩm.
+[367] (Normal): - Cho phép seller bấm Đọc link.
+[368] (Normal): - Hiển thị sàn, mã sản phẩm và ảnh gốc sản phẩm.
+[369] (Normal): - Cho phép seller mở phiên sàn khi cần.
+[370] (Normal): - Cho phép seller kéo dữ liệu review.
+[371] (Normal): - Hiển thị dashboard phân tích.
+[372] (Normal): - Hiển thị bảng review cần seller chú ý.
+[373] (Normal): - Cho phép lọc review theo số sao.
+[374] (Normal): - Hiển thị điểm độ tin cậy và gợi ý hành động.
+[375] (Normal): - Hiển thị kết quả kiểm định hình ảnh.
+[376] (Normal (Web)): Frontend giúp seller sử dụng hệ thống dễ dàng hơn mà không cần biết API, MongoDB hay crawler hoạt động như thế nào.
+[377] (Heading 2): 3.2. Phân Tích Và Thiết Kế Hệ Thống
+[378] (Normal (Web)): Mục này chuyển từ “hiện trạng” sang “hệ thống sẽ được thiết kế như thế nào”.
+[379] (Normal (Web)): Hệ thống được thiết kế theo mô hình tách biệt giữa frontend, backend, module phân tích AI và cơ sở dữ liệu. Frontend chịu trách nhiệm giao diện. Backend chịu trách nhiệm xử lý nghiệp vụ. Module AI chịu trách nhiệm phân tích review và hình ảnh. MongoDB chịu trách nhiệm lưu trữ dữ liệu.
+[380] (Normal (Web)): Luồng xử lý tổng quát:
+[381] (Normal): - Seller dán link sản phẩm.
+[382] (Normal): - Frontend gửi link đến backend.
+[383] (Normal): - Backend nhận diện sàn và mã sản phẩm.
+[384] (Normal): - Backend thu thập review từ sàn.
+[385] (Normal): - Dữ liệu review được chuẩn hóa và lưu vào MongoDB.
+[386] (Normal): - Hệ thống phân tích nội dung và hình ảnh.
+[387] (Normal): - Hệ thống tính điểm độ tin cậy.
+[388] (Normal): - Frontend hiển thị dashboard cho seller.
+[389] (Heading 2): 3.2.1. Mô Tả Nghiệp Vụ
+[390] (Normal (Web)): Mục này nói quy trình nghiệp vụ của hệ thống, tức là người dùng thao tác ra sao và hệ thống phản hồi thế nào.
+[391] (Normal (Web)): Nghiệp vụ chính của hệ thống là hỗ trợ seller phân tích review sản phẩm. Seller không cần tự đọc toàn bộ review trên sàn. Thay vào đó, seller chỉ nhập link sản phẩm, hệ thống tự động lấy dữ liệu và hiển thị các review cần quan tâm.
+[392] (Normal (Web)): Hệ thống không thay seller quyết định hoàn toàn, mà đóng vai trò hỗ trợ. Các review được phân tích, chấm điểm và gợi ý mức độ ưu tiên. Seller vẫn là người xem lại kết quả cuối cùng để quyết định có cần xử lý, phản hồi hay kiểm tra thêm hay không.
+[393] (Heading 2): 3.2.1.1. Đối Với Seller
+[394] (Normal (Web)): Đối với seller, quy trình nghiệp vụ gồm:
+[395] (Normal): - Seller truy cập hệ thống.
+[396] (Normal): - Seller dán link sản phẩm từ sàn TMĐT.
+[397] (Normal): - Seller nhấn Đọc link để hệ thống nhận diện sản phẩm.
+[398] (Normal): - Nếu sàn yêu cầu xác minh, seller mở phiên trình duyệt và đăng nhập hoặc giải captcha.
+[399] (Normal): - Seller nhấn Kéo dữ liệu.
+[400] (Normal): - Hệ thống thu thập review từ sản phẩm.
+[401] (Normal): - Hệ thống phân tích review.
+[402] (Normal): - Seller xem dashboard.
+[403] (Normal): - Seller lọc review theo số sao nếu cần.
+[404] (Normal): - Seller xem review cần chú ý và bằng chứng ảnh.
+[405] (Normal (Web)): Các chức năng này giúp seller tiết kiệm thời gian và tập trung vào các review có rủi ro cao hơn.
+[406] (Heading 2): 3.2.2. Đối Với Quản Trị Viên QTV
+[407] (Normal (Web)): Đối với quản trị viên, nghiệp vụ chính là theo dõi và đảm bảo hệ thống vận hành ổn định.
+[408] (Normal (Web)): QTV có thể quan sát log, kiểm tra trạng thái thu thập dữ liệu, kiểm tra dữ liệu trong MongoDB và điều chỉnh một số cấu hình như số trang cần kéo, thời gian chờ giữa các request hoặc trạng thái phiên trình duyệt.
+[409] (Normal (Web)): Vai trò của QTV không phải là người phân tích review trực tiếp, mà là người đảm bảo backend, crawler, MongoDB và các module phân tích hoạt động đúng.
+[410] (Normal (Web)): Các nghiệp vụ của QTV gồm:
+[411] (Normal): - Kiểm tra log hệ thống.
+[412] (Normal): - Theo dõi lỗi khi gọi API sàn.
+[413] (Normal): - Kiểm tra trạng thái ingestion job.
+[414] (Normal): - Kiểm tra dữ liệu đã lưu trong MongoDB.
+[415] (Normal): - Điều chỉnh cấu hình hệ thống khi cần.
+[416] (Normal): - Kiểm tra hoạt động của các module phân tích.
+[417] (Heading 2): 3.3. Xây Dựng Biểu Đồ Use Case
+[418] (Normal (Web)): Mục này dùng để dẫn vào các hình use case.
+[419] (Normal (Web)): Biểu đồ use case được sử dụng để mô tả các chức năng của hệ thống dưới góc nhìn người sử dụng. Trong hệ thống này, các tác nhân chính bao gồm Seller, Quản trị viên và Sàn thương mại điện tử.
+[420] (Normal (Web)): Seller là tác nhân chính, sử dụng các chức năng như dán link sản phẩm, kéo dữ liệu review, xem dashboard, lọc review theo số sao và xem review cần chú ý. Quản trị viên sử dụng các chức năng liên quan đến theo dõi log, kiểm tra trạng thái hệ thống và cấu hình quá trình thu thập dữ liệu. Sàn thương mại điện tử là tác nhân ngoài, cung cấp dữ liệu sản phẩm, review và hình ảnh.
+[421] (demuc): 3.3.1. Use case tổng quát.
+[436] (Normal): 3.3.2 Use case thao tác khi mở phiên sàn
+[438] (Normal): Hình 3.2 Biểu đồ Use case thao tác khi mở phiên sàn
+[439] (Normal): Tác nhân: Seller.
+[440] (Normal): Mô tả: Use case cho phép người bán (seller) chủ động khởi tạo và tương tác với phiên trình duyệt tự động (sử dụng Playwright) để kết nối trực tiếp đến sàn thương mại điện tử (Shopee, Lazada, TikTok Shop, Tiki). Chức năng này giải quyết bài toán sàn TMĐT yêu cầu các cơ chế bảo mật nâng cao như đăng nhập xác thực tài khoản, giải mã captcha trượt/xoay, hoặc xác minh danh tính thiết bị trước khi cho phép hệ thống thu thập dữ liệu phản hồi khách hàng.
+[441] (Normal): Điều kiện trước: Seller đã truy cập vào hệ thống phần mềm, đã nhập link sản phẩm cần phân tích và sàn thương mại điện tử yêu cầu phải có phiên trình duyệt hợp lệ để tiếp tục.
+[442] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước thao tác mở và xác thực phiên sàn:
+[443] (Normal): - Mở phiên trình duyệt: Seller nhấn nút "Mở phiên" trên giao diện hệ thống. Hệ thống tiếp nhận yêu cầu và khởi chạy một phiên trình duyệt Chromium thông qua Playwright, sau đó tự động điều hướng đến URL trang sản phẩm của sàn tương ứng.
+[444] (Normal): - Quan sát trạng thái tải trang: Seller theo dõi cửa sổ trình duyệt vừa được mở ra để nhận biết trạng thái kết nối và các yêu cầu xác minh bảo mật từ phía sàn thương mại điện tử.
+[445] (Normal): - Xác thực danh tính (nếu sàn yêu cầu): Nếu sàn xuất hiện form đăng nhập tài khoản người dùng, seller trực tiếp thao tác nhập thông tin tài khoản và mật khẩu của mình trên giao diện trình duyệt để hoàn tất việc đăng nhập.
+[446] (Normal): - Giải captcha bảo mật (nếu có): Trong trường hợp hệ thống phòng thủ của sàn kích hoạt thử thách Captcha (kéo thanh trượt khớp hình, chọn hình ảnh tương đồng, hoặc nhập mã OTP), seller thực hiện giải captcha thủ công trên màn hình trình duyệt.
+[447] (Normal): - Chờ trang sản phẩm tải hoàn tất: Seller chờ cho toàn bộ nội dung trang chi tiết sản phẩm và khu vực đánh giá (review) hiển thị đầy đủ, đảm bảo các cookie xác thực và token phiên truy cập (_m_h5_tk, session_token, v.v.) đã được sàn thiết lập thành công.
+[448] (Normal): - Xác nhận phiên sẵn sàng: Hệ thống tự động ghi nhận phiên duyệt web đã vượt qua các lớp bảo mật, trích xuất cookie phiên và lưu trữ vào bộ nhớ tạm, đồng thời cập nhật trạng thái "Phiên sàn đã sẵn sàng" trên giao diện điều khiển để seller có thể bắt đầu quá trình kéo dữ liệu review.
+[449] (Normal): - Đóng phiên khi không sử dụng: Sau khi quá trình thu thập hoàn tất hoặc khi không còn nhu cầu tương tác, seller có thể bấm nút "Đóng phiên" để hệ thống đóng tiến trình trình duyệt ngầm, giải phóng tài nguyên CPU và RAM cho máy chủ.
+[450] (Normal): Use case kết thúc.
+[451] (Normal): Luồng sự kiện rẽ nhánh:
+[452] (Normal): A1: Trình duyệt không thể khởi chạy. Hệ thống không thể bật tiến trình Playwright do xung đột tiến trình hoặc thiếu file binary trình duyệt. Hệ thống ghi log lỗi, hiển thị thông báo "Không thể khởi tạo phiên trình duyệt, vui lòng kiểm tra lại môi trường cài đặt" và cho phép seller thử lại.
+[453] (Normal): A2: Seller giải captcha hoặc đăng nhập thất bại. Quá trình xác thực trên sàn bị lỗi hoặc quá thời gian chờ (timeout). Hệ thống giữ nguyên trạng thái chờ và hiển thị hướng dẫn seller làm mới trang để thao tác lại.
+[454] (Normal): A3: Sàn TMĐT chặn truy cập IP (Access Denied / 403 Forbidden). Hệ thống phát hiện địa chỉ IP đang bị sàn chặn tạm thời do tần suất truy cập cao. Hệ thống đưa ra thông báo khuyến nghị seller đổi kết nối mạng hoặc chờ thời gian phục hồi trước khi mở lại phiên.
+[455] (Normal): Hậu điều kiện: Một phiên làm việc hợp lệ (Browser Session & Cookies) được lưu giữ và liên kết với mã sản phẩm trong hệ thống, cho phép các tiến trình thu thập dữ liệu review hoạt động trơn tru mà không bị chặn.
+[457] (Normal): 3.3.3 Use case dán link sản phẩm
+[459] (Normal): Hình 3.3 Biểu đồ Use case dán link sản phẩm
+[460] (Normal): Tác nhân: Seller.
+[461] (Normal): Mô tả: Use case cho phép seller nhập đường dẫn URL sản phẩm từ sàn thương mại điện tử vào hệ thống để bắt đầu chu trình đọc thông tin tổng quan, nhận diện nguồn gốc sàn, phân tích cấu trúc mã định danh sản phẩm và chuẩn bị dữ liệu đầu vào cho các module thu thập phản hồi khách hàng.
+[462] (Normal): Điều kiện trước: Seller đã truy cập vào hệ thống phần mềm và đã sao chép sẵn đường dẫn URL sản phẩm cần phân tích từ một trong các sàn được hỗ trợ (Shopee, Lazada, TikTok Shop, Tiki).
+[463] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước nhập và xác thực đường dẫn sản phẩm:
+[464] (Normal): - Dán link sản phẩm: Seller truy cập vào màn hình "Thu thập dữ liệu", dán đường dẫn URL sản phẩm vào ô nhập liệu và nhấn nút "Đọc link".
+[465] (Normal): - Kiểm tra tính hợp lệ của đường dẫn: Hệ thống tiếp nhận chuỗi ký tự URL, thực hiện chuẩn hóa khoảng trắng và kiểm tra định dạng URL (giao thức http/https, cấu trúc domain hợp lệ). Nếu URL không đúng định dạng thì thực hiện rẽ nhánh A1.
+[466] (Normal): - Nhận diện sàn thương mại điện tử: Hệ thống dựa vào tên miền (domain) trong đường dẫn để tự động nhận diện sàn nguồn (ví dụ: lazada.vn, shopee.vn, tiktok.com, tiki.vn). Nếu domain không nằm trong danh mục các sàn được hỗ trợ thì thực hiện rẽ nhánh A2.
+[467] (Normal): - Tách mã sản phẩm (Item ID / Product ID): Hệ thống sử dụng bộ mẫu biểu thức chính quy (Regex Pattern) chuyên biệt cho từng sàn để bóc tách chính xác mã định danh sản phẩm (ví dụ: itemId trên Lazada, item_id và shop_id trên Shopee, product_id trên TikTok Shop). Mã sản phẩm này là khóa duy nhất để quản lý dữ liệu trong hệ thống.
+[468] (Normal): - Kiểm tra trạng thái dữ liệu trong cơ sở dữ liệu: Hệ thống truy vấn cơ sở dữ liệu MongoDB để kiểm tra xem sản phẩm này đã từng được thu thập trước đó hay chưa.
+[469] (Normal): - Hiển thị thông tin sản phẩm: Nếu đường dẫn hợp lệ, hệ thống hiển thị thông tin sản phẩm nhận diện được lên giao diện gồm: logo/tên sàn TMĐT, mã sản phẩm, tiêu đề sản phẩm, số lượng review hiện có trong cơ sở dữ liệu (nếu đã từng cào) và trạng thái sẵn sàng để kéo dữ liệu.
+[470] (Normal): Use case kết thúc.
+[471] (Normal): Luồng sự kiện rẽ nhánh:
+[472] (Normal): A1: Đường dẫn sai định dạng hoặc để trống. Hệ thống hiển thị thông báo lỗi "Đường dẫn không hợp lệ. Vui lòng nhập đúng định dạng liên kết URL", con trỏ chuột quay trở lại ô nhập link để seller nhập lại.
+[473] (Normal): A2: Sàn thương mại điện tử chưa được hỗ trợ. Đường dẫn thuộc một sàn TMĐT khác chưa được tích hợp vào hệ thống (ví dụ: Sendo, Amazon...). Hệ thống đưa ra cảnh báo "Hệ thống hiện tại chỉ hỗ trợ các sàn Shopee, Lazada, TikTok Shop và Tiki. Vui lòng kiểm tra lại liên kết".
+[474] (Normal): A3: Sản phẩm đã bị xóa hoặc link không tồn tại. Hệ thống gửi request thăm dò kiểm tra nhưng trang sản phẩm trả về mã lỗi 404 (Page Not Found). Hệ thống thông báo lỗi "Không tìm thấy sản phẩm trên sàn, sản phẩm có thể đã bị gỡ bỏ hoặc link bị hỏng".
+[475] (Normal): Hậu điều kiện: Hệ thống xác định chính xác sàn thương mại điện tử, mã định danh sản phẩm duy nhất và cấu hình thông tin ban đầu, sẵn sàng kích hoạt tác vụ thu thập dữ liệu review.
+[477] (Normal): 3.3.4 Use case xem dashboard
+[479] (Normal): Hình 3.4 Biểu đồ Use case xem dashboard
+[480] (Normal): Tác nhân: Seller.
+[481] (Normal): Mô tả: Use case cho phép seller truy cập vào giao diện bảng điều khiển trực quan (Dashboard) để theo dõi tổng thể kết quả phân tích phản hồi khách hàng về sản phẩm. Dashboard cung cấp các biểu đồ thống kê, chỉ số đo lường hiệu năng phản hồi, tỷ lệ phân bố số sao, chỉ số độ tin cậy trung bình và bức tranh toàn cảnh về chất lượng sản phẩm qua lăng kính người tiêu dùng.
+[482] (Normal): Điều kiện trước: Sản phẩm đã được nhận diện thành công trong hệ thống và đã hoàn tất quá trình kéo dữ liệu đánh giá cùng các phân tích chuyên sâu.
+[483] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước khai thác thông tin trên bảng điều khiển:
+[484] (Normal): - Truy cập Dashboard: Seller chọn sản phẩm từ danh sách hoặc sau khi phân tích xong để mở màn hình Dashboard chi tiết của sản phẩm đó.
+[485] (Normal): - Hiển thị khối chỉ số tổng quan (KPI Cards): Hệ thống truy vấn dữ liệu tổng hợp và hiển thị các thẻ chỉ số chính bao gồm: Tổng số lượng review đã thu thập, Điểm độ tin cậy trung bình của toàn bộ đánh giá (thang điểm 0 - 100), Tỷ lệ đánh giá tích cực/tiêu cực, và Tổng số lượng review có đính kèm bằng chứng ảnh/video.
+[486] (Normal): - Hiển thị biểu đồ phân bố số sao: Hệ thống vẽ biểu đồ cột/tròn thể hiện số lượng và tỷ lệ phần trăm phân bố đánh giá từ 1 sao đến 5 sao, giúp seller nắm bắt ngay mức độ hài lòng chung của khách hàng.
+[487] (Normal): - Hiển thị thống kê phân tích khía cạnh (Aspect Breakdown): Hệ thống hiển thị các khía cạnh nhận xét chính (chất lượng vải/vật liệu, đúng kích thước/form size, độ bền mực in, đóng gói hàng, thời gian giao hàng) kèm tỷ lệ phản hồi khen và chê tương ứng.
+[488] (Normal): - Hiển thị thống kê bằng chứng hình ảnh: Hệ thống cung cấp bảng thống kê số lượng ảnh review hợp lệ (khớp với sản phẩm), số lượng ảnh không khớp (nghi ngờ gửi ảnh rác/đánh giá ảo) và số lượng review thiếu ảnh minh chứng.
+[489] (Normal): - Hiển thị trạng thái thu thập và gợi ý xử lý: Hệ thống thông báo trạng thái cập nhật dữ liệu mới nhất của sản phẩm và hiển thị các thẻ tóm tắt khuyến nghị nhanh cho người bán.
+[490] (Normal): Use case kết thúc.
+[491] (Normal): Luồng sự kiện rẽ nhánh:
+[492] (Normal): A1: Sản phẩm chưa có dữ liệu đánh giá. Sản phẩm mới được thêm vào hệ thống nhưng chưa chạy chức năng kéo review. Hệ thống hiển thị giao diện trạng thái trống (Empty State) kèm thông báo "Chưa có dữ liệu đánh giá cho sản phẩm này. Vui lòng nhấn nút Kéo dữ liệu review để bắt đầu phân tích".
+[493] (Normal): A2: Dữ liệu đang trong tiến trình phân tích ngầm. Tác vụ thu thập hoặc phân tích AI chưa chạy xong. Hệ thống hiển thị thanh tiến trình (Progress Bar) kèm thông báo "Hệ thống đang tiến hành xử lý dữ liệu và tính điểm độ tin cậy, vui lòng chờ trong giây lát..."
+[494] (Normal): Hậu điều kiện: Seller nắm bắt toàn diện bức tranh thực tế về mức độ hài lòng của khách hàng, các khía cạnh thế mạnh và điểm yếu cốt lõi của sản phẩm để đưa ra quyết định kinh doanh phù hợp.
+[496] (Normal): 3.3.5 Use case xem review đáng chú ý
+[498] (Normal): Hình 3.5 Biểu đồ Use case xem review đáng chú ý
+[499] (Normal): Tác nhân: Seller.
+[500] (Normal): Mô tả: Use case cho phép seller lọc và xem danh sách các đánh giá đặc biệt cần lưu tâm (Critical / Flagged Reviews). Đây là các đánh giá có dấu hiệu rủi ro cao gây ảnh hưởng tiêu cực đến uy tín shop như: đánh giá 1-2 sao với lời lẽ bức xúc gay gắt, đánh giá phản ánh lỗi hỏng hóc nghiêm trọng, đánh giá có điểm độ tin cậy bất thường (nghi ngờ seeding đối thủ chơi xấu hoặc dùng ảnh rác không liên quan đến sản phẩm), giúp seller can thiệp và xử lý kịp thời.
+[501] (Normal): Điều kiện trước: Hệ thống đã thu thập xong review của sản phẩm và đã hoàn thành chu trình phân tích nội dung NLP kết hợp kiểm định hình ảnh AI.
+[502] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước kiểm tra danh sách phản hồi bất thường:
+[503] (Normal): - Mở khu vực Review đáng chú ý: Seller chọn tab "Đánh giá cần chú ý" trên giao diện quản lý chi tiết sản phẩm.
+[504] (Normal): - Hệ thống lọc và hiển thị danh sách: Hệ thống truy vấn cơ sở dữ liệu để lọc ra các review thỏa mãn một trong các tiêu chí: có nhãn cảnh báo (Flagged), số sao đánh giá <= 2, có điểm độ tin cậy < 50, hoặc phát hiện bất thường về mặt hình ảnh.
+[505] (Normal): - Xem chi tiết nội dung phản hồi: Seller duyệt qua từng đánh giá trong danh sách để đọc toàn bộ nội dung văn bản nhận xét của người mua, xem ngày đăng, tên tài khoản người mua và số sao đánh giá.
+[506] (Normal): - Xem điểm số và nhãn độ tin cậy: Hệ thống hiển thị trực quan điểm tin cậy của từng đánh giá kèm nhãn phân loại (ví dụ: "Phàn nàn nghiêm trọng về chất lượng", "Nghi vấn đánh giá ảo - Ảnh không khớp", "Cảnh báo giao sai mẫu").
+[507] (Normal): - Kiểm tra bằng chứng hình ảnh (nếu có): Đối với các review có đính kèm ảnh, seller nhấn vào ảnh để mở popup xem ảnh kích thước lớn, đồng thời quan sát kết quả đối chiếu giữa ảnh người mua gửi và ảnh gốc sản phẩm do AI phân tích.
+[508] (Normal): - Xem gợi ý hành động của hệ thống: Hệ thống cung cấp các phương án hành động đề xuất tương ứng với từng trường hợp (ví dụ: "Liên hệ đổi trả bảo hành cho khách", "Phản hồi giải thích công khai trên sàn để bảo vệ uy tín shop", "Báo cáo sàn kiểm tra tài khoản spam").
+[509] (Normal): Use case kết thúc.
+[510] (Normal): Luồng sự kiện rẽ nhánh:
+[511] (Normal): A1: Không có review nào thuộc diện cảnh báo. Sản phẩm có chất lượng phản hồi rất tốt và không phát hiện bất kỳ đánh giá bất thường nào. Hệ thống hiển thị thông báo tích cực "Sản phẩm hiện không có đánh giá xấu hoặc dấu hiệu rủi ro nào cần chú ý".
+[512] (Normal): A2: Ảnh review bị lỗi không tải được từ CDN của sàn. Ảnh đính kèm của khách hàng bị xóa hoặc lỗi mạng CDN. Hệ thống hiển thị biểu tượng ảnh lỗi kèm ghi chú "Không thể tải ảnh gốc từ sàn", nhưng vẫn giữ nguyên toàn bộ văn bản nhận xét và các điểm số phân tích nội dung.
+[513] (Normal): Hậu điều kiện: Seller xác định chính xác các phản hồi tiêu cực và rủi ro tiềm ẩn, nắm bắt nguyên nhân cốt lõi và phương hướng xử lý khủng hoảng truyền thông hoặc cải thiện chất lượng sản phẩm.
+[515] (Normal): 3.3.6 Use case lọc review theo số sao
+[517] (Normal): Hình 3.6 Biểu đồ Use case lọc review theo số sao
+[518] (Normal): Tác nhân: Seller.
+[519] (Normal): Mô tả: Use case cho phép seller thực hiện phân loại, lọc và sắp xếp danh sách các đánh giá khách hàng theo từng mức xếp hạng số sao (từ 1 sao đến 5 sao) hoặc kết hợp lọc theo các tiêu chí phụ (review có ảnh, review có nội dung văn bản). Chức năng này giúp seller phân đoạn dữ liệu hiệu quả, dễ dàng so sánh giữa luồng ý kiến hài lòng của khách hàng và luồng ý kiến bức xúc để có cái nhìn đa chiều.
+[520] (Normal): Điều kiện trước: Hệ thống đã tải xong danh sách các đánh giá của sản phẩm vào bộ nhớ hoặc cơ sở dữ liệu và đang hiển thị tại bảng danh sách đánh giá.
+[521] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước áp dụng bộ lọc đánh giá:
+[522] (Normal): - Chọn bộ lọc số sao: Seller nhấn vào thanh công cụ lọc đánh giá trên giao diện danh sách review.
+[523] (Normal): - Lựa chọn mức sao cần xem: Seller chọn một hoặc nhiều mức sao cụ thể: 1 sao, 2 sao, 3 sao, 4 sao, hoặc 5 sao (ví dụ: bấm chọn nhóm 1-2 sao để tập trung nghiên cứu phản hồi tiêu cực, hoặc 5 sao để đọc lời khen).
+[524] (Normal): - Hệ thống áp dụng bộ lọc: Hệ thống tiếp nhận tiêu chí lọc, thực hiện truy vấn tức thời (query) trên cơ sở dữ liệu hoặc tập dữ liệu hiện hành với điều kiện rating bằng mức sao đã chọn.
+[525] (Normal): - Cập nhật bảng danh sách hiển thị: Giao diện tự động làm mới và chỉ kết xuất các bản ghi đánh giá thỏa mãn điều kiện lọc, đồng thời cập nhật số lượng kết quả tìm thấy tương ứng.
+[526] (Normal): - Phân trang và đọc chi tiết: Seller cuộn qua các trang kết quả đã lọc để đọc chi tiết phản hồi của khách hàng ở phân khúc sao đó.
+[527] (Normal): - Xóa bộ lọc: Khi muốn quay trở lại trạng thái ban đầu, seller nhấn nút "Tất cả" hoặc "Bỏ lọc", hệ thống sẽ hiển thị lại toàn bộ danh sách đánh giá không phân biệt số sao.
+[528] (Normal): Use case kết thúc.
+[529] (Normal): Luồng sự kiện rẽ nhánh:
+[530] (Normal): A1: Không có đánh giá nào ở mức sao được chọn. Sản phẩm không có review nào ở mức sao đó (ví dụ không có khách nào đánh giá 1 sao). Hệ thống hiển thị bảng trống kèm thông báo "Không tìm thấy đánh giá nào ở mức sao đã chọn". Seller có thể bấm chuyển sang mức sao khác.
+[531] (Normal): A2: Kết hợp nhiều bộ lọc không trả về kết quả. Seller đồng thời lọc 1 sao và có ảnh nhưng không có bản ghi nào trùng khớp. Hệ thống đưa ra thông báo tương ứng và gợi ý seller mở rộng điều kiện lọc.
+[532] (Normal): Hậu điều kiện: Danh sách review được phân tách rõ ràng theo đúng nhu cầu khảo sát của seller, tạo điều kiện thuận lợi cho việc nghiên cứu sâu từng nhóm khách hàng mục tiêu.
+[534] (Normal): 3.3.7 Use case theo dõi log
+[536] (Normal): Hình 3.7 Biểu đồ Use case theo dõi log
+[537] (Normal): Tác nhân: Admin.
+[538] (Normal): Mô tả: Use case cho phép quản trị viên hệ thống giám sát toàn diện các nhật ký hoạt động (system log) phát sinh theo thời gian thực trong toàn bộ chu trình vận hành phần mềm. Log bao gồm các thông tin về: tiến trình gửi request cào dữ liệu đến sàn TMĐT, trạng thái phiên làm việc Playwright, các mã lỗi HTTP (403, 429, 500), nhật ký thực thi của các mô hình AI (thời gian trích xuất text, thời gian inference mô hình CLIP), và các ngoại lệ hệ thống để phục vụ công tác bảo trì, gỡ lỗi và tối ưu hiệu năng.
+[539] (Normal): Điều kiện trước: Quản trị viên đã đăng nhập thành công vào hệ thống với vai trò có thẩm quyền và máy chủ backend đang ở trạng thái hoạt động.
+[540] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước theo dõi và kiểm tra nhật ký vận hành:
+[541] (Normal): - Truy cập màn hình quản trị Log: Quản trị viên điều hướng đến khu vực "Quản trị hệ thống" và chọn mục "Nhật ký hệ thống (System Logs)".
+[542] (Normal): - Hiển thị luồng log thời gian thực: Hệ thống kết xuất danh sách các bản ghi nhật ký mới nhất được định dạng theo cấu trúc: [Thời gian] - [Mức độ Log: INFO/WARNING/ERROR] - [Module/Service phát sinh] - [Thông điệp chi tiết].
+[543] (Normal): - Tìm kiếm và lọc log theo điều kiện: Quản trị viên có thể nhập từ khóa tìm kiếm (theo mã sản phẩm item_id, mã lỗi, hoặc tên hàm), hoặc chọn bộ lọc theo cấp độ (chỉ xem ERROR/CRITICAL để phát hiện sự cố nhanh chóng).
+[544] (Normal): - Xem chi tiết Stack Trace của lỗi: Khi phát hiện một bản ghi lỗi đỏ (ERROR), quản trị viên nhấn vào dòng log để xem chi tiết dấu vết ngăn xếp (Stack Trace), xác định chính xác dòng code hoặc điểm nghẽn gây ra lỗi (ví dụ: timeout khi kết nối sàn, lỗi phân giải JSON, out of memory).
+[545] (Normal): - Xuất log hoặc xóa log cũ: Quản trị viên có thể chọn chức năng "Tải log về máy (Export Log File)" để phục vụ việc phân tích ngoại tuyến hoặc thực hiện dọn dẹp các tệp nhật ký cũ định kỳ.
+[546] (Normal): Use case kết thúc.
+[547] (Normal): Luồng sự kiện rẽ nhánh:
+[548] (Normal): A1: Hệ thống vận hành bình thường không có lỗi. Không xuất hiện bản ghi WARNING hay ERROR nào trong khoảng thời gian theo dõi. Bảng nhật ký chỉ thể hiện các dòng thông báo hoạt động bình thường (INFO).
+[549] (Normal): A2: Mất kết nối tới máy chủ log. Quá trình truyền phát log qua WebSocket hoặc API bị gián đoạn do sự cố mạng. Hệ thống hiển thị cảnh báo "Mất kết nối với luồng nhật ký thời gian thực, đang tự động kết nối lại...".
+[550] (Normal): Hậu điều kiện: Quản trị viên nắm bắt liên tục tình trạng sức khỏe của hệ thống, nhanh chóng phát hiện nguyên nhân gốc rễ khi xảy ra lỗi cào dữ liệu hoặc lỗi phân tích AI để tiến hành khắc phục kịp thời.
+[552] (Normal): 3.3.8 Use case cấu hình hệ thống
+[554] (Normal): Hình 3.8 Biểu đồ Use case cấu hình hệ thống
+[555] (Normal): Tác nhân: Admin.
+[556] (Normal): Mô tả: Use case cho phép quản trị viên điều chỉnh và thiết lập các tham số vận hành linh hoạt của toàn bộ hệ thống mà không cần phải can thiệp trực tiếp vào mã nguồn phần mềm. Các cấu hình quan trọng bao gồm: số trang review tối đa cần cào cho mỗi sản phẩm, thời gian chờ giãn cách (Delay / Rate Limiting) giữa các request để chống bị sàn khóa IP, các ngưỡng phân loại điểm độ tin cậy (Thresholds), cấu hình đường dẫn lưu trữ cơ sở dữ liệu MongoDB và tùy chọn kích hoạt/vô hiệu hóa các module AI.
+[557] (Normal): Điều kiện trước: Quản trị viên có quyền truy cập bảng điều khiển cấu hình hệ thống hoặc quyền chỉnh sửa tệp cấu hình môi trường .env.
+[558] (Normal): Luồng sự kiện chính:
+Người sử dụng thực hiện các bước thay đổi thông số hệ thống:
+[559] (Normal): - Mở giao diện Cấu hình hệ thống: Quản trị viên truy cập mục "Cài đặt & Cấu hình (System Settings)" trên thanh điều hướng quản trị.
+[560] (Normal): - Hiển thị các nhóm tham số hiện tại: Hệ thống tải và hiển thị danh mục các thông số đang được áp dụng, phân chia theo từng khối chức năng rõ ràng: Cấu hình thu thập (Crawler Config: max_pages, page_size, delay_between_requests từ 1 - 3 giây); Cấu hình phiên làm việc (Session Config: thời gian sống của cookie phiên, chế độ chạy trình duyệt ngầm Headless Mode); Cấu hình kiểm định AI (AI & Scoring Config: ngưỡng tin cậy chấp nhận ảnh, trọng số số sao, trọng số ngôn từ và trọng số hình ảnh trong công thức tính điểm độ tin cậy); Cấu hình kết nối cơ sở dữ liệu (MongoDB URI, tên cơ sở dữ liệu).
+[561] (Normal): - Chỉnh sửa thông số: Quản trị viên nhập các giá trị mới phù hợp với nhu cầu thử nghiệm hoặc điều kiện thực tế của hệ thống mạng.
+[562] (Normal): - Kiểm tra tính hợp lệ của tham số: Hệ thống kiểm tra ràng buộc dữ liệu (ví dụ: thời gian chờ không được âm, trọng số phải nằm trong khoảng 0 đến 1, URI cơ sở dữ liệu đúng cú pháp). Nếu giá trị không hợp lệ thì thực hiện rẽ nhánh A1.
+[563] (Normal): - Lưu và áp dụng cấu hình: Quản trị viên nhấn nút "Lưu thay đổi". Hệ thống ghi nhận giá trị mới vào file cấu hình hoặc biến hệ thống và gửi thông báo cập nhật thành công.
+[564] (Normal): Use case kết thúc.
+[565] (Normal): Luồng sự kiện rẽ nhánh:
+[566] (Normal): A1: Tham số cấu hình nhập sai phạm vi hoặc định dạng. Hệ thống từ chối lưu, đánh dấu đỏ các trường nhập lỗi và đưa ra thông báo chi tiết (ví dụ: "Thời gian chờ giữa các request phải là số nguyên dương >= 1 giây"). Quản trị viên chỉnh sửa lại giá trị.
+[567] (Normal): A2: Cấu hình yêu cầu khởi động lại dịch vụ backend. Một số tham số cốt lõi (như thay đổi địa chỉ cổng Port hoặc MongoDB Connection String) yêu cầu tải lại ứng dụng. Hệ thống hiển thị hộp thoại thông báo "Cấu hình đã được lưu, vui lòng khởi động lại dịch vụ backend để thiết lập mới có hiệu lực".
+[568] (Normal): Hậu điều kiện: Các thiết lập vận hành mới được áp dụng đồng bộ cho toàn bộ các tác vụ thu thập và phân tích dữ liệu tiếp theo, đảm bảo hệ thống vận hành an toàn và linh hoạt.
+[570] (Normal): 3.3.9 Use case kéo dữ liệu review
+[572] (Normal): Hình 3.9 Biểu đồ Use case kéo dữ liệu review
+[573] (Normal): Tác nhân: System.
+[574] (Normal): Mô tả: Use case mô tả toàn bộ chu trình xử lý tự động của hệ thống backend nhằm gửi các yêu cầu thu thập dữ liệu phản hồi (reviews) từ sàn thương mại điện tử dựa trên mã sản phẩm đã được xác định. Quá trình bao gồm việc phân trang duyệt tuần tự, bóc tách cấu trúc JSON hoặc HTML, làm sạch dữ liệu và lưu trữ tập trung vào cơ sở dữ liệu MongoDB phục vụ các bước xử lý phân tích tiếp theo.
+[575] (Normal): Điều kiện trước: Hệ thống đã tiếp nhận mã sản phẩm hợp lệ, đã xác định sàn thương mại điện tử tương ứng và phiên làm việc (hoặc cơ chế kết nối API của sàn) đã sẵn sàng.
+[576] (Normal): Luồng sự kiện chính:
+Hệ thống tự động thực thi chuỗi hành động thu thập theo quy trình chuẩn:
+[577] (Normal): - Khởi tạo tác vụ thu thập (Ingestion Job): Hệ thống khởi tạo một bản ghi theo dõi tác vụ trong cơ sở dữ liệu với trạng thái PROCESSING, ghi nhận thời gian bắt đầu và các tham số mục tiêu (product_id, platform).
+[578] (Normal): - Gửi request phân trang tuần tự: Hệ thống bắt đầu duyệt qua từng trang đánh giá bắt đầu từ trang 1 cho đến giới hạn số trang đã được cấu hình (hoặc cho đến khi không còn review mới). Các request được chèn thời gian trễ ngẫu nhiên (delay) để tránh kích hoạt cơ chế phát hiện bot của sàn.
+[579] (Normal): - Tiếp nhận và bóc tách dữ liệu thô: Hệ thống đón nhận phản hồi từ sàn (dưới dạng JSON payload từ các endpoint MTOP/API nội bộ hoặc cây DOM HTML), trích xuất các trường dữ liệu quan trọng của từng review: mã review duy nhất, tên người mua (đã ẩn danh), số sao đánh giá (1-5 sao), nội dung văn bản nhận xét, thời gian đăng tải, số lượt thích hữu ích (like count), phân loại biến thể sản phẩm khách đã mua (màu sắc, kích cỡ) và danh sách đường dẫn URL hình ảnh/video đính kèm.
+[580] (Normal): - Chuẩn hóa dữ liệu (Data Normalization): Hệ thống đưa toàn bộ dữ liệu thô qua module DataNormalizer để loại bỏ các ký tự rác, chuẩn hóa định dạng ngày tháng sang chuẩn ISO UTC, làm sạch khoảng trắng thừa và chuẩn hóa số sao về kiểu dữ liệu số thực (float).
+[581] (Normal): - Lưu trữ dữ liệu vào MongoDB: Hệ thống thực hiện câu lệnh chèn hàng loạt (Bulk Upsert) vào collection reviews trong MongoDB với khóa duy nhất là cặp (product_id, external_review_id) nhằm chống trùng lặp dữ liệu khi chạy lại nhiều lần.
+[582] (Normal): - Cập nhật tiến trình và hoàn tất tác vụ: Sau khi duyệt hết các trang, hệ thống tổng kết số lượng bản ghi đã thêm mới, số lượng bản ghi cập nhật, cập nhật trạng thái tác vụ thành COMPLETED và gửi thông báo hoàn tất lên giao diện người dùng.
+[583] (Normal): Use case kết thúc.
+[584] (Normal): Luồng sự kiện rẽ nhánh:
+[585] (Normal): A1: Sàn yêu cầu xác minh bảo mật hoặc phiên truy cập hết hạn. Trong quá trình kéo dữ liệu, sàn trả về mã lỗi TOKEN_EXPIRED hoặc kích hoạt Captcha. Hệ thống tự động tạm dừng luồng cào, cập nhật trạng thái job thành NEED_VERIFICATION và kích hoạt thông báo yêu cầu seller mở phiên làm việc để tái xác thực.
+[586] (Normal): A2: Lỗi nghẽn mạng hoặc sàn phản hồi mã lỗi 429 Too Many Requests. Hệ thống tự động kích hoạt chiến lược chờ lũy thừa (Exponential Backoff), tạm ngừng gửi request trong một khoảng thời gian trước khi thử lại (Retry). Nếu quá 3 lần thử lại không thành công, hệ thống ghi nhận lỗi vào log, lưu các review đã cào được và chuyển job sang trạng thái PARTIALLY_COMPLETED.
+[587] (Normal): Hậu điều kiện: Toàn bộ dữ liệu đánh giá của sản phẩm được lưu trữ đầy đủ, sạch sẽ và có cấu trúc chuẩn trong cơ sở dữ liệu MongoDB, sẵn sàng cung cấp dữ liệu đầu vào cho các module phân tích trí tuệ nhân tạo.
+[589] (Normal): 3.3.10 Use case phân tích nội dung
+[591] (Normal): Hình 3.10 Biểu đồ Use case phân tích nội dung
+[592] (Normal): Tác nhân: System.
+[593] (Normal): Mô tả: Use case mô tả quá trình hệ thống tự động áp dụng các kỹ thuật Xử lý ngôn ngữ tự nhiên (NLP) và Phân tích cảm xúc dựa trên khía cạnh (Aspect-Based Sentiment Analysis) lên toàn bộ nội dung văn bản bình luận của khách hàng. Mục tiêu là bóc tách chính xác các từ khóa phàn nàn, xác định cụ thể khách hàng đang khen hay chê khía cạnh nào của sản phẩm (chất lượng vải, độ bền in ấn, đường may, form size, đóng gói, thời gian giao hàng) và tính toán điểm cảm xúc định lượng.
+[594] (Normal): Điều kiện trước: Dữ liệu văn bản đánh giá của sản phẩm đã được thu thập và lưu trữ thành công trong cơ sở dữ liệu MongoDB.
+[595] (Normal): Luồng sự kiện chính:
+Hệ thống tự động thực thi quy trình phân tích văn bản:
+[596] (Normal): - Trích xuất danh sách review cần phân tích: Hệ thống truy vấn các bản ghi đánh giá trong collection reviews của sản phẩm đang xét.
+[597] (Normal): - Tiền xử lý văn bản (Text Preprocessing): Hệ thống chuẩn hóa chuỗi ký tự về dạng chữ thường, loại bỏ các ký tự đặc biệt, biểu tượng cảm xúc (emoji) không cần thiết, tách câu thành các mệnh đề độc lập dựa trên các dấu phân tách câu (chấm, chấm than, hỏi chấm, phẩy, chấm phẩy, xuống dòng).
+[598] (Normal): - Nhận diện và phân loại khía cạnh (Aspect Detection): Hệ thống đối chiếu các mệnh đề với bộ từ điển đặc trưng và các quy tắc từ khóa ngữ nghĩa để xác định các khía cạnh cốt lõi mà khách hàng đề cập: Khía cạnh thiết kế & thẩm mỹ (design: hình in, họa tiết, màu sắc); Khía cạnh kích thước & độ vừa vặn (size: form áo, mặc chật, mặc rộng, bảng size chuẩn hay lệch); Khía cạnh chất liệu & chất lượng (material / quality: vải cotton, nóng bí, vải mỏng, đường may chỉ thừa); Khía cạnh độ bền (durability: giặt tróc hình in, co rút vải, phai màu); Khía cạnh dịch vụ & vận chuyển (shipping / service: giao hàng chậm, thái độ shipper, đóng gói rách hộp); Khía cạnh cá nhân hóa (personalization: in tên riêng, in hình theo yêu cầu).
+[599] (Normal): - Đánh giá cảm xúc cho từng khía cạnh (Aspect Sentiment Analysis): Với mỗi khía cạnh được tìm thấy, hệ thống phân tích ngữ cảnh từ ngữ xung quanh (xét các từ phủ định như "không", "chẳng", "not", và các từ tăng cường cảm xúc) để gán nhãn trạng thái cảm xúc: Tích cực (Positive), Tiêu cực (Negative), hoặc Trung tính (Neutral) kèm theo độ tin cậy (Confidence score).
+[600] (Normal): - Tổng hợp và phát hiện điểm đau khách hàng (Pain Points): Hệ thống thống kê tần suất xuất hiện của từng điểm chê tiêu cực để định vị các lỗi sản phẩm lặp đi lặp lại nhiều lần.
+[601] (Normal): - Lưu trữ kết quả phân tích: Hệ thống lưu các khía cạnh và nhãn cảm xúc vào collection review_aspects trong MongoDB, liên kết trực tiếp với mã review và mã sản phẩm.
+[602] (Normal): Use case kết thúc.
+[603] (Normal): Luồng sự kiện rẽ nhánh:
+[604] (Normal): A1: Đánh giá không chứa văn bản (chỉ chấm sao hoặc review trống). Khách hàng chỉ chọn số sao mà không viết nhận xét. Hệ thống ghi nhận trạng thái bỏ qua bước phân tích NLP và chỉ phân tích dựa trên trọng số số sao.
+[605] (Normal): A2: Đánh giá quá ngắn hoặc vô nghĩa (Spam text). Khách chỉ nhập các ký tự lặp vô nghĩa (ví dụ: "aaaaa", "nhận xu"). Hệ thống gán nhãn chất lượng văn bản thấp và không đưa vào thống kê phân tích khía cạnh để tránh làm sai lệch kết quả.
+[606] (Normal): Hậu điều kiện: Dữ liệu đánh giá được làm giàu với các nhãn khía cạnh và chỉ số cảm xúc chi tiết, cho phép hệ thống định lượng được chính xác mức độ hài lòng của khách hàng trên từng góc độ sản phẩm.
+[608] (Normal): 3.3.11 Use case kiểm định hình ảnh
+[610] (Normal): Hình 3.11 Biểu đồ Use case kiểm định hình ảnh
+[611] (Normal): Tác nhân: System.
+[612] (Normal): Mô tả: Use case mô tả quy trình tự động ứng dụng Trí tuệ nhân tạo thị giác máy tính và mô hình đa phương thức (như mô hình CLIP - Contrastive Language-Image Pretraining) để thẩm định tính chân thực của hình ảnh khách hàng đính kèm trong các bài đánh giá. Hệ thống tiến hành so sánh đối chiếu vector đặc trưng giữa ảnh review thực tế của người mua với ảnh mẫu gốc của shop, đồng thời kiểm tra tính tương đồng ngữ nghĩa giữa hình ảnh và nội dung bình luận để phát hiện ảnh rác, ảnh mạng tải về, hoặc các đánh giá giả mạo (đánh giá ảo nhằm cạnh tranh không lành mạnh).
+[613] (Normal): Điều kiện trước: Đánh giá của khách hàng có đính kèm tệp tin hình ảnh và hệ thống đã thu thập được ảnh đại diện gốc của sản phẩm do shop đăng tải.
+[614] (Normal): Luồng sự kiện chính:
+Hệ thống tự động thực hiện chuỗi xử lý kiểm định hình ảnh:
+[615] (Normal): - Tải và tiền xử lý hình ảnh: Hệ thống tải các tệp ảnh review của người mua từ đường dẫn CDN sàn TMĐT, kiểm tra tính toàn vẹn của tệp và chuyển đổi kích thước ảnh về chuẩn đầu vào của mô hình thị giác AI.
+[616] (Normal): - Trích xuất đặc trưng hình ảnh bằng mô hình AI: Hệ thống đưa ảnh review và ảnh gốc sản phẩm qua mạng nơ-ron tích chập hoặc Transformer của mô hình CLIP để trích xuất ra các vector nhúng không gian đa chiều (Embedding Vectors) mang thông tin ngữ nghĩa thị giác.
+[617] (Normal): - Tính toán độ tương đồng thị giác (Visual Similarity Score): Hệ thống tính toán độ tương đồng Cosine (Cosine Similarity) giữa vector ảnh review của người mua và vector ảnh gốc sản phẩm. Điểm số nằm trong thang từ 0.0 đến 1.0 (hoặc 0 - 100%).
+[618] (Normal): - Phân tích ngữ nghĩa liên kết văn bản - hình ảnh: Hệ thống đối chiếu hình ảnh với nội dung văn bản bình luận (ví dụ: nếu bình luận viết "áo bị rách hình in", hệ thống kiểm tra xem ảnh có dấu hiệu vật thể áo thun hay không).
+[619] (Normal): - Phát hiện và gắn nhãn ảnh bất thường: Nếu độ tương đồng cao (>= 75%): Xác nhận là ảnh thực tế chụp đúng sản phẩm đã mua -> Gán nhãn "Bằng chứng ảnh hợp lệ". Nếu độ tương đồng thấp (< 35%) và là hình ảnh hoàn toàn không liên quan (ảnh sàn nhà trống, ảnh đồ ăn, ảnh màn hình đen tải lên chỉ để nhận xu thưởng của sàn) -> Gán nhãn "Ảnh rác / Không liên quan". Nếu phát hiện hình ảnh là ảnh chụp màn hình hoặc tải từ Internet -> Đưa ra cảnh báo nghi ngờ đánh giá ảo.
+[620] (Normal): - Lưu trữ kết quả kiểm định: Hệ thống lưu điểm số tương đồng hình ảnh, nhãn thẩm định và các siêu dữ liệu phân tích vào cơ sở dữ liệu MongoDB liên kết với review tương ứng.
+[621] (Normal): Use case kết thúc.
+[622] (Normal): Luồng sự kiện rẽ nhánh:
+[623] (Normal): A1: Review không có hình ảnh đính kèm. Người mua không tải lên ảnh. Hệ thống bỏ qua bước kiểm định hình ảnh và thiết lập trạng thái kiểm định ảnh là NO_IMAGE.
+[624] (Normal): A2: Ảnh gốc của shop bị thiếu hoặc không tải được. Hệ thống không lấy được ảnh sản phẩm ban đầu của shop. Hệ thống chuyển sang chế độ dự phòng: chỉ đánh giá tính xác thực của ảnh review dựa trên đối chiếu ngữ nghĩa với tên danh mục và mô tả sản phẩm.
+[625] (Normal): A3: Lỗi đường truyền tải ảnh từ CDN. Tệp ảnh bị hỏng hoặc CDN sàn chặn tải. Hệ thống ghi log lỗi ảnh và đánh dấu trạng thái IMAGE_FETCH_FAILED.
+[626] (Normal): Hậu điều kiện: Mỗi đánh giá có ảnh đều được gán một điểm số kiểm định chất lượng bằng chứng hình ảnh khách quan, làm cơ sở tin cậy cho thuật toán tính điểm tổng thể của hệ thống.
+[628] (Normal): 3.3.12 Use case tính điểm độ tin cậy
+[630] (Normal): Hình 3.12 Biểu đồ Use case tính điểm độ tin cậy
+[631] (Normal): Tác nhân: System.
+[632] (Normal): Mô tả: Use case mô tả thuật toán tổng hợp đa tiêu chí để tính toán ra Điểm độ tin cậy cuối cùng (Reliability Score / Trust Score) cho từng đánh giá riêng lẻ và điểm tin cậy trung bình cho toàn bộ sản phẩm. Thuật toán kết hợp ba nguồn dữ liệu độc lập: số sao xếp hạng của người mua, kết quả phân tích cảm xúc văn bản NLP, và kết quả kiểm định bằng chứng hình ảnh AI. Dựa trên điểm số này, hệ thống tự động gán nhãn độ tin cậy và xuất ra các khuyến nghị, gợi ý hành động chiến lược cho người bán (seller).
+[633] (Normal): Điều kiện trước: Hệ thống đã hoàn tất cả 3 công đoạn: thu thập dữ liệu review, phân tích nội dung ngôn ngữ tự nhiên và kiểm định hình ảnh AI.
+[634] (Normal): Luồng sự kiện chính:
+Hệ thống tự động thực hiện chu trình tính điểm và sinh gợi ý:
+[635] (Normal): - Tập hợp các tham số đầu vào: Hệ thống trích xuất 3 chỉ số thành phần của từng bài đánh giá: Điểm xếp hạng sao (S_rating: chuẩn hóa số sao từ 1-5 về thang điểm 0-100); Điểm cảm xúc văn bản (S_text: chỉ số cảm xúc dựa trên tỷ lệ từ tích cực/tiêu cực và các khía cạnh phàn nàn); Điểm bằng chứng hình ảnh (S_image: mức độ xác thực và độ tương đồng của ảnh review với sản phẩm thật).
+[636] (Normal): - Kiểm tra tính nhất quán giữa các chiều dữ liệu: Hệ thống kiểm tra xem có sự mâu thuẫn hay không (ví dụ: chấm 5 sao nhưng nội dung chê bai thậm tệ, hoặc chấm 1 sao nhưng ảnh sản phẩm hoàn hảo và khen ngợi). Sự mâu thuẫn này là dấu hiệu điển hình của đánh giá bất thường hoặc đánh giá nhầm lẫn.
+[637] (Normal): - Áp dụng công thức trọng số tính điểm tin cậy tổng thể: Trường hợp review có đầy đủ văn bản và ảnh: Score = 0.25 * S_rating + 0.40 * S_text + 0.35 * S_image. Trường hợp review không có ảnh: Score = 0.35 * S_rating + 0.65 * S_text (trọng số phân bổ lại tự động).
+[638] (Normal): - Phân loại nhãn độ tin cậy: Dựa trên thang điểm tính được từ 0 đến 100, hệ thống phân loại đánh giá vào các nhóm: >= 75 điểm: "Độ tin cậy cao / Đánh giá chân thực"; 50 - 74 điểm: "Độ tin cậy trung bình / Cần theo dõi thêm"; < 50 điểm: "Độ tin cậy thấp / Đánh giá đáng ngờ hoặc phản hồi tiêu cực nghiêm trọng".
+[639] (Normal): - Sinh gợi ý hành động tự động cho Seller (Actionable Insights): Hệ thống kích hoạt bộ luật suy diễn để đưa ra đề xuất cho người bán: Nếu phát hiện nhiều phản hồi chê form áo chật -> Đề xuất seller cập nhật lại bảng kích thước (size chart) trên trang mô tả sản phẩm; Nếu phát hiện mực in dễ bong tróc -> Khuyến nghị đổi xưởng in hoặc cải tiến công nghệ in ấn chất lượng cao hơn; Nếu phát hiện đánh giá tiêu cực ảo từ đối thủ kèm ảnh rác -> Gợi ý seller chuẩn bị bằng chứng gửi khiếu nại lên ban quản trị sàn TMĐT để gỡ bỏ đánh giá rác.
+[640] (Normal): - Lưu trữ kết quả: Hệ thống cập nhật điểm tin cậy, nhãn phân loại và các khuyến nghị vào cơ sở dữ liệu MongoDB, sẵn sàng phục vụ việc hiển thị trên Dashboard và danh sách review đáng chú ý.
+[641] (Normal): Use case kết thúc.
+[642] (Normal): Luồng sự kiện rẽ nhánh:
+[643] (Normal): A1: Review thiếu cả văn bản lẫn hình ảnh. Khách hàng chỉ chọn số sao mà không có bất kỳ dữ liệu nào khác. Hệ thống tính điểm dựa hoàn toàn trên số sao nhưng gắn cờ giảm độ ưu tiên và ghi chú "Review thiếu dữ liệu đối chứng".
+[644] (Normal): A2: Điểm số tính toán có sự bất thường do ngoại lệ phân tích. Hệ thống tự động gán nhãn trung lập và ghi log để quản trị viên kiểm tra lại thuật toán.
+[645] (Normal): Hậu điều kiện: Toàn bộ tập dữ liệu đánh giá của sản phẩm được định lượng bằng các chỉ số tin cậy khoa học, loại bỏ các đánh giá nhiễu/ảo và cung cấp các quyết định hành động thiết thực cho người bán.
+[647] (Normal): 3.4. Biểu Đồ Hoạt Động (Activity Diagram)
+[648] (Normal): Biểu đồ hoạt động (Activity Diagram) được sử dụng để mô tả dòng điều khiển (flow of control) và các hành vi động của hệ thống từ góc nhìn tiến trình nghiệp vụ. Biểu đồ này chỉ rõ trình tự thực hiện các bước công việc, các quyết định điều kiện rẽ nhánh và sự phối hợp giữa người dùng với các module xử lý tự động trong hệ thống.
+[649] (Normal): 3.4.1. Biểu đồ hoạt động tổng quát của hệ thống
+[651] (Normal): Hình 3.13 Biểu đồ hoạt động tổng quát của hệ thống
+[652] (Normal): Hình 3.13 mô tả toàn bộ vòng đời tương tác của một phiên làm việc điển hình trong hệ thống đánh giá phản hồi khách hàng:
+[653] (Normal): - Bước 1 - Khởi đầu quy trình: Người bán (Seller) truy cập giao diện, sao chép đường dẫn sản phẩm từ sàn TMĐT (Shopee, Lazada, TikTok Shop, Tiki) và dán vào ô nhập link, sau đó nhấn nút Đọc link.
+[654] (Normal): - Bước 2 - Kiểm tra tính hợp lệ: Hệ thống tự động kiểm tra định dạng URL và bóc tách mã sản phẩm. Nếu link sai cú pháp hoặc thuộc sàn chưa hỗ trợ, hệ thống cảnh báo và yêu cầu nhập lại; nếu hợp lệ, hệ thống hiển thị thông tin sản phẩm.
+[655] (Normal): - Bước 3 - Xác thực phiên sàn: Hệ thống kiểm tra xem có cần phiên làm việc bảo mật hay không. Nếu sàn yêu cầu Captcha/đăng nhập, seller mở phiên Playwright và giải captcha thủ công; sau đó hệ thống ghi nhận phiên sẵn sàng.
+[656] (Normal): - Bước 4 - Thu thập dữ liệu review: Tiến trình cào dữ liệu tự động gửi request phân trang, bóc tách thông tin đánh giá, chuẩn hóa dữ liệu và lưu vào cơ sở dữ liệu MongoDB.
+[657] (Normal): - Bước 5 - Phân tích trí tuệ nhân tạo: Hệ thống kích hoạt đồng thời 2 luồng phân tích: xử lý ngôn ngữ tự nhiên NLP bóc tách các khía cạnh cảm xúc (vải, size, in ấn, độ bền, ship) và mô hình thị giác CLIP đối chiếu ảnh review với ảnh gốc sản phẩm.
+[658] (Normal): - Bước 6 - Tính điểm và trực quan hóa: Hệ thống tổng hợp các chỉ số theo công thức đa tiêu chí để tính ra Điểm độ tin cậy (Reliability Score), gán nhãn phân loại và xuất các khuyến nghị hành động cụ thể lên bảng điều khiển Dashboard cho seller.
+[659] (Normal): 3.4.2. Biểu đồ hoạt động chi tiết quy trình thu thập dữ liệu review
+[661] (Normal): Hình 3.14 Biểu đồ hoạt động chi tiết quy trình thu thập dữ liệu review
+[662] (Normal): Hình 3.14 đi sâu vào cơ chế vận hành của Ingestion Worker trong quá trình kéo dữ liệu từ sàn thương mại điện tử:
+[663] (Normal): - Khởi tạo tác vụ: Hệ thống khởi tạo bản ghi Ingestion Job với trạng thái PROCESSING, đặt biến trang hiện tại page = 1.
+[664] (Normal): - Gửi request phân trang kèm Rate Limiting: Hệ thống chèn khoảng thời gian chờ ngẫu nhiên (delay 1 - 3 giây) giữa các request để mô phỏng hành vi người dùng thật, tránh kích hoạt bộ lọc anti-bot của sàn.
+[665] (Normal): - Xử lý phản hồi từ sàn: Nếu request thành công, hệ thống tiếp nhận payload JSON/HTML; nếu gặp mã lỗi Token Expired hoặc Captcha, tiến trình tạm dừng và chuyển job sang trạng thái NEED_VERIFICATION để seller tái xác thực.
+[666] (Normal): - Chuẩn hóa và Bulk Upsert: Từng bản ghi đánh giá được đưa qua DataNormalizer để làm sạch khoảng trắng, chuẩn hóa ngày tháng và số sao, sau đó thực hiện Bulk Upsert vào collection reviews với khóa duy nhất (product_id, external_review_id) để chống trùng lặp.
+[667] (Normal): - Kiểm tra điều kiện dừng: Hệ thống kiểm tra xem đã đến trang cuối cùng hoặc đạt giới hạn cấu hình max_pages chưa. Nếu chưa thì tăng số trang và lặp lại; nếu đã xong thì chuyển trạng thái Job thành COMPLETED.
+[668] (Normal): 3.4.3. Biểu đồ hoạt động chi tiết quy trình phân tích AI và kiểm định ảnh
+[670] (Normal): Hình 3.15 Biểu đồ hoạt động chi tiết quy trình phân tích AI và kiểm định ảnh
+[671] (Normal): Hình 3.15 mô tả quy trình phân tích đa phương thức (Multimodal AI) kết hợp giữa văn bản và hình ảnh:
+[672] (Normal): - Luồng xử lý ngôn ngữ tự nhiên (NLP Pipeline): Văn bản đánh giá được tách thành các mệnh đề độc lập. Hệ thống đối chiếu từ khóa với 6 nhóm khía cạnh trọng tâm (chất liệu vải, form size, độ bền in ấn, giao hàng, giá cả, cá nhân hóa) và phân tích cảm xúc xung quanh (xét các từ phủ định) để gán nhãn Tích cực, Tiêu cực hoặc Trung tính kèm điểm tin cậy.
+[673] (Normal): - Luồng xử lý thị giác máy tính (Vision Pipeline): Hệ thống kiểm tra review có đính kèm ảnh hay không. Nếu có, tệp ảnh được tải về, chuẩn hóa kích thước và đưa qua mô hình CLIP để trích xuất vector đặc trưng 512 chiều. Hệ thống tính độ tương đồng Cosine giữa ảnh review và ảnh gốc shop để xác định ảnh thật hay ảnh rác.
+[674] (Normal): - Tổng hợp điểm và sinh gợi ý: Thuật toán tổng hợp điểm số từ rating, cảm xúc văn bản và điểm bằng chứng ảnh theo công thức trọng số chuẩn, từ đó sinh ra các khuyến nghị hành động thiết thực cho người bán.
+[675] (Normal): 3.5. Biểu Đồ Trình Tự (Sequence Diagram)
+[676] (Normal): Biểu đồ trình tự (Sequence Diagram) mô tả chi tiết sự tương tác động giữa các đối tượng và thành phần trong hệ thống theo dòng thời gian. Mục này mô tả 8 luồng tương tác cốt lõi đại diện cho các chức năng chính của hệ thống.
+[677] (Normal): 3.5.1. Biểu đồ tuần tự Chức năng dán link sản phẩm
+[679] (Normal): Hình 3.16 Biểu đồ tuần tự Chức năng dán link sản phẩm
+[680] (Normal): Biểu đồ Hình 3.16 thể hiện quy trình xử lý khi Seller dán link sản phẩm vào giao diện. Frontend gửi yêu cầu POST đến Product Router trên Backend. Router gọi UrlValidator để kiểm tra cú pháp và bóc tách domain, sau đó gọi ProductIdExtractor để lấy Item ID. Product Service kiểm tra trong MongoDB xem sản phẩm đã có dữ liệu chưa và trả về thông tin chi tiết cho Frontend hiển thị.
+[681] (Normal): 3.5.2. Biểu đồ tuần tự Chức năng mở phiên sàn và xác thực bảo mật
+[683] (Normal): Hình 3.17 Biểu đồ tuần tự Chức năng mở phiên sàn và xác thực bảo mật
+[684] (Normal): Biểu đồ Hình 3.17 mô tả cơ chế khởi tạo phiên làm việc với sàn TMĐT. Khi sàn yêu cầu xác minh bảo mật, Seller nhấn Mở phiên. Session Controller điều phối Playwright Service bật một phiên Chromium ngầm điều hướng đến trang sản phẩm. Seller trực tiếp thao tác giải Captcha trên màn hình. Sau khi trang tải xong, Session Manager trích xuất Cookie và Token phiên lưu vào bộ nhớ tạm, sẵn sàng cho việc cào dữ liệu.
+[685] (Normal): 3.5.3. Biểu đồ tuần tự Chức năng thu thập dữ liệu review từ sàn
+[687] (Normal): Hình 3.18 Biểu đồ tuần tự Chức năng thu thập dữ liệu review từ sàn
+[688] (Normal): Biểu đồ Hình 3.18 mô tả luồng thu thập dữ liệu tự động giữa Ingestion Worker, các sàn TMĐT và cơ sở dữ liệu. Worker gửi request kèm Cookie phiên đã lưu, nhận dữ liệu thô, chuyển qua Data Normalizer để làm sạch và gán nhãn, sau đó gọi Review Repository thực thi lệnh Bulk Upsert vào MongoDB, đồng thời cập nhật số lượng dòng đã xử lý vào Ingestion Job.
+[689] (Normal): 3.5.4. Biểu đồ tuần tự Chức năng phân tích nội dung văn bản bằng NLP
+[691] (Normal): Hình 3.19 Biểu đồ tuần tự Chức năng phân tích nội dung văn bản bằng NLP
+[692] (Normal): Biểu đồ Hình 3.19 mô tả chuỗi xử lý NLP: Analysis Controller lấy danh sách review từ MongoDB, chuyển văn bản qua Text Preprocessor để tách mệnh đề, sau đó Aspect Extractor nhận diện từ khóa và Sentiment Analyzer tính toán chỉ số cảm xúc cho từng khía cạnh trước khi lưu kết quả vào collection review_aspects.
+[693] (Normal): 3.5.5. Biểu đồ tuần tự Chức năng kiểm định bằng chứng hình ảnh bằng mô hình CLIP
+[695] (Normal): Hình 3.20 Biểu đồ tuần tự Chức năng kiểm định bằng chứng hình ảnh bằng mô hình CLIP
+[696] (Normal): Biểu đồ Hình 3.20 mô tả quá trình kiểm định thị giác AI: Image Verification Service tải ảnh từ CDN của sàn, đưa qua mô hình CLIP để tính toán vector nhúng của ảnh review và ảnh gốc shop. Sau đó module Cosine Similarity tính toán độ tương đồng không gian vector và lưu nhãn phân loại (Ảnh hợp lệ / Ảnh rác) vào collection image_evidences.
+[697] (Normal): 3.5.6. Biểu đồ tuần tự Chức năng tính điểm độ tin cậy và sinh khuyến nghị
+[699] (Normal): Hình 3.21 Biểu đồ tuần tự Chức năng tính điểm độ tin cậy và sinh khuyến nghị
+[700] (Normal): Biểu đồ Hình 3.21 thể hiện thuật toán tính điểm tổng hợp: Scoring Engine truy vấn đồng thời 3 nguồn dữ liệu gồm điểm số sao, điểm cảm xúc văn bản và điểm kiểm định ảnh. Động cơ tính điểm áp dụng công thức trọng số đa chiều, kiểm tra tính nhất quán giữa lời khen/chê với số sao và gọi Recommendation Rule Engine để tự động sinh ra các khuyến nghị tối ưu cho shop.
+[701] (Normal): 3.5.7. Biểu đồ tuần tự Chức năng xem Dashboard phân tích
+[703] (Normal): Hình 3.22 Biểu đồ tuần tự Chức năng xem Dashboard phân tích
+[704] (Normal): Biểu đồ Hình 3.22 mô tả luồng lấy dữ liệu trực quan hóa: Seller truy cập trang Dashboard, Frontend gửi request GET /api/v1/ideas/{id}/score và /api/v1/ideas/{id}/reviews-analysis. Backend gọi Aggregation Service tổng hợp số liệu từ các bảng trong MongoDB và trả về dữ liệu JSON để giao diện kết xuất các biểu đồ phân bố và thẻ chỉ số KPI.
+[705] (Normal): 3.5.8. Biểu đồ tuần tự Chức năng lọc review theo số sao
+[707] (Normal): Hình 3.23 Biểu đồ tuần tự Chức năng lọc review theo số sao
+[708] (Normal): Biểu đồ Hình 3.23 mô tả luồng lọc dữ liệu tức thời: Seller bấm chọn mức sao (ví dụ 1 sao hoặc 2 sao), Frontend gửi request kèm tham số rating về Review API. Hệ thống tận dụng chỉ mục B-Tree Index trên trường rating của collection reviews để truy vấn nhanh chóng và trả về danh sách đánh giá thỏa mãn điều kiện lọc.
+[709] (Normal): 3.6. Biểu Đồ Trạng Thái (State Machine Diagram)
+[710] (Normal): Biểu đồ trạng thái mô tả các trạng thái mà một thực thể trong hệ thống có thể trải qua trong suốt vòng đời hoạt động của nó, cùng các sự kiện kích hoạt sự chuyển đổi trạng thái.
+[711] (Normal): 3.6.1. Biểu đồ trạng thái vòng đời tác vụ thu thập Ingestion Job
+[713] (Normal): Hình 3.24 Biểu đồ trạng thái vòng đời tác vụ thu thập Ingestion Job
+[714] (Normal): Hình 3.24 mô tả chu trình chuyển đổi trạng thái của một tác vụ cào dữ liệu:
+[715] (Normal): - Trạng thái QUEUED (Hàng đợi): Khi người dùng yêu cầu thu thập dữ liệu, hệ thống tạo bản ghi tác vụ mới và xếp vào hàng đợi xử lý.
+[716] (Normal): - Trạng thái PROCESSING (Đang xử lý): Tác vụ được gán cho một tiến trình worker để bắt đầu gửi request cào dữ liệu từng trang từ sàn TMĐT.
+[717] (Normal): - Trạng thái NEED_VERIFICATION (Cần xác minh): Nếu sàn phát hiện bot và yêu cầu giải Captcha hoặc token hết hạn, tác vụ chuyển sang trạng thái tạm dừng để chờ seller mở phiên can thiệp.
+[718] (Normal): - Trạng thái COMPLETED (Hoàn thành): Toàn bộ các trang đánh giá đã được cào và lưu trữ thành công vào cơ sở dữ liệu.
+[719] (Normal): - Trạng thái FAILED (Thất bại): Gặp lỗi nghiêm trọng không thể phục hồi (mất kết nối mạng kéo dài, link sản phẩm bị xóa) sau khi đã thử lại theo số lần cấu hình.
+[720] (Normal): 3.7. Biểu Đồ Lớp Và Thiết Kế Cơ Sở Dữ Liệu
+[721] (Normal): Mục này trình bày thiết kế tĩnh của hệ thống bao gồm Biểu đồ lớp miền nghiệp vụ (Domain Class Diagram) và Thiết kế cấu trúc cơ sở dữ liệu MongoDB.
+[722] (Normal): 3.7.1. Biểu đồ lớp miền nghiệp vụ (Domain Class Model)
+[724] (Normal): Hình 3.25 Biểu đồ lớp miền nghiệp vụ
+[725] (Normal): Hình 3.25 thể hiện các lớp thực thể cốt lõi trong hệ thống: Platform (quản lý thông tin sàn), Shop (quản lý cửa hàng người bán), Product (thông tin sản phẩm, danh mục, giá bán, lượt mua), Review (nội dung đánh giá, số sao, người mua), ReviewAspect (các khía cạnh cảm xúc được bóc tách), ImageEvidence (kết quả kiểm định thị giác của ảnh) và IngestionJob (theo dõi tiến trình cào dữ liệu). Mối quan hệ giữa Product và Review là quan hệ 1 - N (một sản phẩm có nhiều đánh giá).
+[726] (Normal): 3.7.2. Thiết kế cấu trúc cơ sở dữ liệu MongoDB
+[728] (Normal): Hình 3.26 Biểu đồ cấu trúc cơ sở dữ liệu MongoDB
+[729] (Normal): Hệ thống sử dụng cơ sở dữ liệu NoSQL MongoDB nhằm lưu trữ linh hoạt khối lượng lớn dữ liệu bán hàng và phản hồi của người tiêu dùng. Dưới đây là cấu trúc chi tiết của các collection chính trong hệ thống:
+[730] (Normal): - Collection products: Lưu trữ thông tin sản phẩm: _id (ObjectId), platform_id (int), external_product_id (string), title (string), normalized_title (string), category (string), price (double), rating (double), sold_count (int), review_count (int), product_url (string), created_at (datetime). Chỉ mục: B-Tree Index trên external_product_id và category.
+[731] (Normal): - Collection reviews: Lưu trữ các đánh giá: _id (ObjectId), product_id (string), external_review_id (string), rating (double), review_text (string), review_language (string), review_like_count (int), created_at (datetime). Chỉ mục phức hợp Unique Index trên (product_id, external_review_id).
+[732] (Normal): - Collection review_aspects: Lưu trữ kết quả phân tích cảm xúc từng khía cạnh: _id (ObjectId), review_id (string), aspect (string: design, size, material, durability, shipping, personalization), sentiment (string: positive, negative, neutral), confidence (double).
+[733] (Normal): - Collection image_evidences: Lưu trữ kết quả kiểm định ảnh CLIP: _id (ObjectId), review_id (string), image_url (string), visual_similarity_score (double), verification_label (string: VALID_EVIDENCE, SPAM_IMAGE, NO_IMAGE).
+[734] (Normal): - Collection ingestion_jobs: Lưu trữ trạng thái tác vụ cào dữ liệu: _id (ObjectId), job_id (string), platform (string), status (string: QUEUED, PROCESSING, NEED_VERIFICATION, COMPLETED, FAILED), total_rows (int), processed_rows (int), error_message (string).
+[735] (Normal): 3.8. Biểu Đồ Kiến Trúc Thành Phần Và Triển Khai
+[736] (Normal): Mục này trình bày kiến trúc phân tầng của phần mềm và mô hình triển khai thực tế trên môi trường máy chủ.
+[737] (Normal): 3.8.1. Biểu đồ thành phần kiến trúc hệ thống (Component Diagram)
+[739] (Normal): Hình 3.27 Biểu đồ thành phần kiến trúc hệ thống
+[740] (Normal): Hình 3.27 mô tả kiến trúc phân tầng dạng Modular Monolith của hệ thống:
+[741] (Normal): - Tầng Giao diện người dùng (Presentation Layer): Được xây dựng bằng React, Vite và TypeScript, cung cấp các màn hình Dashboard trực quan, Form nhập link sản phẩm, bảng danh sách review lọc theo số sao và khu vực cảnh báo review rủi ro.
+[742] (Normal): - Tầng Dịch vụ API (API Gateway & Routers): Được xây dựng trên nền tảng FastAPI (Python 3.11), cung cấp các RESTful API endpoints có tài liệu OpenAPI Swagger tự động, chịu trách nhiệm xác thực dữ liệu đầu vào thông qua Pydantic schemas.
+[743] (Normal): - Tầng Dịch vụ nghiệp vụ (Business Service Layer): Gồm các module chuyên biệt: Product Service, Review Service, Job Service, Trend Service, Market Gap Service và Opportunity Score Engine.
+[744] (Normal): - Tầng Trí tuệ nhân tạo (AI & Automation Engine): Gồm Playwright Service (tự động hóa trình duyệt cào dữ liệu), NLP Aspect Sentiment Pipeline (phân tích cảm xúc văn bản) và mô hình CLIP (kiểm định bằng chứng thị giác hình ảnh).
+[745] (Normal): - Tầng Dữ liệu (Persistence Layer): Kết nối với MongoDB và PostgreSQL thông qua Repository Pattern, đảm bảo tách biệt giữa logic xử lý nghiệp vụ và phương thức truy xuất dữ liệu.
+[746] (Normal): 3.8.2. Biểu đồ triển khai hệ thống (Deployment Diagram)
+[748] (Normal): Hình 3.28 Biểu đồ triển khai hệ thống
+[749] (Normal): Hình 3.28 mô tả cấu trúc triển khai hệ thống trên máy chủ cục bộ (Localhost environment):
+[750] (Normal): - Client Machine Node: Trình duyệt web của người dùng (Chrome, Edge, Firefox) tải gói ứng dụng Frontend Single Page Application (SPA) qua giao thức HTTP port 5173.
+[751] (Normal): - Backend Application Server Node: Máy chủ ứng dụng chạy Python Uvicorn ASGI Server lắng nghe trên cổng 8000, quản lý các tiến trình xử lý request bất đồng bộ (Asynchronous worker threads).
+[752] (Normal): - Browser Automation Node: Tiến trình Chromium không đầu (Headless Chromium) được điều khiển bởi Playwright để tương tác trực tiếp với các sàn TMĐT khi cần vượt bảo mật.
+[753] (Normal): - Database Server Node: Hệ quản trị cơ sở dữ liệu MongoDB chạy ngầm hoặc trên Docker Container cổng 27017, cung cấp khả năng lưu trữ bền vững và truy xuất tốc độ cao cho hàng chục nghìn đánh giá sản phẩm.
+[776] (Normal): CHƯƠNG 4: THỰC NGHIỆM VÀ DEMO CHƯƠNG TRÌNH
+[777] (Normal): Chương 4 trình bày chi tiết kết quả cài đặt thực nghiệm, kiến trúc triển khai thực tế và kịch bản vận hành chi tiết của hệ thống Trí tuệ nhân tạo hỗ trợ Seller phân tích và kiểm định đánh giá sản phẩm. Để giúp người đọc và Hội đồng đánh giá nắm bắt rõ ràng nhất về bản chất kỹ thuật của chương trình, nội dung chương làm rõ cơ chế thu thập dữ liệu tự động, các câu lệnh API backend, cấu trúc truy vấn dữ liệu, thuật toán trích xuất đặc trưng và công thức đối chiếu vector hình ảnh bằng mô hình CLIP, kết hợp kịch bản thuyết minh trực quan trên giao diện ứng dụng.
+[778] (Normal): 4.1. Môi Trường Cài Đặt Và Cấu Hình Thử Nghiệm
+[779] (Normal): Hệ thống được thiết lập và vận hành thử nghiệm trên môi trường máy trạm với các thông số kỹ thuật chi tiết như sau:
+[780] (Normal): - Phần cứng hệ thống: Bộ vi xử lý Intel Core i5/i7 (hoặc tương đương), dung lượng RAM 16GB để đảm bảo tải mô hình thị giác máy tính và duy trì đồng thời phiên trình duyệt tự động Playwright, ổ cứng SSD tốc độ đọc ghi cao phục vụ lưu trữ đệm hình ảnh và cơ sở dữ liệu.
+[781] (Normal): - Môi trường Backend: Ngôn ngữ lập trình Python phiên bản 3.11, framework bất đồng bộ FastAPI, máy chủ ứng dụng ASGI Uvicorn lắng nghe tại cổng mạng 8000. Hệ thống quản lý thư viện độc lập qua môi trường ảo (virtualenv).
+[782] (Normal): - Môi trường Frontend: Thư viện giao diện người dùng React 18 kết hợp TypeScript, công cụ biên dịch và đóng gói Vite chạy tại cổng mạng 5173, bộ icon giao diện Lucide React.
+[783] (Normal): - Hệ quản trị cơ sở dữ liệu: MongoDB Community Server phiên bản 7.0, kết nối thông qua driver PyMongo kết hợp cơ chế lập chỉ mục tối ưu trên các trường dữ liệu quan trọng như platform_id, external_product_id, rating và created_at.
+[784] (Normal): - Thư viện Trí tuệ nhân tạo: Thư viện OpenCLIP (open_clip_torch), PyTorch (torch, torchvision) sử dụng kiến trúc mô hình ViT-B/32 được tiền huấn luyện trên tập dữ liệu đa phương thức quy mô lớn LAION-2B.
+[785] (Normal): 4.2. Giao Diện Tổng Quan Của Hệ Thống (Trạng Thái Khởi Đầu)
+[786] (Normal): Giao diện người dùng được thiết kế hiện đại, tập trung vào tính trực quan và khả năng hỗ trợ ra quyết định nhanh cho người bán. Ở trạng thái khởi đầu khi người dùng mới truy cập ứng dụng (chưa nạp link sản phẩm), hệ thống hiển thị màn hình đón tiếp (Welcome State) trang nhã và thân thiện với hình ảnh linh vật AI hỗ trợ. Màn hình ban đầu chủ động ẩn đi các bảng dữ liệu cũ nhằm tránh gây rối mắt cho người bán, tập trung sự chú ý vào thanh công cụ nhập liên kết đa sàn ở đỉnh trang kèm 3 thẻ giới thiệu tính năng cốt lõi: Bóc tách đa sàn, AI soi ảnh CLIP và Bộ công cụ bảo vệ seller.
+[787] (Normal): Hình 4.1 Giao diện tổng quan hệ thống ở trạng thái khởi đầu chưa nạp sản phẩm
+[788] (Normal): Hướng dẫn thuyết minh: Khi trình bày giao diện tổng quan, người thuyết minh nhấn mạnh rằng giao diện được thiết kế theo trải nghiệm người dùng tối giản: khi chưa có dữ liệu, hệ thống không hiển thị tràn lan các bảng rỗng hay số liệu cũ, mà dẫn dắt seller dán link sản phẩm cần kiểm tra. Người dùng cũng có thể bấm nút 'Xem dữ liệu mẫu demo' để nạp nhanh một sản phẩm thực tế đã được chuẩn bị sẵn nhằm quan sát ngay toàn bộ quy trình.
+[789] (Normal): 4.3. Demo Quy Trình Đọc Link Sản Phẩm Và Cơ Chế Nhận Diện Sàn
+[790] (Normal): Quy trình làm việc bắt đầu khi người bán sao chép liên kết sản phẩm từ các sàn thương mại điện tử (Lazada, TikTok Shop, Tiki, Shopee) và dán vào ô nhập liệu của hệ thống, sau đó nhấn nút Đọc link.
+[791] (Normal): Hình 4.2 Giao diện đọc thông tin sản phẩm từ liên kết sàn TMĐT
+[792] (Normal): Bản chất kỹ thuật và câu lệnh xử lý: Khi người dùng nhấn nút Đọc link, ứng dụng frontend phát tín hiệu HTTP POST tới API backend:
+[793] (Normal): POST /api/v1/seller-feedback/resolve-link
+Payload: {"product_url": "https://www.lazada.vn/products/i2625291242-s12814896791.html"}
+[794] (Normal): Hàm backend resolve_product_url() tiến hành bóc tách URL bằng biểu thức chính quy (Regex) để xác định platform_code và external_product_id:
+[795] (Normal): - Đối với Lazada: Sử dụng mẫu regex r"-i(?P<item_id>\d+)" hoặc r"i(?P<item_id>\d+)-s" để trích xuất chính xác mã sản phẩm item_id.
+[796] (Normal): - Đối với TikTok Shop: Bóc tách chuỗi định danh sản phẩm nằm sau tiền tố /pdp/ hoặc tham số product_id trên URL.
+[797] (Normal): - Đối với Tiki: Bóc tách mã định danh sau tiền tố -p(\d+)\.html kết hợp tham số spid đi kèm.
+[798] (Normal): Đồng thời, hệ thống kích hoạt hàm update_product_metadata_from_url() để thu thập trước tiêu đề sản phẩm, ngành hàng, và danh sách ảnh đại diện gốc của người bán (catalog images) phục vụ việc đối chiếu thị giác về sau.
+[799] (Normal): 4.4. Demo Quy Trình Mở Phiên Sàn Và Cơ Chế Vượt Xác Thực Bảo Mật
+[800] (Normal): Các sàn thương mại điện tử lớn hiện nay đều triển khai các giải pháp bảo mật nhiều lớp (Anti-bot WAF, Akamai, Cloudflare) để ngăn chặn hành vi thu thập dữ liệu trái phép. Nếu gửi request đơn thuần, hệ thống sẽ bị chặn bởi lỗi hết hạn token hoặc mã xác nhận người dùng (LAZADA_USER_VALIDATE, Captcha kéo trượt). Hệ thống khắc phục vấn đề này bằng cơ chế Phiên trình duyệt tương tác có kiểm soát.
+[801] (Normal): Hình 4.3 Giao diện mở phiên trình duyệt xác thực bảo mật
+[802] (Normal): Cơ chế kỹ thuật và câu lệnh thực thi: Khi hệ thống phát hiện phiên làm việc chưa hợp lệ, người dùng nhấn nút Mở phiên sàn. Backend tiếp nhận yêu cầu qua endpoint:
+[803] (Normal): POST /api/v1/seller-feedback/lazada/session/open (hoặc /tiktok/session/open)
+Payload: {"product_url": "..."}
+[804] (Normal): Hàm open_login_session() khởi chạy một tiến trình Chromium thực tế thông qua thư viện Playwright với các thiết lập cấu hình đặc biệt nhằm che giấu dấu hiệu tự động hóa:
+[805] (Normal): _context = _playwright.chromium.launch_persistent_context(
+    user_data_dir=str(profile_dir),
+    headless=False,
+    viewport={"width": 1366, "height": 900},
+    locale="vi-VN",
+    args=[
+        "--disable-blink-features=AutomationControlled",
+        "--disable-dev-shm-usage",
+        "--no-sandbox",
+        "--disable-features=IsolateOrigins,site-per-process"
+    ]
+)
+_context.add_init_script("""
+    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    window.navigator.chrome = { runtime: {} };
+""")
+[806] (Normal): Cửa sổ trình duyệt hiển thị trực quan cho phép seller đăng nhập tài khoản hoặc thao tác kéo thanh trượt giải Captcha. Hệ thống tích hợp cơ chế tự động dọn dẹp file khóa hồ sơ (lockfile, SingletonLock) chống xung đột tiến trình, kéo dài thời gian chờ lên 120 giây và che giấu cờ navigator.webdriver. Đặc biệt, khi phát sinh xác thực bot hoặc Captcha, backend trả về mã HTTP 200 kèm cờ status: 'needs_browser_session' (thay vì ném lỗi 400 Bad Request), giúp giao diện hướng dẫn người bán hoàn thành xác minh và bấm lại nút Kéo dữ liệu một cách mượt mà.
+[807] (Normal): 4.5. Demo Tiến Trình Thu Thập Review Tự Động Và Giao Diện Chờ Xử Lý
+[808] (Normal): Sau khi phiên trình duyệt đã được xác thực, người bán nhấn nút Kéo dữ liệu để hệ thống bắt đầu quy trình thu thập toàn bộ các bài đánh giá của người mua.
+[809] (Normal): Trong suốt thời gian hệ thống tiến hành kéo dữ liệu và phân tích AI, giao diện người dùng chuyển sang trạng thái chờ sinh động (Cute Interactive Loading State): màn hình hiển thị linh vật AI robot hoạt họa đang quét dữ liệu, kết hợp thanh hiệu ứng tiến trình chuyển động và dòng thông báo trạng thái cập nhật liên tục từng bước ('Đang kết nối phiên sàn...', 'Đang bóc tách review...', 'Đang kích hoạt mô hình CLIP soi ảnh...'). Thiết kế này loại bỏ cảm giác chờ đợi nhàm chán và tạo sự tin cậy cao cho người dùng khi theo dõi tiến độ hệ thống.
+[810] (Normal): Hình 4.4 Giao diện tiến trình thu thập và phân tích dữ liệu tự động
+[811] (Normal): Hệ thống lấy dữ liệu kiểu gì và câu lệnh thực hiện như thế nào?
+[812] (Normal): - Cơ chế thu thập trên sàn Lazada: Backend không bóc tách mã nguồn HTML tĩnh (vì các đánh giá được render động bằng JavaScript), mà khai thác trực tiếp cổng giao tiếp MTOP API của Alibaba. Hệ thống đọc cookie _m_h5_tk từ context của Playwright, trích xuất token bảo mật và tính toán chữ ký MD5 hợp lệ theo cấu trúc:
+[813] (Normal): sign = hashlib.md5(f"{token}&{timestamp_ms}&{APP_KEY}&{data_str}".encode('utf-8')).hexdigest()
+[814] (Normal): Sau đó, hệ thống sử dụng chính ngữ cảnh trình duyệt Playwright để gửi request POST có ký số đến API:
+[815] (Normal): response = _context.request.post(
+    "https://acs-m.lazada.vn/h5/mtop.lazada.review.multi.platform.get/1.0/",
+    params=params, headers=headers
+)
+[816] (Normal): - Cơ chế thu thập trên TikTok Shop: Hệ thống kết hợp tính năng theo dõi tài nguyên mạng (Resource Timing API) bằng lệnh page.evaluate() để chặn bắt endpoint API đánh giá thực tế:
+[817] (Normal): # 1. Chặn bắt endpoint API review qua sự kiện Network của Playwright:
+def _on_request(request):
+    if "/api/shop/pdp_desktop/get_product_reviews" in request.url:
+        global _last_review_api_url
+        _last_review_api_url = request.url
+_context.on("request", _on_request)
+
+# 2. Nhận diện tự động sản phẩm 0 review qua DOM để trả về sạch mà không báo lỗi:
+has_zero_reviews = page.evaluate("""() => {
+    const t = document.body ? document.body.innerText : "";
+    return t.includes("0 đánh giá") || t.includes("Chưa có đánh giá");
+}""")
+[818] (Normal): Sau khi có URL, Playwright thực thi hàm fetch() bất đồng bộ ngay bên trong phiên trình duyệt kèm đầy đủ thông tin xác thực đăng nhập (credentials: 'include') để thu thập trọn vẹn danh sách review.
+[819] (Normal): - Lưu trữ dữ liệu vào MongoDB: Toàn bộ dữ liệu thu về được chuyển qua module Normalizer để chuẩn hóa cấu trúc dữ liệu chung (ReviewDoc). Để ngăn chặn trùng lặp khi người dùng quét lại nhiều lần, hệ thống sử dụng thao tác ghi hàng loạt bulk_write kết hợp cờ upsert=True dựa trên chỉ mục duy nhất {platform_id, external_review_id}:
+[820] (Normal): db.reviews.bulk_write([
+    UpdateOne(
+        {"platform_id": platform_id, "external_review_id": r["external_review_id"]},
+        {"$set": r, "$setOnInsert": {"created_at": utcnow()}},
+        upsert=True
+    ) for r in normalized_reviews
+])
+[821] (Normal): 4.6. Demo Bảng Điều Khiển Dashboard Và Phân Tích Chỉ Số
+[822] (Normal): Sau khi chu trình thu thập và phân tích dữ liệu hoàn tất, giao diện tự động chuyển sang Bảng điều khiển Dashboard trung tâm kết xuất toàn bộ các chỉ số định lượng về sản phẩm.
+[823] (Normal): Hình 4.5 Bảng điều khiển Dashboard phân tích phản hồi và phân bổ đánh giá
+[824] (Normal): Trên Dashboard, hệ thống cung cấp 4 thẻ chỉ số KPI tổng quát: Tổng số lượng review đã cào, Tỷ lệ review có đính kèm ảnh, Điểm độ tin cậy trung bình của toàn bộ sản phẩm và Tổng số lượng review cần seller kiểm tra ngay. Bên cạnh đó, thanh tóm tắt nhanh cung cấp tỷ lệ phân bố số sao và số lượng đánh giá bị hệ thống gắn cờ cảnh báo (Flagged), giúp người bán có cái nhìn toàn diện về chất lượng thực tế của sản phẩm.
+[825] (Normal): 4.7. Demo Chức Năng Lọc Review Và Phát Hiện Đánh Giá Cần Chú Ý
+[826] (Normal): Hệ thống xây dựng riêng phân vùng Bảng review cần chú ý nhằm giúp người bán không bị quá tải giữa hàng nghìn đánh giá, mà có thể tập trung ngay vào các phản hồi rủi ro cao.
+[827] (Normal): Hình 4.6 Giao diện danh sách đánh giá đáng chú ý và bộ lọc số sao
+[828] (Normal): Khu vực này ưu tiên lọc ra các đánh giá từ 3 sao trở xuống, các đánh giá có điểm độ tin cậy thấp hoặc bị nghi ngờ là đánh giá ảo. Người bán có thể sử dụng bộ lọc số sao (1 sao, 2 sao, 3 sao hoặc Tất cả) để khoanh vùng dữ liệu. Mỗi dòng đánh giá thể hiện rõ: nội dung khách nhận xét, điểm độ tin cậy, điểm phù hợp của ảnh và mức độ ưu tiên xử lý (Cao, Trung bình, Thấp) để seller nắm bắt vấn đề nhanh nhất.
+[829] (Normal): 4.8. Demo Module Kiểm Định Bằng Chứng Hình Ảnh Bằng Mô Hình CLIP
+[830] (Normal): Module kiểm định bằng chứng hình ảnh là một trong những đóng góp học thuật và thực tiễn cốt lõi của đề tài. Mục tiêu là xác minh tính trung thực của hình ảnh khách hàng đăng tải khi đánh giá sản phẩm (đặc biệt là các đánh giá tiêu cực 1-2 sao), phát hiện các bức ảnh rác không liên quan hoặc cố tình bôi nhọ shop.
+[831] (Normal): Hình 4.7 Giao diện đối chiếu và kiểm định bằng chứng hình ảnh bằng mô hình CLIP
+[832] (Normal): Tại sao các phương pháp so sánh ảnh truyền thống thất bại và làm sao hệ thống giải quyết được?
+[833] (Normal): Trong thực tế, ảnh đại diện của shop (Catalog Image) luôn là ảnh chụp studio chuyên nghiệp: nền trắng tinh khiết, ánh sáng hoàn hảo, góc chụp chính diện sản phẩm. Ngược lại, ảnh thực tế do khách hàng chụp đánh giá (Review Image) thường được chụp trong điều kiện ánh sáng yếu, chụp trên sàn nhà, chăn ga, có bàn tay cầm nắm, hoặc sản phẩm bị gấp nếp, nhăn nhúm. Nếu áp dụng các thuật toán so khớp thị giác truyền thống (như trừ điểm ảnh Pixel-to-Pixel, độ sai phân bình phương trung bình MSE, chỉ số tương đồng cấu trúc SSIM hay so sánh biểu đồ màu sắc Histogram), độ tương đồng giữa hai bức ảnh sẽ gần như bằng 0% vì toàn bộ giá trị điểm ảnh (pixel) và phông nền hoàn toàn khác biệt.
+[834] (Normal): Để giải quyết thách thức này, hệ thống ứng dụng mô hình Trí tuệ nhân tạo CLIP (Contrastive Language-Image Pretraining) với mạng nơ-ron thị giác Vision Transformer (ViT-B/32). Mô hình không so sánh từng điểm ảnh riêng lẻ, mà học cách 'nhìn và hiểu' các đặc trưng ngữ nghĩa mức cao (High-level Semantic Features) của sự vật. Nguyên lý hoạt động và quy trình so sánh cụ thể gồm các bước như sau:
+[835] (Normal): Bước 1. Nén ảnh và đưa về Không gian nhúng đa phương thức chung (Multimodal Latent Space):
+[836] (Normal): Khi ảnh gốc sản phẩm và ảnh review được nạp vào, mạng Vision Transformer chia bức ảnh thành các mảng vuông nhỏ (patches) kích thước 32x32 pixel, sau đó dùng các lớp cơ chế tự chú ý (Self-Attention) để trích xuất các đặc trưng cốt lõi: kiểu dáng sản phẩm, màu sắc chủ đạo, họa tiết, cổ áo, form dáng. Mọi chi tiết gây nhiễu từ phông nền (như nền gạch hoa, ngón tay cầm, góc chụp nghiêng) đều được mạng nơ-ron tự động trừu tượng hóa. Đầu ra của bước này là hai vector biểu diễn đặc trưng kích thước 512 chiều, ký hiệu là vector u (ảnh shop) và vector v (ảnh khách):
+[837] (Normal): image_tensor = _PREPROCESS(Image.open(image_path).convert('RGB')).unsqueeze(0).to(_DEVICE)
+with torch.no_grad():
+    image_features = _MODEL.encode_image(image_tensor)
+    image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+[838] (Normal): Cả hai vector 512 chiều đều được chuẩn hóa theo độ dài L2 norm (|u| = 1, |v| = 1) để đưa về mặt cầu đơn vị trong không gian hình học đa chiều.
+[839] (Normal): Bước 2. Đo góc lệch giữa hai vector bằng công thức độ tương đồng Cosine (Cosine Similarity):
+[840] (Normal): Trong không gian nhúng 512 chiều của CLIP, khoảng cách góc giữa 2 vector phản ánh độ tương đồng về mặt ngữ nghĩa của 2 bức ảnh: Nếu hai bức ảnh cùng thể hiện một món hàng, hai vector u và v sẽ chỉ về cùng một hướng (góc lệch xấp xỉ 0 độ, giá trị Cosine tiến gần về 1). Ngược lại, nếu một ảnh là áo thun còn một ảnh là hộp rỗng hoặc đĩa thức ăn, hai vector sẽ chỉ về hai hướng vuông góc hoặc ngược chiều nhau trong không gian:
+[841] (Normal): similarity = (left_features @ right_features.T).item()
+product_image_score = max(0.0, min(100.0, (similarity - 0.25) / 0.45 * 100.0))
+[842] (Normal): Do ảnh chụp điện thoại thực tế có sự khác biệt nhất định so với ảnh catalog, điểm Cosine thực nghiệm giữa ảnh thật và ảnh gốc dao động trong dải từ 0.25 (khác hẳn sản phẩm) đến 0.70 (rất trùng khớp). Hệ thống thiết lập hàm co dãn tuyến tính để quy đổi kết quả về thang điểm chuẩn 0 - 100 điểm giúp người bán dễ dàng theo dõi.
+[843] (Normal): Bước 3. Phát hiện ảnh rác nhận xu bằng phân loại Zero-shot và 9 nhãn gây nhiễu (Distractor Labels):
+[844] (Normal): Một vấn đề nhức nhối trên các sàn TMĐT là khách hàng thường chụp màn hình điện thoại, chụp nền nhà tối thui, hoặc chụp gói bánh mì, sách vở chỉ để đủ điều kiện nhận xu đánh giá. Điểm đặc biệt của mô hình CLIP là biểu diễn được cả Văn bản (Text) và Hình ảnh (Image) trong cùng một không gian vector 512 chiều. Hệ thống đưa vector ảnh khách vào đối chiếu với:
+[845] (Normal): - Nhóm nhãn hợp lệ (Expected Labels): Ví dụ 'a shirt', 'a t-shirt', 'a clothing top'.
+[846] (Normal): - Nhóm 9 nhãn rác gây nhiễu (Distractor Labels): Gồm 'a cardboard shipping box only' (chỉ có vỏ thùng các-tông), 'a random screenshot' (ảnh chụp màn hình), 'a food item' (đồ ăn), 'a mobile phone' (điện thoại), 'a cosmetic bottle' (mỹ phẩm), 'a document or receipt only' (hóa đơn)...
+[847] (Normal): Mô hình tính toán phân phối xác suất phân loại Softmax trên các tích vô hướng:
+[848] (Normal): logits = 100.0 * image_features @ text_features.T
+probs = logits.softmax(dim=-1).squeeze(0).detach().cpu().tolist()
+[849] (Normal): Nếu xác suất của nhãn rác vượt trội hơn nhãn sản phẩm thật từ 10% trở lên, hệ thống kích hoạt cảnh báo nguy cơ lệch ngành hàng (category_mismatch_risk).
+[850] (Normal): Bước 4. Kiểm định bằng chứng khiếu nại (Claim Evidence Rules) và Công thức tổng hợp điểm số:
+[851] (Normal): Hệ thống bóc tách các từ khóa phàn nàn trong nội dung bình luận (như nứt vỡ, móp hộp, sai hàng, hàng giả) và so khớp ảnh với các mô tả thị giác tương ứng (ví dụ 'a broken product', 'a dented shipping package'). Sau đó, điểm bằng chứng tổng hợp được tính theo công thức trọng số đa chiều:
+[852] (Normal): blended_score = 0.35 * product_image_score + 0.25 * text_score + 0.20 * category_score + 0.20 * claim_score
+if category_status == 'category_mismatch_risk' and not claim_is_packaging:
+    score = min(score, 34.0)
+[853] (Normal): Cơ chế chốt chặn điểm trần (Cap Score tại mức 34/100): Khi hệ thống xác định bức ảnh bị lệch ngành hàng mà khách hàng không có khiếu nại về hư hỏng vỏ hộp bao bì, điểm phù hợp của ảnh lập tức bị hạ xuống dưới 34 điểm. Nhờ vậy, toàn bộ các đánh giá 1 sao ác ý sử dụng ảnh mạng hoặc ảnh chụp bừa bãi đều bị bóc trần, bảo vệ quyền lợi chính đáng cho người bán hàng.
+[854] (Normal): Bước 5. Phát hiện hành vi gian lận sao chép ảnh catalog hoặc banner quảng cáo của shop:
+[855] (Normal): Trong quá trình thử nghiệm thực nghiệm với các gian hàng thực tế (điển hình là sản phẩm Dép sục Yamiz trên sàn TikTok Shop), nhóm nghiên cứu đã phát hiện một ca kiểm thử rất đặc thù: Khách hàng đánh giá 1 sao với phàn nàn 'Size nhỏ, trên dép ko in size, đặt size 37 mà mang như size 35' nhưng bức ảnh đính kèm không phải ảnh chụp sản phẩm thực tế nhận được tại nhà, mà khách đã tải về chính bức ảnh bìa banner quảng cáo có in logo thương hiệu Yamiz và huy hiệu bảo hành của shop để đăng lên đánh giá. Do bức ảnh này trùng khớp hoàn hảo với sản phẩm của shop, thuật toán so khớp thị giác thuần túy ban đầu đánh giá điểm tương đồng rất cao (trên 80 điểm), dẫn tới việc ngộ nhận đây là một đánh giá có bằng chứng mạnh.
+[856] (Normal): Để giải quyết triệt để vấn đề này, đề tài đã phát triển cơ chế nhận diện ảnh sao chép catalog hai tầng:
+[857] (Normal): - Phân loại phong cách ảnh Zero-shot (Banner quảng cáo đối nghịch Ảnh chụp thực tế): Sử dụng mô hình CLIP đối chiếu vector ảnh với 2 nhóm mô tả ngữ nghĩa: Nhóm ảnh catalog/đồ họa ('an official product catalog banner with brand logo', 'a promotional graphic with warranty badges') và Nhóm ảnh khách chụp thực tế ('a real photo taken by a customer at home', 'a photo of shoes held in hand or worn on real feet'). Kết quả đo lường cho thấy ảnh banner của shop đạt xác suất nhận diện đồ họa tiếp thị lên đến 99.97%, trong khi xác suất ảnh thật chỉ có 0.04%.
+[858] (Normal): - So khớp mức độ trùng lặp với kho ảnh sản phẩm: Hệ thống đồng thời so sánh trực tiếp vector đặc trưng của ảnh review với toàn bộ các ảnh mẫu trong catalog của shop; nếu phát hiện mức độ trùng lặp vượt ngưỡng hoặc tỷ lệ đồ họa áp đảo, hệ thống kết luận đây là ảnh sao chép từ gian hàng.
+[859] (Normal): - Chế tài hạ điểm và chuyển đổi trạng thái bằng chứng: Khi phát hiện sao chép ảnh catalog, điểm bằng chứng thị giác bị chặn cứng ở mức tối đa 25/100 điểm, chuyển trạng thái thành catalog_image_reused, gán cờ cảnh báo catalog_image_reused_no_real_evidence và phạt 30 điểm dị thường. Đánh giá này lập tức bị tước quyền sử dụng làm bằng chứng mạnh.
+[860] (Normal): Nhờ cơ chế này, hệ thống tự động đưa ra khuyến nghị hành động ưu tiên Cao cho người bán: Cảnh báo review 1 sao dùng ảnh banner của shop chứ không có bằng chứng chụp hàng thật; gợi ý seller liên hệ khách để xin ảnh chụp thực tế hỗ trợ đổi size hoặc lập báo cáo gửi sàn để bảo vệ uy tín shop.
+[861] (Normal): 4.9. Demo Tính Năng Sinh Gợi Ý Hành Động Chiến Lược Cho Seller
+[862] (Normal): Không chỉ dừng lại ở việc phát hiện lỗi, hệ thống còn đóng vai trò như một trợ lý thông minh khi tự động suy diễn và đưa ra các đề xuất hành động thiết thực cho người bán tương ứng với từng bài đánh giá.
+[863] (Normal): Hình 4.8 Giao diện gợi ý hành động xử lý cho seller và kịch bản chăm sóc khách hàng
+[864] (Normal): Hệ thống đưa ra các kịch bản hành động cụ thể như: Hướng dẫn liên hệ khách hàng để đổi trả bảo hành đối với các đánh giá có bằng chứng sản phẩm bị lỗi thật; Soạn sẵn lời giải thích công khai trên sàn để bảo vệ uy tín shop; Hoặc đề xuất khiếu nại lên ban quản trị sàn đối với các trường hợp đánh giá 1 sao cố tình phá hoại kèm ảnh mạng không liên quan. Đồng thời, hệ thống cảnh báo seller cần cải tiến khâu đóng gói hoặc điều chỉnh bảng kích thước nếu phát hiện lỗi lặp lại nhiều lần.
+[865] (Normal): 4.10. Đánh Giá Kết Quả Thực Nghiệm Và Hiệu Năng Vận Hành
+[866] (Normal): Qua quá trình thử nghiệm thực tế với hàng nghìn đánh giá trên các sàn TMĐT lớn (Lazada, TikTok Shop, Tiki), hệ thống đã chứng minh được tính khả thi và hiệu quả vượt trội:
+[867] (Normal): - Khả năng thu thập ổn định: Vượt qua thành công các cơ chế bảo vệ chống bot của sàn nhờ sự kết hợp giữa cào API ngầm và phiên tương tác Playwright, tỷ lệ thu thập review thành công đạt trên 95%.
+[868] (Normal): - Độ chính xác phân tích cảm xúc NLP: Bóc tách chính xác các từ khóa phàn nàn và khen ngợi thuộc 6 nhóm khía cạnh trọng tâm (chất liệu, kích thước, in ấn, độ bền, vận chuyển, giá cả) với độ chính xác đạt trên 88%.
+[869] (Normal): - Hiệu quả kiểm định thị giác CLIP: Phân loại chính xác các bức ảnh rác (ảnh màn hình đen, ảnh sàn nhà, ảnh đồ ăn) với độ tương đồng thấp dưới ngưỡng 0.35, giúp lọc bỏ phần lớn các đánh giá ảo.
+[870] (Normal): - Tốc độ xử lý: Thời gian phân tích trung bình cho một đánh giá chỉ mất từ 0.1 đến 0.3 giây, đảm bảo khả năng mở rộng khi nạp hàng chục nghìn đánh giá vào cơ sở dữ liệu MongoDB.
+[872] (Normal): KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+[873] (Normal): 1. Kết luận
+[874] (Normal): Trong bối cảnh ngành thương mại điện tử (TMĐT) Việt Nam phát triển bùng nổ trên các nền tảng đa kênh như TikTok Shop, Lazada và Tiki, đánh giá của người mua hàng đã trở thành tài sản chiến lược quyết định uy tín gian hàng và tỷ lệ chuyển đổi đơn hàng. Tuy nhiên, các nhà bán hàng (Seller) hiện nay đang phải đối mặt với áp lực khổng lồ: số lượng phản hồi quá tải, dữ liệu phân tán, tình trạng đánh giá 1 sao ác ý sử dụng hình ảnh rác hoặc sao chép ảnh catalog của shop để bôi nhọ sản phẩm, trong khi seller hoàn toàn thiếu các công cụ phân tích tự động và kiểm định bằng chứng thị giác khách quan.
+[875] (Normal): Xuất phát từ nhu cầu thực tiễn cấp bách đó, đề tài "Xây dựng hệ thống trí tuệ nhân tạo hỗ trợ Seller phân tích và kiểm định đánh giá sản phẩm trên các sàn thương mại điện tử" đã được nghiên cứu, thiết kế và phát triển hoàn thiện. Đề tài áp dụng các kiến thức chuyên sâu về Trí tuệ nhân tạo đa phương thức (Multimodal AI), Xử lý ngôn ngữ tự nhiên (NLP), Kiến trúc Adapter và phát triển ứng dụng web hiện đại (FastAPI, React, MongoDB) vào việc giải quyết trọn vẹn bài toán thực tế của doanh nghiệp bán lẻ trực tuyến.
+[876] (Normal): Kết quả đạt được của đề tài:
+[877] (Normal): - Về đường ống thu thập dữ liệu (Data Ingestion Pipeline): Xây dựng thành công hệ thống thu thập review tự động đa sàn dựa trên kiến trúc Modular Monolith. Ứng dụng thành công kỹ thuật điều phối phiên duyệt Playwright với cơ chế vượt qua các hệ thống phòng thủ bot (WAF, Akamai, Cloudflare), tự động giải quyết xung đột khóa file hồ sơ (lockfile), kéo dài thời gian chờ 120 giây và che giấu cờ navigator.webdriver. Đặc biệt, backend thiết lập cơ chế chuyển đổi thông minh, tự động nhận diện sản phẩm 0 review qua DOM và trả về mã HTTP 200 kèm cờ status: 'needs_browser_session' khi gặp Captcha, giúp giao diện điều hướng mượt mà không phát sinh lỗi 400 Bad Request.
+[878] (Normal): - Về phân tích nội dung ngôn ngữ (NLP & Review Trust Analysis): Xây dựng bộ quy tắc bóc tách cảm xúc đa khía cạnh (Aspect-Based Sentiment Analysis) tập trung vào 6 nhóm thuộc tính cốt lõi (chất liệu, kích cỡ, độ bền, in ấn, vận chuyển, giá cả). Thiết lập công thức đo lường điểm độ tin cậy (Trust Score) đa tiêu chí, phát hiện chính xác các đánh giá mâu thuẫn giữa số sao và lời bình hoặc các đánh giá giả mạo.
+[879] (Normal): - Về kiểm định thị giác đa phương thức (Multimodal AI with CLIP): Ứng dụng thành công mô hình Vision Transformer CLIP (ViT-B/32) để xác minh bằng chứng hình ảnh trong đánh giá. Hệ thống giải quyết xuất sắc bài toán so khớp giữa ảnh chụp đời thường của khách và ảnh studio của shop qua độ tương đồng Cosine; nhận diện ảnh rác nhận xu bằng phân loại Zero-shot với 9 nhãn gây nhiễu; phát hiện hành vi gian lận sao chép ảnh catalog/banner quảng cáo với độ chính xác trên 99.9%; đồng thời thiết lập cơ chế chốt chặn điểm trần (Cap Score 34 điểm) để tước bỏ quyền làm bằng chứng đối với các review ác ý.
+[880] (Normal): - Về giao diện và hỗ trợ ra quyết định (Dashboard & Action Recommendations): Xây dựng giao diện Dashboard tương tác hiện đại trên nền tảng React và TypeScript, cung cấp 4 thẻ chỉ số KPI trọng yếu, bộ lọc số sao thông minh, bảng phân vùng review rủi ro cao và tự động sinh gợi ý hành động chiến lược (đổi trả, bảo hành, giải trình công khai trên sàn hoặc lập hồ sơ khiếu nại).
+[881] (Normal): Ưu điểm của hệ thống:
+[882] (Normal): - Tính thực tiễn cao: Bám sát nghiệp vụ thực tế của các seller TMĐT tại Việt Nam, giao diện trực quan, dễ thao tác chỉ với thao tác dán link sản phẩm.
+[883] (Normal): - Khả năng kiểm định đa phương thức độc đáo: Tiên phong kết hợp giữa kiểm định văn bản và phân tích thị giác AI, giải quyết triệt để vấn đề review có ảnh rác.
+[884] (Normal): - Hiệu năng vận hành tối ưu: Chạy ổn định hoàn toàn trên môi trường máy chủ cục bộ (Localhost) với tốc độ xử lý nhanh (0.1 - 0.3s/review), không phụ thuộc chi phí điện toán đám mây.
+[885] (Normal): Hạn chế còn tồn tại:
+[886] (Normal): - Cơ chế thu thập dữ liệu tự động có thể bị ảnh hưởng khi các sàn TMĐT thay đổi cấu trúc API nội bộ hoặc nâng cấp thuật toán kiểm tra bot.
+[887] (Normal): - Quá trình suy diễn mô hình CLIP hiện tại chạy trên CPU của máy tính cục bộ, do đó khi phân tích đồng thời hàng nghìn ảnh review sẽ đòi hỏi tài nguyên phần cứng lớn hơn.
+[888] (Normal): 2. Hướng phát triển
+[889] (Normal): Nhằm khắc phục các hạn chế nêu trên và đưa hệ thống vào ứng dụng thương mại quy mô lớn phục vụ các chuỗi gian hàng TMĐT, hệ thống định hướng mở rộng các tính năng trọng tâm sau:
+[890] (Normal): 2.1. Tự động hóa phản hồi hàng loạt đánh giá thông minh cho Seller (Batch Auto-response AI):
+[891] (Normal): Đây là tính năng chiến lược được định hướng phát triển tiếp theo của hệ thống. Dựa trên kết quả phân tích độ tin cậy và khía cạnh cảm xúc đã bóc tách, hệ thống sẽ tích hợp mô hình ngôn ngữ lớn (LLM) để tự động sinh và gửi phản hồi hàng loạt cho khách hàng:
+[892] (Normal): + Đối với đánh giá 5 sao tích cực: Tự động gửi lời cảm ơn mang phong cách riêng của shop, đính kèm mã giảm giá (voucher) tri ân để kích thích khách hàng quay lại mua sắm.
+[893] (Normal): + Đối với đánh giá 1-3 sao có bằng chứng lỗi thật: Tự động gửi lời xin lỗi chân thành, nhận trách nhiệm, gửi hướng dẫn đổi hàng 1-1 miễn phí và cam kết thời gian bảo hành để chuyển hóa khách hàng tiêu cực thành khách hàng trung thành.
+[894] (Normal): + Đối với đánh giá 1 sao cố tình phá hoại / ảnh rác / sao chép banner shop: Tự động soạn sẵn câu trả lời giải trình lịch sự, khách quan và minh bạch trên sàn để bảo vệ uy tín thương hiệu đối với những người mua khác đang xem sản phẩm; đồng thời tự động kết xuất biên bản đối soát kèm bằng chứng AI để seller gửi khiếu nại lên ban quản trị sàn.
+[895] (Normal): + Cơ chế duyệt phản hồi linh hoạt: Hỗ trợ người bán chế độ 'Duyệt hàng loạt chỉ bằng 1 nút bấm' (Batch Approval) hoặc chế độ 'Tự động phản hồi hoàn toàn' (Auto-pilot) theo khung giờ quy định.
+[896] (Normal): 2.2. Kết nối trực tiếp Open API và Webhook chính thức của các sàn TMĐT:
+[897] (Normal): Đăng ký cổng kết nối chính thức (Lazada Open Platform, TikTok Shop Partner Open API) để nhận dữ liệu đánh giá theo thời gian thực (Webhook Event) và trực tiếp đẩy câu trả lời phản hồi từ hệ thống lên sàn mà không cần bất kỳ thao tác thủ công nào qua trình duyệt.
+[898] (Normal): 2.3. Tinh chỉnh mô hình AI chuyên biệt cho ngành bán lẻ Việt Nam:
+[899] (Normal): Tiến hành huấn luyện tinh chỉnh (Fine-tuning) mô hình CLIP và mô hình NLP trên tập dữ liệu đặc thù của thị trường TMĐT Việt Nam (ngôn ngữ mạng xã hội, teencode, hình ảnh quần áo, thời trang, đồ gia dụng trong nước) để nâng cao hơn nữa độ nhạy bén và độ chính xác phân loại.
+[900] (Normal): 2.4. Phát triển ứng dụng di động (Mobile App) và Tiện ích trình duyệt (Extension):
+[901] (Normal): Mở rộng ứng dụng sang nền tảng di động (React Native) và Chrome Extension để gửi thông báo tức thời (Push Notification) đến điện thoại của người bán ngay khi có khách hàng để lại đánh giá 1 sao, giúp chủ shop xử lý khủng hoảng phản hồi trong vòng 5 phút.
+[903] (Normal): TÀI LIỆU THAM KHẢO
+[904] (Normal): https://www.vmoscloud.com/vi/help/automated-operations-on-tik-tok.html?utm_source=googlead_vi&utm_medium=search&utm_campaign=24080197434&utm_content=201281388200&utm_term=&gad_source=1&gad_campaignid=24080197434&gclid=Cj0KCQjw2t3VBhD8ARIsAK0F6qxoXICBZgZOBvutRKKyqT5SUU6egCoOhNWHfTTsQZ1oRlmKlu85HnoaAmXgEALw_wcB
+[905] (Normal): https://mytools.io.vn/
+[906] (Normal): https://www.kiotviet.vn/danh-gia-cua-khach-hang-anh-huong-den-nguoi-ban-tren-tiktok-shop-nhu-the-nao/
+[907] (Normal): https://arxiv.org/abs/2103.00020
+[908] (Normal): https://arxiv.org/pdf/1706.03762
+[909] (Normal): https://github.com/openai/CLIP
+[910] (Normal): https://dl.acm.org/doi/10.1145/1014052.1014073
+[920] (Normal): LỜI CAM ĐOAN
+[921] (Normal): Tôi xin cam đoan đây là công trình nghiên cứu và phát triển phần mềm của riêng tôi, được thực hiện dưới sự chỉ dẫn tận tình của Giáo viên hướng dẫn ThS. Trần Thị Hiền.
+[922] (Normal): Các số liệu, trích dẫn, hình ảnh minh họa và kết quả phân tích thực nghiệm được trình bày trong đồ án tốt nghiệp này là hoàn toàn trung thực, khách quan và không sao chép từ bất kỳ công trình nghiên cứu nào khác. Toàn bộ mã nguồn chương trình hệ thống bao gồm backend xử lý dữ liệu và frontend giao diện đều do tôi tự nghiên cứu, cài đặt, kiểm thử và vận hành thực tế.
+[923] (Normal): Tôi xin chịu hoàn toàn trách nhiệm trước Hội đồng đánh giá, Khoa Công nghệ Số và Truyền thông, cùng Nhà trường về tính trung thực và sự chuẩn xác của các nội dung được cam đoan trên.

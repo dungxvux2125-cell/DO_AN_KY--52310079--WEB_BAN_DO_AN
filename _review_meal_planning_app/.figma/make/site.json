@@ -1,0 +1,11 @@
+{
+  "title": "FoodVD - Nền tảng đặt món",
+  "description": "Website thương mại điện tử FoodVD cho phép tìm món, đặt hàng, thanh toán COD/VietQR và quản trị đơn hàng.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
