@@ -12,8 +12,9 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #fbf7ef;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  background: #fbfbfb;
+  color: #111827;
+  font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -34,11 +35,9 @@ a {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(255, 211, 156, 0.42), transparent 26rem),
-    radial-gradient(circle at 86% 18%, rgba(244, 152, 104, 0.22), transparent 28rem),
-    linear-gradient(120deg, rgba(255, 250, 242, 0.98), rgba(248, 238, 224, 0.74));
+  background: #fbfbfb;
 }
+
 
 main > *:not(.site-ambient) {
   position: relative;
@@ -233,12 +232,6 @@ main > *:not(.site-ambient) {
   display: grid;
   gap: 1.5rem;
   margin-top: 1.5rem;
-}
-
-@media (min-width: 1280px) {
-  .order-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 .order-menu-column {

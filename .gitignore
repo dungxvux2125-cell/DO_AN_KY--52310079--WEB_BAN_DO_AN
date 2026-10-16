@@ -2,4 +2,36 @@ mongodb-data/
 **/node_modules/
 **/dist/
 *.log
+*.bak*
+.DS_Store
+Thumbs.db
 
+# Scratch and inspection scripts
+test_*
+inspect_*
+check_*
+compare_*
+dump_*
+find_*
+list_*
+sample_*
+extract_*
+parse_*
+print_*
+read_*
+render_kroki_test.py
+sync_into_user_docx.py
+update_cover_and_evidence.py
+update_word_report.py
+verify_*
+t2_guide.xml
+t3_guide.xml
+export_table_xml.py
+count_newlines.py
+ocr_uc_images.py
+build_3chapters_script.py
+apply_*
+execute_*
+current_p253_img.png
+extracted_user_images/
+/shorts/

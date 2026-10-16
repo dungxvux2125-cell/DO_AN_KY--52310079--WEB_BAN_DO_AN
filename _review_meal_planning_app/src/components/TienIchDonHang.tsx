@@ -35,6 +35,11 @@ export function CartSummary({
                 <p className="truncate text-sm text-stone-500">
                   {item.toppings.join(", ") || "Không topping"}
                 </p>
+                {item.note && (
+                  <p className="truncate text-xs font-semibold text-rose-700 mt-0.5">
+                    📝 Ghi chú: {item.note}
+                  </p>
+                )}
                 <p className="mt-1 font-black text-[#b42318]">{formatCurrency(item.lineTotal)}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -125,6 +130,11 @@ export function CartDrawer({
                     <p className="truncate text-sm text-stone-500">
                       {item.toppings.join(", ") || "Không topping"}
                     </p>
+                    {item.note && (
+                      <p className="truncate text-xs font-semibold text-rose-700 mt-0.5">
+                        📝 Ghi chú: {item.note}
+                      </p>
+                    )}
                     <p className="mt-1 font-black text-[#b42318]">{formatCurrency(item.lineTotal)}</p>
                   </div>
                   <div className="flex items-center gap-2">

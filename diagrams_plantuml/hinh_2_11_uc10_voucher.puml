@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Quản Trị Viên" as Actor
+
+usecase "Quản lý chương trình khuyến mãi &\nMã giảm giá Voucher" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Tạo mới mã Voucher khuyến mãi" as UC1
+usecase "Cấu hình tỷ lệ giảm & đơn tối thiểu" as UC2
+usecase "Kích hoạt hoặc tạm dừng mã Voucher" as UC3
+usecase "Xóa mã giảm giá hết hiệu lực" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main ..> UC2 : <<include>>
+Main ..> UC3 : <<include>>
+Main ..> UC4 : <<include>>
+
+@enduml

@@ -56,6 +56,20 @@ const orderSchema = new mongoose.Schema({
 
 export const Order = mongoose.model("Order", orderSchema)
 
+// 4. Review Schema
+const reviewSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  dishId: { type: Number, required: true },
+  dishName: { type: String, required: true },
+  customerName: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  createdAt: { type: String, required: true },
+  reply: { type: String, default: "" },
+})
+
+export const Review = mongoose.model("Review", reviewSchema)
+
 // Initial Seed Data to populate MongoDB on first startup
 const INITIAL_DISHES = [
   {
@@ -140,13 +154,12 @@ const INITIAL_DISHES = [
   },
   {
     id: 100,
-    name: "Diet Soda Zero Sugar (3D)",
+    name: "Diet Soda Zero Sugar",
     category: "Đồ uống",
     price: 35000,
     promoPrice: 29000,
     image: "https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Green%20Soda.png",
-    model3d: "https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/deit_soda2.glb",
-    description: "Nước ngọt có ga 0 đường, vị thanh mát sảng khoái với mô hình 3D tương tác.",
+    description: "Nước ngọt có ga 0 đường, vị thanh mát sảng khoái và giải khát tức thì.",
     toppings: ["Vị Classic", "Vị Zero Lime", "Thêm đá lạnh"],
     available: true,
     sold: 285,
@@ -335,9 +348,69 @@ export async function connectDB() {
       await Order.insertMany(INITIAL_ORDERS)
       console.log(`[MongoDB] 🌱 Đã nạp thành công ${INITIAL_ORDERS.length} đơn hàng mẫu.`)
     }
+
+    // Seed initial reviews if empty
+    const reviewCount = await Review.countDocuments()
+    if (reviewCount === 0) {
+      const INITIAL_REVIEWS = [
+        {
+          id: "REV-101",
+          dishId: 1,
+          dishName: "Phở bò đặc biệt",
+          customerName: "Nguyễn Hoàng Nam",
+          rating: 5,
+          comment: "Nước dùng phở bò ngọt thanh từ xương, thịt tái mềm rất tươi! Đóng gói cẩn thận 10/10.",
+          createdAt: "08/10/2026 12:15",
+          reply: "FoodVD cảm ơn bạn Nam rất nhiều! Chúc bạn ngon miệng ạ ❤️",
+        },
+        {
+          id: "REV-102",
+          dishId: 1,
+          dishName: "Phở bò đặc biệt",
+          customerName: "Trần Mai Anh",
+          rating: 5,
+          comment: "Giao hàng cực nhanh, chỉ 20 phút là tới nơi. Quẩy giòn rụm và trứng chần lòng đào chuẩn vị.",
+          createdAt: "07/10/2026 19:40",
+          reply: "",
+        },
+        {
+          id: "REV-103",
+          dishId: 2,
+          dishName: "Bún chả Hà Nội",
+          customerName: "Lê Quốc Bảo",
+          rating: 5,
+          comment: "Chả nướng than hoa thơm nức mũi, nước mắm pha chua ngọt đúng gu miền Bắc.",
+          createdAt: "08/10/2026 13:20",
+          reply: "Dạ FoodVD cảm ơn anh Bảo đã ủng hộ quán ạ!",
+        },
+        {
+          id: "REV-104",
+          dishId: 3,
+          dishName: "Cơm tấm sườn bì",
+          customerName: "Phạm Hải Đăng",
+          rating: 4,
+          comment: "Sườn to đẫm vị, chả trứng thơm, giao tới vẫn còn nóng giòn. Thêm mỡ hành nữa thì tuyệt vời.",
+          createdAt: "06/10/2026 11:55",
+          reply: "FoodVD đã ghi nhận và sẽ bổ sung thêm mỡ hành thơm nức ạ!",
+        },
+        {
+          id: "REV-105",
+          dishId: 100,
+          dishName: "Diet Soda Zero Sugar",
+          customerName: "Hoàng Gia Huy",
+          rating: 5,
+          comment: "Nước uống thanh mát 0 calo, giải nhiệt cực đã, đóng gói ướp lạnh sẵn rất thích.",
+          createdAt: "09/10/2026 10:05",
+          reply: "",
+        },
+      ]
+      await Review.insertMany(INITIAL_REVIEWS)
+      console.log(`[MongoDB] 🌱 Đã nạp thành công ${INITIAL_REVIEWS.length} đánh giá mẫu của khách hàng.`)
+    }
   } catch (error) {
     console.error("[MongoDB] ❌ Lỗi kết nối MongoDB:", error.message)
     throw error
   }
+
 }
 

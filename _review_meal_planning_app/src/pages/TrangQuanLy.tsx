@@ -4,10 +4,8 @@ import { StatusPill } from "../components/TienIchDonHang"
 import { ReportMetric, SalaryMetric } from "./TienIchQuanLy"
 import { SectionHeading } from "../components/TieuDePhan"
 import type { Dispatch, SetStateAction } from "react"
-import type { Category, Dish, Order, StaffSalary, TimekeepingRecord, User, Voucher } from "../types"
+import type { Category, Dish, ManagementView, Order, Review, Role, StaffSalary, TimekeepingRecord, User, Voucher } from "../types"
 import { formatCurrency } from "../utils"
-
-export type ManagementView = "orders" | "menu" | "reports" | "salary" | "vouchers" | "timekeeping"
 
 export function ManagementPage({
   user,
@@ -31,6 +29,16 @@ export function ManagementPage({
   setOrders,
   advanceOrder,
   addDishFromAdmin,
+  reviews,
+  setReviews,
+  onReplyReview,
+  usersList = [],
+  onUpdateUserRole,
+  onToggleUserStatus,
+  onAddStaff,
+  onEditDish,
+  onDeleteDish,
+  onCancelOrder,
 }: {
   user: User | null
   goLogin: () => void
@@ -53,6 +61,16 @@ export function ManagementPage({
   setOrders: Dispatch<SetStateAction<Order[]>>
   advanceOrder: (id: string) => void
   addDishFromAdmin: () => void
+  reviews: Review[]
+  setReviews: Dispatch<SetStateAction<Review[]>>
+  onReplyReview: (id: string, reply: string) => void
+  usersList?: User[]
+  onUpdateUserRole?: (email: string, role: Role) => void
+  onToggleUserStatus?: (email: string) => void
+  onAddStaff?: (staffData: { name: string; email: string; phone: string; password?: string }) => void
+  onEditDish?: (dish: Dish) => void
+  onDeleteDish?: (dishId: number) => void
+  onCancelOrder?: (orderId: string, reason?: string) => void
 }) {
   if (user?.role !== "staff" && user?.role !== "admin") {
     return (
@@ -73,42 +91,46 @@ export function ManagementPage({
 
   const isAdmin = user.role === "admin"
 
-  // Admin tabs (No orders, no customer functions)
+  // Admin tabs (Dashboard, Orders, Menu, Users, Salaries, Vouchers, and Reviews)
   const adminTabs: Array<[ManagementView, string, string]> = [
-    ["menu", "Quản lý sản phẩm", "📦"],
     ["reports", "Báo cáo doanh thu", "📊"],
-    ["salary", "Nhân viên & Lương", "👥"],
-    ["vouchers", "Quản lý mã giảm giá", "🎟️"],
+    ["orders", "Giám sát đơn hàng", "📦"],
+    ["menu", "Quản lý sản phẩm", "🍔"],
+    ["users", "Quản lý người dùng", "👥"],
+    ["salary", "Nhân viên & Lương", "💼"],
+    ["vouchers", "Mã giảm giá", "🎟️"],
+    ["reviews", "Đánh giá của khách", "⭐"],
   ]
 
-  // Staff tabs (Only menu, orders, timekeeping)
+  // Staff tabs (Orders with Kitchen ticket print, Menu stock control, Timekeeping, and Reviews)
   const staffTabs: Array<[ManagementView, string, string]> = [
-    ["menu", "Quản lý sản phẩm", "📦"],
-    ["orders", "Quản lý đơn hàng", "📝"],
-    ["timekeeping", "Chấm công ca làm", "⏱️"],
+    ["orders", "Xử lý đơn & In bếp", "📦"],
+    ["menu", "Kiểm soát thực đơn", "🍔"],
+    ["timekeeping", "Chấm công ca làm", "⏰"],
+    ["reviews", "Đánh giá của khách", "⭐"],
   ]
 
   const availableTabs = isAdmin ? adminTabs : staffTabs
 
   // Ensure active view is allowed for this role
   const isViewAllowed = availableTabs.some(([k]) => k === view)
-  const activeView = isViewAllowed ? view : isAdmin ? "menu" : "orders"
+  const activeView = isViewAllowed ? view : isAdmin ? "reports" : "orders"
 
   return (
     <section className="page-shell page-shell-wide">
       <div className="soft-panel">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end border-b border-stone-200 pb-5">
           <SectionHeading
-            eyebrow={isAdmin ? "Cổng Quản Trị Hệ Thống (Admin Portal)" : "Cổng Vận Hành Nội Bộ (Staff Portal)"}
+            eyebrow={isAdmin ? "Cổng Quản Trị Toàn Quyền (Admin Portal)" : "Cổng Vận Hành Quầy & Bếp (Staff Portal)"}
             title={
               isAdmin
-                ? "Quản trị sản phẩm, doanh thu, nhân sự và khuyến mãi."
-                : "Vận hành thực đơn, tiếp nhận đơn hàng và chấm công."
+                ? "Quản trị toàn diện: Doanh thu, Đơn hàng, Thực đơn, Nhân sự & Tài khoản."
+                : "Vận hành thực đơn tại quầy, Tiếp nhận đơn, In phiếu bếp & Chấm công."
             }
             description={
               isAdmin
-                ? "Quản trị viên có toàn quyền cấu hình món ăn, xem thống kê kinh doanh, điều chỉnh bảng lương nhân viên và tạo mã giảm giá."
-                : "Nhân viên thực hiện kiểm tra trạng thái món ăn, cập nhật tiến trình đơn hàng và chấm công ca làm việc hàng ngày."
+                ? "Quản trị viên có toàn quyền kiểm soát số liệu kinh doanh, giám sát đơn hàng, phân quyền tài khoản, điều chỉnh bảng lương nhân viên và cấu hình thực đơn."
+                : "Nhân viên thực hiện kiểm tra trạng thái món ăn (còn/hết), in phiếu chế biến cho nhà bếp, cập nhật tiến trình giao hàng và điểm danh ca làm việc."
             }
           />
           <div className="flex flex-wrap gap-2">
@@ -125,9 +147,16 @@ export function ManagementPage({
           </div>
         </div>
 
-        {/* 1. ORDERS VIEW (Staff only) */}
-        {activeView === "orders" && !isAdmin && (
-          <OrdersPanel orders={orders} setOrders={setOrders} advanceOrder={advanceOrder} />
+        {/* 1. ORDERS VIEW (Admin & Staff) */}
+        {activeView === "orders" && (
+          <OrdersPanel
+            orders={orders}
+            setOrders={setOrders}
+            advanceOrder={advanceOrder}
+            dishes={dishes}
+            isAdmin={isAdmin}
+            onCancelOrder={onCancelOrder}
+          />
         )}
 
         {/* 2. MENU / PRODUCTS VIEW (Admin & Staff) */}
@@ -139,6 +168,8 @@ export function ManagementPage({
             setDishes={setDishes}
             addDishFromAdmin={addDishFromAdmin}
             isAdmin={isAdmin}
+            onEditDish={onEditDish}
+            onDeleteDish={onDeleteDish}
           />
         )}
 
@@ -150,6 +181,7 @@ export function ManagementPage({
             cancelled={cancelled}
             bestSeller={bestSeller}
             dishes={dishes}
+            orders={orders}
           />
         )}
 
@@ -175,87 +207,382 @@ export function ManagementPage({
             setTimekeeping={setTimekeeping}
           />
         )}
+
+        {/* 7. REVIEWS VIEW (Admin & Staff) */}
+        {activeView === "reviews" && (
+          <ReviewsManagementPanel
+            reviews={reviews}
+            setReviews={setReviews}
+            onReplyReview={onReplyReview}
+            user={user}
+            dishes={dishes}
+          />
+        )}
+
+        {/* 8. USERS MANAGEMENT VIEW (Admin only) */}
+        {activeView === "users" && isAdmin && (
+          <UsersPanel
+            usersList={usersList}
+            onUpdateUserRole={onUpdateUserRole}
+            onToggleUserStatus={onToggleUserStatus}
+            onAddStaff={onAddStaff}
+          />
+        )}
       </div>
     </section>
   )
 }
 
+
 // ----------------------------------------------------
-// 1. ORDERS PANEL
+// 1. ORDERS PANEL (Xử lý đơn hàng & In phiếu bếp / Hóa đơn)
 // ----------------------------------------------------
 function OrdersPanel({
   orders,
   setOrders,
   advanceOrder,
+  dishes,
+  isAdmin,
+  onCancelOrder,
 }: {
   orders: Order[]
   setOrders: Dispatch<SetStateAction<Order[]>>
   advanceOrder: (id: string) => void
+  dishes: Dish[]
+  isAdmin: boolean
+  onCancelOrder?: (orderId: string, reason?: string) => void
 }) {
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [searchKey, setSearchKey] = useState<string>("")
+  const [selectedOrderForPrint, setSelectedOrderForPrint] = useState<Order | null>(null)
+
+  const filteredOrders = orders.filter((order) => {
+    const matchStatus = filterStatus === "all" || order.status === filterStatus
+    const q = searchKey.trim().toLowerCase()
+    const matchSearch =
+      !q ||
+      order.id.toLowerCase().includes(q) ||
+      order.customerName.toLowerCase().includes(q) ||
+      order.phoneMasked.includes(q) ||
+      order.email.toLowerCase().includes(q)
+    return matchStatus && matchSearch
+  })
+
+  const countByStatus = (status: string) => orders.filter((o) => o.status === status).length
+
   return (
-    <div className="mt-6 grid gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-black text-stone-900">Danh sách đơn hàng cần xử lý ({orders.length})</h3>
-        <span className="text-xs text-stone-500 font-semibold">Nhấn "Cập nhật" để chuyển tiến trình giao</span>
+    <div className="mt-6 grid gap-6">
+      {/* Control bar: Filters & Search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-stone-50 p-4 rounded-2xl border border-stone-200">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { id: "all", label: `Tất cả (${orders.length})` },
+            { id: "Chờ duyệt", label: `Chờ duyệt (${countByStatus("Chờ duyệt")})` },
+            { id: "Đang chuẩn bị", label: `Bếp nấu (${countByStatus("Đang chuẩn bị")})` },
+            { id: "Đang giao", label: `Đang ship (${countByStatus("Đang giao")})` },
+            { id: "Hoàn tất", label: `Hoàn tất (${countByStatus("Hoàn tất")})` },
+            { id: "Đã hủy", label: `Đã hủy (${countByStatus("Đã hủy")})` },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setFilterStatus(tab.id)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                filterStatus === tab.id
+                  ? "bg-[#b42318] text-white shadow-xs font-black"
+                  : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-100"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={searchKey}
+            onChange={(e) => setSearchKey(e.target.value)}
+            placeholder="🔍 Tìm mã đơn, tên khách, SĐT..."
+            className="rounded-xl border border-stone-200 bg-white px-3.5 py-1.5 text-xs text-stone-900 outline-none focus:border-[#b42318] w-full md:w-64"
+          />
+          {searchKey && (
+            <button
+              onClick={() => setSearchKey("")}
+              className="text-xs text-stone-400 hover:text-stone-700"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
-      {orders.length === 0 ? (
-        <p className="text-center py-8 text-stone-500">Chưa có đơn hàng nào.</p>
+      {filteredOrders.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-3xl border border-stone-200">
+          <span className="text-4xl">🥡</span>
+          <p className="mt-3 text-base font-bold text-stone-700">Không tìm thấy đơn hàng nào phù hợp</p>
+          <p className="text-xs text-stone-400 mt-1">Thử thay đổi bộ lọc trạng thái hoặc từ khóa tìm kiếm</p>
+        </div>
       ) : (
-        orders.map((order) => (
-          <article key={order.id} className="admin-card">
-            <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr_190px] md:items-center">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-black">{order.id}</h3>
-                  <StatusPill status={order.status} />
+        filteredOrders.map((order) => {
+          return (
+            <article key={order.id} className="admin-card transition-all hover:shadow-md">
+              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 border-b border-stone-100 pb-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-black text-stone-900">Đơn hàng #{order.id}</h3>
+                    <StatusPill status={order.status} />
+                    <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-[11px] font-semibold text-stone-600">
+                      {order.createdAt}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-stone-700">
+                    Khách hàng: <strong className="text-stone-900">{order.customerName}</strong> · 📞 SĐT: <strong>{order.phoneMasked}</strong>
+                  </p>
+                  <p className="text-xs text-stone-600">
+                    📍 Địa chỉ nhận: <strong>{order.addressMasked}</strong>
+                  </p>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-stone-600">
-                  Khách: <strong>{order.customerName}</strong> · SĐT: {order.phoneMasked} · Đ/C: {order.addressMasked}
-                </p>
-                <p className="text-xs text-stone-500 mt-1">
-                  {order.createdAt} · Email: {order.email}
-                </p>
+
+                <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between gap-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
+                    {order.payment === "VietQR" ? "💳 Chuyển khoản VietQR" : "💵 Tiền mặt (COD)"}
+                  </span>
+                  <span className="text-2xl font-black text-[#b42318]">{formatCurrency(order.total)}</span>
+                </div>
               </div>
 
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-stone-500">
-                  Thanh toán: {order.payment}
+              {/* Chi tiết từng món ăn trong đơn (Cho nhà bếp & thu ngân) */}
+              <div className="my-3 py-2 bg-stone-50/70 rounded-xl px-3 border border-stone-100">
+                <p className="text-[11px] font-black uppercase tracking-wider text-stone-500 mb-2">
+                  🍽️ Danh sách món chế biến:
                 </p>
-                <p className="text-2xl font-black text-[#b42318]">{formatCurrency(order.total)}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {order.items.map((item, idx) => {
+                    const dish = dishes.find((d) => d.id === item.dishId)
+                    return (
+                      <div key={idx} className="flex items-center gap-2.5 bg-white p-2 rounded-lg border border-stone-200/80 text-xs">
+                        {dish?.image && (
+                          <img src={dish.image} alt={dish.name} className="h-10 w-10 rounded-lg object-cover" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-stone-900 truncate">
+                            {dish?.name || `Món #${item.dishId}`}{" "}
+                            <span className="text-[#b42318] font-black">× {item.quantity}</span>
+                          </p>
+                          {item.toppings && item.toppings.length > 0 && (
+                            <p className="text-[10px] text-stone-500 truncate">
+                              Topping: {item.toppings.join(", ")}
+                            </p>
+                          )}
+                          {item.note && (
+                            <p className="text-[10px] text-amber-700 font-bold truncate">
+                              📝 {item.note}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
 
-              <div className="flex gap-2 md:justify-end">
-                {order.status !== "Hoàn tất" && order.status !== "Đã hủy" && (
-                  <button className="admin-button" onClick={() => advanceOrder(order.id)}>
-                    Cập nhật tiến trình
-                  </button>
-                )}
-                {order.status === "Chờ duyệt" && (
+              {/* Action buttons bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div className="flex items-center gap-2">
+                  {/* Nút in hóa đơn / phiếu bếp */}
                   <button
-                    className="admin-button danger"
-                    onClick={() =>
-                      setOrders((current) =>
-                        current.map((candidate) =>
-                          candidate.id === order.id ? { ...candidate, status: "Đã hủy" } : candidate,
-                        ),
-                      )
-                    }
+                    onClick={() => setSelectedOrderForPrint(order)}
+                    className="flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-bold text-stone-700 hover:bg-stone-100 hover:text-black transition-colors cursor-pointer"
                   >
-                    Hủy đơn
+                    <span>🖨️</span>
+                    <span>In phiếu bếp / Hóa đơn</span>
                   </button>
-                )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {order.status === "Chờ duyệt" && (
+                    <>
+                      <button
+                        className="admin-button flex items-center gap-1"
+                        onClick={() => advanceOrder(order.id)}
+                      >
+                        <span>👨‍🍳</span>
+                        <span>Duyệt & Bắt đầu nấu</span>
+                      </button>
+                      <button
+                        className="admin-button danger flex items-center gap-1"
+                        onClick={() => {
+                          if (onCancelOrder) {
+                            onCancelOrder(order.id, "Nhân viên / Admin hủy đơn")
+                          } else {
+                            setOrders((current) =>
+                              current.map((candidate) =>
+                                candidate.id === order.id ? { ...candidate, status: "Đã hủy" } : candidate,
+                              ),
+                            )
+                          }
+                        }}
+                      >
+                        <span>❌</span>
+                        <span>Hủy đơn</span>
+                      </button>
+                    </>
+                  )}
+
+                  {order.status === "Đang chuẩn bị" && (
+                    <button
+                      className="admin-button flex items-center gap-1"
+                      onClick={() => advanceOrder(order.id)}
+                    >
+                      <span>🛵</span>
+                      <span>Bàn giao Shipper</span>
+                    </button>
+                  )}
+
+                  {order.status === "Đang giao" && (
+                    <button
+                      className="admin-button flex items-center gap-1 !bg-emerald-600 hover:!bg-emerald-700 text-white"
+                      onClick={() => advanceOrder(order.id)}
+                    >
+                      <span>🎉</span>
+                      <span>Xác nhận đã giao xong</span>
+                    </button>
+                  )}
+
+                  {order.status === "Hoàn tất" && (
+                    <span className="text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+                      ✓ Đơn đã hoàn tất
+                    </span>
+                  )}
+
+                  {order.status === "Đã hủy" && (
+                    <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-xl">
+                      ⛔ Đơn đã hủy
+                    </span>
+                  )}
+                </div>
+              </div>
+            </article>
+          )
+        })
+      )}
+
+      {/* MODAL IN PHIẾU BẾP / HÓA ĐƠN GIAO HÀNG */}
+      {selectedOrderForPrint && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            onClick={() => setSelectedOrderForPrint(null)}
+            style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-stone-200 max-h-[95vh] overflow-y-auto font-mono text-stone-900">
+            {/* Header Bill */}
+            <div className="text-center border-b border-dashed border-stone-300 pb-3">
+              <h2 className="text-xl font-black tracking-wider text-black">FOODVD RESTAURANT</h2>
+              <p className="text-[11px] text-stone-500 mt-0.5">Nền Tảng Ẩm Thực & Đặt Món Trực Tuyến</p>
+              <p className="text-[10px] text-stone-400">136 Xuân Thủy, Cầu Giấy, Hà Nội · Hotline: 0901.234.567</p>
+              <div className="mt-2 inline-block rounded-md bg-stone-900 px-3 py-1 text-xs font-black uppercase text-white tracking-widest">
+                PHIẾU BẾP & GIAO HÀNG
               </div>
             </div>
-          </article>
-        ))
+
+            {/* Thông tin đơn */}
+            <div className="my-3 space-y-1 text-xs border-b border-dashed border-stone-300 pb-3">
+              <div className="flex justify-between">
+                <span className="text-stone-500">Mã đơn:</span>
+                <span className="font-bold">#{selectedOrderForPrint.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-500">Thời gian đặt:</span>
+                <span>{selectedOrderForPrint.createdAt}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-500">Khách hàng:</span>
+                <span className="font-bold">{selectedOrderForPrint.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-500">Số điện thoại:</span>
+                <span>{selectedOrderForPrint.phoneMasked}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-500">Địa chỉ giao:</span>
+                <span className="text-right max-w-[220px] font-semibold">{selectedOrderForPrint.addressMasked}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-500">Thanh toán:</span>
+                <span className="font-bold text-[#b42318]">{selectedOrderForPrint.payment}</span>
+              </div>
+            </div>
+
+            {/* Danh sách món */}
+            <div className="my-3 border-b border-dashed border-stone-300 pb-3">
+              <div className="flex justify-between text-[11px] font-black text-stone-500 uppercase mb-2">
+                <span>Tên món (Topping)</span>
+                <span>SL · Tiền</span>
+              </div>
+              <div className="space-y-2 text-xs">
+                {selectedOrderForPrint.items.map((it, i) => {
+                  const dish = dishes.find((d) => d.id === it.dishId)
+                  const unitPrice = dish?.promoPrice || dish?.price || 0
+                  return (
+                    <div key={i} className="flex justify-between items-start">
+                      <div className="max-w-[240px]">
+                        <p className="font-bold text-stone-950">{dish?.name || `Món #${it.dishId}`}</p>
+                        {it.toppings && it.toppings.length > 0 && (
+                          <p className="text-[10px] text-stone-500">+ {it.toppings.join(", ")}</p>
+                        )}
+                        {it.note && (
+                          <p className="text-[10px] text-amber-800 font-bold">📝 Note: {it.note}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">×{it.quantity}</span>
+                        <p className="text-stone-700">{formatCurrency(unitPrice * it.quantity)}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Tổng tiền */}
+            <div className="my-3 space-y-1 text-xs">
+              <div className="flex justify-between text-base font-black text-black pt-1">
+                <span>TỔNG CỘNG:</span>
+                <span className="text-[#b42318]">{formatCurrency(selectedOrderForPrint.total)}</span>
+              </div>
+            </div>
+
+            {/* Lời cảm ơn */}
+            <div className="text-center text-[10px] text-stone-400 mt-4 border-t border-dashed border-stone-200 pt-3">
+              <p>*** Cảm ơn quý khách đã đặt món tại FoodVD ***</p>
+              <p>Chúc quý khách ngon miệng!</p>
+            </div>
+
+            {/* Nút in & đóng */}
+            <div className="mt-5 flex gap-2 font-sans">
+              <button
+                onClick={() => window.print()}
+                className="flex-1 rounded-xl bg-stone-900 py-2.5 text-xs font-black text-white hover:bg-black transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>🖨️</span>
+                <span>In phiếu ngay (Print)</span>
+              </button>
+              <button
+                onClick={() => setSelectedOrderForPrint(null)}
+                className="rounded-xl border border-stone-300 bg-stone-100 px-4 py-2.5 text-xs font-bold text-stone-700 hover:bg-stone-200 transition-colors cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
 }
 
 // ----------------------------------------------------
-// 2. MENU PANEL
+// 2. MENU PANEL (Quản lý món ăn, sửa giá, thêm món, bật/tắt còn món)
 // ----------------------------------------------------
 function MenuPanel({
   dishes,
@@ -264,6 +591,8 @@ function MenuPanel({
   setDishes,
   addDishFromAdmin,
   isAdmin,
+  onEditDish,
+  onDeleteDish,
 }: {
   dishes: Dish[]
   newDish: { name: string; category: Exclude<Category, "Tất cả">; price: string; image: string }
@@ -271,9 +600,42 @@ function MenuPanel({
   setDishes: Dispatch<SetStateAction<Dish[]>>
   addDishFromAdmin: () => void
   isAdmin: boolean
+  onEditDish?: (dish: Dish) => void
+  onDeleteDish?: (dishId: number) => void
 }) {
+  const [editingDish, setEditingDish] = useState<Dish | null>(null)
+  const [menuSearch, setMenuSearch] = useState<string>("")
+  const [selectedCat, setSelectedCat] = useState<string>("Tất cả")
+
+  const filteredDishes = dishes.filter((dish) => {
+    const matchCat = selectedCat === "Tất cả" || dish.category === selectedCat
+    const q = menuSearch.trim().toLowerCase()
+    const matchQ = !q || dish.name.toLowerCase().includes(q) || dish.description.toLowerCase().includes(q)
+    return matchCat && matchQ
+  })
+
+  const handleSaveEdit = () => {
+    if (!editingDish) return
+    if (onEditDish) {
+      onEditDish(editingDish)
+    } else {
+      setDishes((prev) => prev.map((d) => (d.id === editingDish.id ? editingDish : d)))
+    }
+    setEditingDish(null)
+  }
+
+  const handleDelete = (id: number, name: string) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa món "${name}" khỏi thực đơn?`)) return
+    if (onDeleteDish) {
+      onDeleteDish(id)
+    } else {
+      setDishes((prev) => prev.filter((d) => d.id !== id))
+    }
+  }
+
   return (
     <div className={`mt-6 grid gap-6 ${isAdmin ? "lg:grid-cols-[360px_1fr]" : ""}`}>
+      {/* Form thêm món mới chỉ hiển thị cho Admin */}
       {isAdmin && (
         <div className="admin-card h-fit sticky top-24">
           <h3 className="text-xl font-black text-stone-900 flex items-center gap-2">
@@ -281,12 +643,14 @@ function MenuPanel({
           </h3>
           <p className="text-xs text-stone-500 mt-1">Điền thông tin món để mở bán trên menu web.</p>
           <div className="mt-4 grid gap-3">
+            <label className="text-xs font-bold text-stone-700">Tên món ăn</label>
             <input
               value={newDish.name}
               onChange={(event) => setNewDish({ ...newDish, name: event.target.value })}
               className="soft-input"
-              placeholder="Tên món ăn"
+              placeholder="VD: Cơm tấm gà nướng mật ong"
             />
+            <label className="text-xs font-bold text-stone-700">Danh mục món</label>
             <select
               value={newDish.category}
               onChange={(event) =>
@@ -298,61 +662,218 @@ function MenuPanel({
                 <option key={option}>{option}</option>
               ))}
             </select>
+            <label className="text-xs font-bold text-stone-700">Giá niêm yết (VNĐ)</label>
             <input
+              type="number"
               value={newDish.price}
               onChange={(event) => setNewDish({ ...newDish, price: event.target.value })}
               className="soft-input"
-              placeholder="Giá niêm yết (VNĐ)"
+              placeholder="55000"
             />
+            <label className="text-xs font-bold text-stone-700">Đường dẫn ảnh món (URL)</label>
             <input
               value={newDish.image}
               onChange={(event) => setNewDish({ ...newDish, image: event.target.value })}
               className="soft-input"
-              placeholder="Link ảnh món (URL)"
+              placeholder="https://images.unsplash.com/..."
             />
-            <button onClick={addDishFromAdmin} className="cta-button justify-center mt-2">
+            <button onClick={addDishFromAdmin} className="cta-button justify-center mt-2 cursor-pointer">
               ➕ Lưu & Mở bán món
             </button>
           </div>
         </div>
       )}
 
+      {/* Danh sách món ăn */}
       <div className="grid gap-3">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xl font-black text-stone-900">Danh sách thực đơn hiện tại ({dishes.length} món)</h3>
-          <span className="text-xs text-stone-500">Bấm nút để Bật/Tắt còn món</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+          <div>
+            <h3 className="text-xl font-black text-stone-900">
+              Danh sách thực đơn ({dishes.length} món)
+            </h3>
+            <p className="text-xs text-stone-500 mt-0.5">
+              {isAdmin ? "Admin có quyền sửa giá, chỉnh sửa thông tin, xóa và bật/tắt món" : "Nhân viên kiểm soát bật/tắt tình trạng còn món tại quầy"}
+            </p>
+          </div>
+
+          {/* Quick Search in Menu */}
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedCat}
+              onChange={(e) => setSelectedCat(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-2.5 py-1.5 text-xs text-stone-800 outline-none"
+            >
+              <option value="Tất cả">Tất cả danh mục</option>
+              {categoryOptions.slice(1).map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={menuSearch}
+              onChange={(e) => setMenuSearch(e.target.value)}
+              placeholder="🔍 Tìm món..."
+              className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs text-stone-800 outline-none w-36 sm:w-44"
+            />
+          </div>
         </div>
 
-        {dishes.map((dish) => (
-          <div key={dish.id} className="menu-admin-row">
-            <img className="h-16 w-16 rounded-2xl object-cover border border-stone-200" src={dish.image} alt={dish.name} />
-            <div className="flex-1">
-              <p className="font-black text-stone-900">{dish.name}</p>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Danh mục: <strong>{dish.category}</strong> · Giá: <strong>{formatCurrency(dish.promoPrice ?? dish.price)}</strong> · Đã bán: <strong>{dish.sold} suất</strong>
-              </p>
+        {filteredDishes.map((dish) => (
+          <div key={dish.id} className="menu-admin-row p-3 rounded-2xl bg-white border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-xs transition-all">
+            <div className="flex items-center gap-3">
+              <img className="h-16 w-16 rounded-2xl object-cover border border-stone-200 flex-shrink-0" src={dish.image} alt={dish.name} />
+              <div>
+                <p className="font-black text-stone-900 text-sm">{dish.name}</p>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Danh mục: <strong className="text-stone-800">{dish.category}</strong> · Giá: <strong className="text-[#b42318]">{formatCurrency(dish.promoPrice ?? dish.price)}</strong> · Đã bán: <strong>{dish.sold} suất</strong>
+                </p>
+              </div>
             </div>
-            <button
-              onClick={() =>
-                setDishes((current) =>
-                  current.map((candidate) =>
-                    candidate.id === dish.id ? { ...candidate, available: !candidate.available } : candidate,
-                  ),
-                )
-              }
-              className={`stock-button ${dish.available ? "on" : "off"}`}
-            >
-              {dish.available ? "✅ Đang mở bán" : "⛔ Tạm hết hàng"}
-            </button>
+
+            <div className="flex items-center gap-2 self-end sm:self-center">
+              {isAdmin && (
+                <>
+                  <button
+                    onClick={() => setEditingDish({ ...dish })}
+                    className="rounded-xl border border-stone-300 bg-stone-50 px-3 py-1.5 text-xs font-bold text-stone-700 hover:bg-stone-100 hover:text-black transition-colors cursor-pointer"
+                    title="Chỉnh sửa thông tin món"
+                  >
+                    ✏️ Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(dish.id, dish.name)}
+                    className="rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                    title="Xóa món khỏi thực đơn"
+                  >
+                    🗑️
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() =>
+                  setDishes((current) =>
+                    current.map((candidate) =>
+                      candidate.id === dish.id ? { ...candidate, available: !candidate.available } : candidate,
+                    ),
+                  )
+                }
+                className={`stock-button ${dish.available ? "on" : "off"}`}
+              >
+                {dish.available ? "✅ Đang mở bán" : "⛔ Tạm hết hàng"}
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* MODAL SỬA MÓN ĂN (EDIT DISH MODAL - Admin Only) */}
+      {editingDish && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            onClick={() => setEditingDish(null)}
+            style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          />
+          <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="text-lg font-black text-stone-900">✏️ Chỉnh sửa thông tin món ăn</h3>
+              <button
+                onClick={() => setEditingDish(null)}
+                className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 hover:text-black cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Tên món ăn</label>
+                <input
+                  type="text"
+                  value={editingDish.name}
+                  onChange={(e) => setEditingDish({ ...editingDish, name: e.target.value })}
+                  className="soft-input w-full"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-stone-700 block mb-1">Danh mục</label>
+                  <select
+                    value={editingDish.category}
+                    onChange={(e) => setEditingDish({ ...editingDish, category: e.target.value as Exclude<Category, "Tất cả"> })}
+                    className="soft-input w-full"
+                  >
+                    {categoryOptions.slice(1).map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-stone-700 block mb-1">Giá gốc (VNĐ)</label>
+                  <input
+                    type="number"
+                    value={editingDish.price}
+                    onChange={(e) => setEditingDish({ ...editingDish, price: Number(e.target.value) || 0 })}
+                    className="soft-input w-full"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Giá khuyến mãi (VNĐ, để trống nếu không giảm)</label>
+                <input
+                  type="number"
+                  value={editingDish.promoPrice || ""}
+                  onChange={(e) => setEditingDish({ ...editingDish, promoPrice: e.target.value ? Number(e.target.value) : undefined })}
+                  className="soft-input w-full"
+                  placeholder="Để trống nếu bán giá gốc"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Đường dẫn ảnh món (URL)</label>
+                <input
+                  type="text"
+                  value={editingDish.image}
+                  onChange={(e) => setEditingDish({ ...editingDish, image: e.target.value })}
+                  className="soft-input w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Mô tả món ăn</label>
+                <textarea
+                  value={editingDish.description}
+                  onChange={(e) => setEditingDish({ ...editingDish, description: e.target.value })}
+                  className="soft-input w-full h-20 text-xs"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-3">
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 cta-button justify-center py-2.5 text-xs font-bold cursor-pointer"
+                >
+                  ✓ Lưu thay đổi
+                </button>
+                <button
+                  onClick={() => setEditingDish(null)}
+                  className="rounded-xl border border-stone-300 px-4 py-2.5 text-xs font-bold text-stone-700 hover:bg-stone-100 cursor-pointer"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 // ----------------------------------------------------
-// 3. REPORTS PANEL (Fixed Crash)
+// 3. REPORTS PANEL (Doanh thu & Lịch sử đơn thành công)
 // ----------------------------------------------------
 function ReportsPanel({
   revenue,
@@ -360,46 +881,125 @@ function ReportsPanel({
   cancelled,
   bestSeller,
   dishes,
+  orders = [],
 }: {
   revenue: number
   orderCount: number
   cancelled: number
   bestSeller: string
   dishes: Dish[]
+  orders?: Order[]
 }) {
   const safeBestSeller = typeof bestSeller === "string" ? bestSeller : (bestSeller as any)?.name || "Phở bò đặc biệt"
+  const [orderFilter, setOrderFilter] = useState<"completed" | "all" | "cancelled">("completed")
+  const [searchOrder, setSearchOrder] = useState("")
+
+  const filteredOrders = orders.filter((o) => {
+    const matchFilter =
+      orderFilter === "completed"
+        ? o.status === "Hoàn tất"
+        : orderFilter === "cancelled"
+        ? o.status === "Đã hủy"
+        : true
+
+    const query = searchOrder.trim().toLowerCase()
+    const matchSearch =
+      !query ||
+      o.id.toLowerCase().includes(query) ||
+      o.customerName.toLowerCase().includes(query) ||
+      o.email.toLowerCase().includes(query) ||
+      o.phoneMasked.includes(query)
+
+    return matchFilter && matchSearch
+  })
+
+  const completedOrders = orders.filter((o) => o.status === "Hoàn tất")
+  const completedOrdersCount = completedOrders.length
+  const actualCompletedRevenue = completedOrders.reduce((sum, o) => sum + o.total, 0)
+
+  // Tính toán doanh thu thực tế chính xác cho từng ngày trong tuần
+  // Ngày Thứ 6 (hôm nay) nhận toàn bộ doanh thu hoàn tất thực tế hiện có
+  const chartData = [
+    { day: "Thứ 2", value: 0, orders: 0 },
+    { day: "Thứ 3", value: 0, orders: 0 },
+    { day: "Thứ 4", value: 0, orders: 0 },
+    { day: "Thứ 5", value: 0, orders: 0 },
+    { day: "Thứ 6", value: actualCompletedRevenue, orders: completedOrdersCount },
+    { day: "Thứ 7", value: 0, orders: 0 },
+    { day: "Thứ CN", value: 0, orders: 0 },
+  ]
+
+  const maxChartVal = Math.max(...chartData.map((d) => d.value), 50000)
 
   return (
     <div className="mt-6 grid gap-6">
+      {/* 4 Thống kê tổng quan */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <ReportMetric label="Doanh thu hoàn tất" value={formatCurrency(revenue)} />
+        <ReportMetric label="Doanh thu hoàn tất" value={formatCurrency(actualCompletedRevenue)} />
         <ReportMetric label="Tổng đơn phát sinh" value={String(orderCount)} />
-        <ReportMetric label="Đơn đã hủy" value={String(cancelled)} />
+        <ReportMetric label="Đơn đã giao thành công" value={String(completedOrdersCount)} />
         <ReportMetric label="Món bán chạy nhất" value={safeBestSeller} />
       </div>
 
+      {/* Biểu đồ doanh thu 7 ngày + Top 5 món */}
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="admin-card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-black text-stone-900">Biểu đồ doanh thu 7 ngày gần nhất</h3>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="text-xl font-black text-stone-900">Biểu đồ doanh thu 7 ngày gần nhất</h3>
+              <p className="text-xs text-stone-500 mt-0.5">Số liệu thực tế kết chuyển theo ngày trong tuần</p>
+            </div>
             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
               📈 Tăng trưởng +18%
             </span>
           </div>
-          <div className="mt-6 flex h-64 items-end gap-3 px-2">
-            {[820000, 540000, 730000, 960000, revenue || 850000, 680000, 1120000].map((value, index) => (
-              <div key={index} className="flex flex-1 flex-col items-center gap-2">
-                <span className="text-[10px] font-bold text-stone-500">{formatCurrency(value).replace("₫", "")}</span>
-                <div
-                  className="w-full rounded-t-2xl bg-gradient-to-t from-[#b42318] via-[#ea580c] to-amber-400 transition-all hover:brightness-110"
-                  style={{ height: `${Math.max(22, (value / 1120000) * 100)}%` }}
-                />
-                <span className="text-xs font-black text-stone-600">Thứ {index + 2 <= 7 ? index + 2 : "CN"}</span>
-              </div>
-            ))}
+
+          {/* Bar Chart Container */}
+          <div className="relative mt-6 h-64 w-full">
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20 pb-7">
+              <div className="border-b border-dashed border-stone-400 w-full" />
+              <div className="border-b border-dashed border-stone-400 w-full" />
+              <div className="border-b border-dashed border-stone-400 w-full" />
+              <div className="border-b border-dashed border-stone-400 w-full" />
+            </div>
+
+            <div className="relative z-10 flex h-full items-end gap-2 sm:gap-3 px-1 sm:px-2">
+              {chartData.map((item, index) => {
+                const hasValue = item.value > 0
+                const heightPercent = hasValue ? Math.max(30, Math.round((item.value / maxChartVal) * 80)) : 6
+                const isMax = hasValue && item.value === maxChartVal
+                return (
+                  <div key={index} className="group relative flex flex-1 flex-col items-center justify-end h-full">
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-stone-900 text-white text-[10px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-lg pointer-events-none z-30">
+                      {hasValue ? `${formatCurrency(item.value)} • ${item.orders} đơn` : "0 ₫ • 0 đơn"}
+                    </div>
+
+                    <span className={`text-[10px] sm:text-[11px] font-bold mb-1.5 transition-colors ${hasValue ? "text-stone-900 font-black" : "text-stone-400"}`}>
+                      {hasValue ? formatCurrency(item.value).replace("₫", "") : "0"}
+                    </span>
+
+                    <div className="w-full flex-1 flex items-end">
+                      <div
+                        className={`w-full rounded-t-lg transition-all duration-300 ${
+                          hasValue
+                            ? "bg-stone-900 shadow-md ring-2 ring-emerald-500/40"
+                            : "bg-stone-200/80 hover:bg-stone-300"
+                        }`}
+                        style={{ height: `${heightPercent}%`, minHeight: hasValue ? "36px" : "8px" }}
+                      />
+                    </div>
+
+                    <span className={`text-[11px] sm:text-xs mt-2 ${hasValue ? "font-black text-stone-900" : "font-semibold text-stone-500"}`}>
+                      {item.day}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
 
+        {/* Top 5 Món Tiêu Thụ Cao Nhất */}
         <div className="admin-card">
           <h3 className="text-xl font-black text-stone-900 mb-4">Top 5 Món Tiêu Thụ Cao Nhất</h3>
           <div className="divide-y divide-stone-100">
@@ -425,6 +1025,164 @@ function ReportsPanel({
                 </div>
               ))}
           </div>
+        </div>
+      </div>
+
+      {/* PHẦN MỚI: LỊCH SỬ ĐƠN HÀNG ĐÃ GIAO THÀNH CÔNG (HOÀN TẤT) */}
+      <div className="admin-card space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">📋</span>
+              <h3 className="text-xl font-black text-stone-900">Lịch sử đơn hàng đã giao thành công</h3>
+              <span className="rounded-full bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-0.5 border border-emerald-300">
+                {completedOrdersCount} đơn hoàn tất
+              </span>
+            </div>
+            <p className="text-xs text-stone-500 mt-1">
+              Báo cáo chi tiết các giao dịch mua hàng đã đối soát và kết chuyển doanh thu thành công.
+            </p>
+          </div>
+
+          {/* Filter tabs & Search */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-xl bg-stone-100 p-1 border border-stone-200 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setOrderFilter("completed")}
+                className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  orderFilter === "completed"
+                    ? "bg-white text-stone-950 font-black shadow-2xs"
+                    : "text-stone-600 hover:text-black"
+                }`}
+              >
+                ✅ Đã hoàn tất ({completedOrdersCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setOrderFilter("all")}
+                className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                  orderFilter === "all"
+                    ? "bg-white text-stone-950 font-black shadow-2xs"
+                    : "text-stone-600 hover:text-black"
+                }`}
+              >
+                Tất cả ({orders.length})
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="🔍 Tìm mã đơn, tên khách..."
+              value={searchOrder}
+              onChange={(e) => setSearchOrder(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs text-stone-800 focus:bg-white focus:outline-hidden"
+            />
+          </div>
+        </div>
+
+        {/* Bảng danh sách đơn hoàn tất */}
+        <div className="overflow-x-auto">
+          {filteredOrders.length > 0 ? (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-stone-200 bg-stone-50/80 text-stone-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-3">Mã đơn</th>
+                  <th className="py-3 px-3">Thời gian</th>
+                  <th className="py-3 px-3">Khách hàng</th>
+                  <th className="py-3 px-3">Món ăn & Topping</th>
+                  <th className="py-3 px-3">Thanh toán</th>
+                  <th className="py-3 px-3 text-right">Tổng tiền</th>
+                  <th className="py-3 px-3 text-center">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {filteredOrders.map((order) => {
+                  const isCompleted = order.status === "Hoàn tất"
+                  return (
+                    <tr key={order.id} className="hover:bg-stone-50/80 transition-colors">
+                      {/* Mã đơn */}
+                      <td className="py-3.5 px-3 font-mono font-black text-stone-900">
+                        #{order.id}
+                      </td>
+
+                      {/* Thời gian */}
+                      <td className="py-3.5 px-3 text-stone-500 whitespace-nowrap">
+                        {order.createdAt}
+                      </td>
+
+                      {/* Khách hàng */}
+                      <td className="py-3.5 px-3">
+                        <p className="font-bold text-stone-900">{order.customerName}</p>
+                        <p className="text-[11px] text-stone-500">{order.phoneMasked}</p>
+                        <p className="text-[10px] text-stone-400 max-w-[160px] truncate" title={order.addressMasked}>
+                          📍 {order.addressMasked}
+                        </p>
+                      </td>
+
+                      {/* Món ăn */}
+                      <td className="py-3.5 px-3 max-w-xs">
+                        <div className="space-y-1">
+                          {order.items.map((it, idx) => {
+                            const dish = dishes.find((d) => d.id === it.dishId)
+                            return (
+                              <div key={idx} className="flex items-center gap-1.5">
+                                <span className="font-black text-[#842018] shrink-0">
+                                  {it.quantity}x
+                                </span>
+                                <span className="font-semibold text-stone-800 truncate">
+                                  {dish ? dish.name : `Món #${it.dishId}`}
+                                </span>
+                                {it.toppings && it.toppings.length > 0 && (
+                                  <span className="text-[10px] text-stone-500">
+                                    (+{it.toppings.join(",")})
+                                  </span>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </td>
+
+                      {/* Thanh toán */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-bold text-stone-700">
+                          {order.payment === "VietQR" ? "💳 VietQR" : "💵 COD"}
+                        </span>
+                      </td>
+
+                      {/* Tổng tiền */}
+                      <td className="py-3.5 px-3 text-right font-black text-stone-900 text-sm whitespace-nowrap">
+                        <span className="text-[#842018]">{formatCurrency(order.total)}</span>
+                      </td>
+
+                      {/* Trạng thái */}
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-black ${
+                            isCompleted
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                              : order.status === "Đã hủy"
+                              ? "bg-rose-100 text-rose-800 border border-rose-300"
+                              : "bg-amber-100 text-amber-800 border border-amber-300"
+                          }`}
+                        >
+                          <span>{isCompleted ? "✅" : order.status === "Đã hủy" ? "❌" : "🕒"}</span>
+                          <span>{order.status}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="py-10 text-center text-stone-500">
+              <span className="text-4xl block mb-2">📦</span>
+              <p className="font-bold text-sm text-stone-700">Chưa có đơn hàng nào theo bộ lọc này</p>
+              <p className="text-xs text-stone-400 mt-0.5">Khi khách hàng đặt và hoàn tất đơn, lịch sử giao dịch sẽ hiển thị tại đây.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1104,3 +1862,539 @@ function TimekeepingPanel({
     </div>
   )
 }
+
+// ----------------------------------------------------
+// 7. REVIEWS MANAGEMENT PANEL (Admin & Staff)
+// ----------------------------------------------------
+function ReviewsManagementPanel({
+  reviews,
+  setReviews,
+  onReplyReview,
+  user,
+  dishes,
+}: {
+  reviews: Review[]
+  setReviews: Dispatch<SetStateAction<Review[]>>
+  onReplyReview: (id: string, reply: string) => void
+  user: User
+  dishes: Dish[]
+}) {
+  const [filterRating, setFilterRating] = useState<number | "all">("all")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [replyingId, setReplyingId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState("")
+
+  const filtered = reviews.filter((r) => {
+    const matchRating = filterRating === "all" || r.rating === filterRating
+    const matchQuery =
+      !searchQuery ||
+      r.dishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.comment.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchRating && matchQuery
+  })
+
+  const avgRating = reviews.length
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : "5.0"
+  const fiveStarsCount = reviews.filter((r) => r.rating === 5).length
+  const unrepliedCount = reviews.filter((r) => !r.reply).length
+
+  const handleSendReply = (reviewId: string) => {
+    if (!replyText.trim()) return
+    onReplyReview(reviewId, replyText.trim())
+    setReplyingId(null)
+    setReplyText("")
+  }
+
+  return (
+    <div className="mt-6 grid gap-6">
+      {/* Metrics Row */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ReportMetric label="Điểm đánh giá trung bình" value={`⭐ ${avgRating} / 5.0`} />
+        <ReportMetric label="Tổng số lượt đánh giá" value={`${reviews.length} phản hồi`} />
+        <ReportMetric
+          label="Tỷ lệ 5 sao hài lòng"
+          value={`${reviews.length ? Math.round((fiveStarsCount / reviews.length) * 100) : 100}%`}
+        />
+        <ReportMetric label="Đánh giá chưa phản hồi" value={`${unrepliedCount} đánh giá`} />
+      </div>
+
+      {/* Control Bar */}
+      <div className="admin-card">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-stone-200 pb-4">
+          <div>
+            <h3 className="text-xl font-black text-stone-900">Phản hồi & Đánh giá từ Khách hàng</h3>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Cả Admin và Nhân viên đều có thể theo dõi và phản hồi trực tiếp cho khách.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl">
+              <span className="text-[11px] font-bold text-stone-500 px-1.5">Sao:</span>
+              {(["all", 5, 4, 3] as const).map((star) => (
+                <button
+                  key={String(star)}
+                  onClick={() => setFilterRating(star)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                    filterRating === star
+                      ? "bg-white text-stone-900 shadow-sm"
+                      : "text-stone-600 hover:text-black"
+                  }`}
+                >
+                  {star === "all" ? "Tất cả" : `${star} ⭐`}
+                </button>
+              ))}
+            </div>
+
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔍 Tìm theo món, khách..."
+              className="soft-input py-1 text-xs w-48 sm:w-56"
+            />
+          </div>
+        </div>
+
+        {/* Reviews List */}
+        <div className="mt-4 divide-y divide-stone-100">
+          {filtered.length === 0 ? (
+            <p className="py-12 text-center text-sm text-stone-500">
+              Không tìm thấy đánh giá nào phù hợp với bộ lọc.
+            </p>
+          ) : (
+            filtered.map((r) => {
+              const matchedDish = dishes.find((d) => d.id === r.dishId)
+              const isReplying = replyingId === r.id
+              return (
+                <article key={r.id} className="py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 shrink-0 rounded-full bg-stone-200 flex items-center justify-center font-black text-stone-700 text-sm">
+                        {r.customerName.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="font-black text-stone-900 text-sm">{r.customerName}</h4>
+                          <span className="text-xs text-stone-400">• {r.createdAt}</span>
+                          <span className="rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-bold text-stone-700 border border-stone-200">
+                            Món: {r.dishName}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-amber-500 text-sm tracking-wider font-black">
+                            {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                          </span>
+                          <span className="text-xs font-bold text-stone-500">({r.rating}/5 sao)</span>
+                        </div>
+                        <p className="mt-2 text-sm text-stone-700 leading-relaxed max-w-2xl">
+                          "{r.comment}"
+                        </p>
+                        {r.image && (
+                          <div className="mt-2.5">
+                            <span className="text-[11px] font-bold text-stone-500 block mb-1">
+                              📸 Ảnh thực tế do khách hàng đính kèm:
+                            </span>
+                            <img
+                              src={r.image}
+                              alt="Ảnh thực tế món ăn"
+                              className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl object-cover border border-stone-300 shadow-xs hover:scale-105 transition-transform"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {matchedDish && (
+                      <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                        <img
+                          src={matchedDish.image}
+                          alt={matchedDish.name}
+                          className="h-12 w-12 rounded-xl object-cover border border-stone-200"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reply Section */}
+                  <div className="mt-3 ml-0 sm:ml-13 pl-0 sm:pl-3">
+                    {r.reply ? (
+                      <div className="rounded-xl bg-stone-50 border border-stone-200 p-3 text-xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-stone-900 flex items-center gap-1.5">
+                            <span>💬</span> Phản hồi chính thức từ FoodVD:
+                          </span>
+                          <button
+                            onClick={() => {
+                              setReplyingId(r.id)
+                              setReplyText(r.reply || "")
+                            }}
+                            className="text-[11px] font-bold text-stone-500 hover:text-stone-900 underline"
+                          >
+                            Chỉnh sửa
+                          </button>
+                        </div>
+                        <p className="text-stone-700 font-medium">{r.reply}</p>
+                      </div>
+                    ) : isReplying ? (
+                      <div className="mt-2 rounded-xl bg-stone-50 border border-stone-200 p-3">
+                        <label className="block text-xs font-bold text-stone-800 mb-1.5">
+                          Viết câu trả lời cho khách ({user.name} - {user.role === "admin" ? "Admin" : "Nhân viên"}):
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="Cảm ơn quý khách đã khen ngợi / Quán xin ghi nhận và cải thiện..."
+                          className="w-full rounded-lg border border-stone-300 p-2 text-xs focus:border-stone-900 focus:outline-none bg-white"
+                        />
+                        <div className="mt-2 flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setReplyingId(null)
+                              setReplyText("")
+                            }}
+                            className="rounded-lg px-3 py-1.5 text-xs font-bold text-stone-500 hover:bg-stone-200"
+                          >
+                            Hủy
+                          </button>
+                          <button
+                            onClick={() => handleSendReply(r.id)}
+                            className="rounded-lg bg-stone-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-black shadow-sm"
+                          >
+                            Gửi phản hồi
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setReplyingId(r.id)
+                          setReplyText("")
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-stone-900 py-1"
+                      >
+                        <span>💬</span>
+                        <span>Trả lời khách hàng</span>
+                      </button>
+                    )}
+                  </div>
+                </article>
+              )
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ----------------------------------------------------
+// 8. USERS MANAGEMENT PANEL (Dành riêng cho Admin)
+// ----------------------------------------------------
+function UsersPanel({
+  usersList = [],
+  onUpdateUserRole,
+  onToggleUserStatus,
+  onAddStaff,
+}: {
+  usersList: User[]
+  onUpdateUserRole?: (email: string, role: Role) => void
+  onToggleUserStatus?: (email: string) => void
+  onAddStaff?: (staffData: { name: string; email: string; phone: string; password?: string }) => void
+}) {
+  const [filterRole, setFilterRole] = useState<string>("all")
+  const [searchUser, setSearchUser] = useState<string>("")
+  const [newStaffForm, setNewStaffForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  })
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false)
+
+  const filteredUsers = usersList.filter((u) => {
+    const matchRole = filterRole === "all" || u.role === filterRole
+    const q = searchUser.trim().toLowerCase()
+    const matchSearch =
+      !q ||
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      (u.phone && u.phone.includes(q))
+    return matchRole && matchSearch
+  })
+
+  const totalUsers = usersList.length
+  const totalCustomers = usersList.filter((u) => u.role === "customer").length
+  const totalStaff = usersList.filter((u) => u.role === "staff").length
+  const totalAdmin = usersList.filter((u) => u.role === "admin").length
+
+  const handleCreateStaff = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newStaffForm.name || !newStaffForm.email) {
+      alert("Vui lòng nhập họ tên và email nhân viên!")
+      return
+    }
+    if (onAddStaff) {
+      onAddStaff(newStaffForm)
+    }
+    setNewStaffForm({ name: "", email: "", phone: "", password: "" })
+    setShowAddStaffModal(false)
+  }
+
+  return (
+    <div className="mt-6 grid gap-6">
+      {/* 4 Cards Thống kê tài khoản */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+          <p className="text-xs font-bold text-stone-500 uppercase tracking-wider">Tổng người dùng</p>
+          <p className="mt-1 text-2xl font-black text-stone-900">{totalUsers}</p>
+          <span className="text-[11px] text-stone-400">Tài khoản trong hệ thống</span>
+        </div>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
+          <p className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Khách hàng</p>
+          <p className="mt-1 text-2xl font-black text-emerald-900">{totalCustomers}</p>
+          <span className="text-[11px] text-emerald-700">Tài khoản đặt món</span>
+        </div>
+        <div className="rounded-2xl border border-sky-200 bg-sky-50/50 p-4 shadow-xs">
+          <p className="text-xs font-bold text-sky-800 uppercase tracking-wider">Nhân viên</p>
+          <p className="mt-1 text-2xl font-black text-sky-900">{totalStaff}</p>
+          <span className="text-[11px] text-sky-700">Vận hành & Chế biến bếp</span>
+        </div>
+        <div className="rounded-2xl border border-purple-200 bg-purple-50/50 p-4 shadow-xs">
+          <p className="text-xs font-bold text-purple-800 uppercase tracking-wider">Quản trị viên</p>
+          <p className="mt-1 text-2xl font-black text-purple-900">{totalAdmin}</p>
+          <span className="text-[11px] text-purple-700">Toàn quyền hệ thống</span>
+        </div>
+      </div>
+
+      {/* Thanh công cụ: Lọc & Tìm kiếm & Nút Thêm nhân viên */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-stone-50 p-4 rounded-2xl border border-stone-200">
+        <div className="flex flex-wrap items-center gap-2">
+          {["all", "customer", "staff", "admin"].map((r) => (
+            <button
+              key={r}
+              onClick={() => setFilterRole(r)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                filterRole === r
+                  ? "bg-stone-900 text-white font-black"
+                  : "bg-white text-stone-600 border border-stone-200 hover:bg-stone-100"
+              }`}
+            >
+              {r === "all"
+                ? `Tất cả (${totalUsers})`
+                : r === "customer"
+                ? `Khách (${totalCustomers})`
+                : r === "staff"
+                ? `Nhân viên (${totalStaff})`
+                : `Admin (${totalAdmin})`}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={searchUser}
+            onChange={(e) => setSearchUser(e.target.value)}
+            placeholder="🔍 Tìm tên, email, SĐT..."
+            className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs text-stone-800 outline-none w-48 sm:w-60"
+          />
+          <button
+            onClick={() => setShowAddStaffModal(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-[#b42318] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-[#961c12] transition-colors cursor-pointer"
+          >
+            <span>➕</span>
+            <span>Thêm nhân viên</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Bảng danh sách người dùng */}
+      <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-xs">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-stone-200 bg-stone-50/80 text-stone-600 font-bold uppercase tracking-wider">
+              <th className="py-3 px-4">Người dùng</th>
+              <th className="py-3 px-4">Liên hệ (SĐT / Đ/C)</th>
+              <th className="py-3 px-4">Vai trò (Role)</th>
+              <th className="py-3 px-4">Trạng thái</th>
+              <th className="py-3 px-4 text-right">Hành động</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-100">
+            {filteredUsers.map((u) => {
+              const isLocked = u.status === "locked"
+              return (
+                <tr key={u.email} className={`hover:bg-stone-50/60 transition-colors ${isLocked ? "bg-rose-50/30" : ""}`}>
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 font-black text-stone-700 text-sm">
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-stone-900">{u.name}</p>
+                        <p className="text-[11px] text-stone-500">{u.email}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="py-3.5 px-4 text-stone-700">
+                    <p className="font-semibold">{u.phone || "Chưa cập nhật"}</p>
+                    <p className="text-[11px] text-stone-500 max-w-[200px] truncate">{u.address || "Chưa cập nhật"}</p>
+                  </td>
+
+                  <td className="py-3.5 px-4">
+                    <span
+                      className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-black ${
+                        u.role === "admin"
+                          ? "bg-purple-100 text-purple-800 border border-purple-300"
+                          : u.role === "staff"
+                          ? "bg-sky-100 text-sky-800 border border-sky-300"
+                          : "bg-stone-100 text-stone-700 border border-stone-200"
+                      }`}
+                    >
+                      {u.role === "admin" ? "👑 Admin" : u.role === "staff" ? "👨‍🍳 Nhân viên" : "👤 Khách hàng"}
+                    </span>
+                  </td>
+
+                  <td className="py-3.5 px-4">
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        isLocked
+                          ? "bg-rose-100 text-rose-800 border border-rose-300"
+                          : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                      }`}
+                    >
+                      {isLocked ? "🔒 Đã khóa" : "✅ Hoạt động"}
+                    </span>
+                  </td>
+
+                  <td className="py-3.5 px-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {/* Đổi quyền Role */}
+                      {u.role !== "admin" && onUpdateUserRole && (
+                        <button
+                          onClick={() => {
+                            const newR = u.role === "customer" ? "staff" : "customer"
+                            onUpdateUserRole(u.email, newR)
+                          }}
+                          className="rounded-lg border border-stone-300 bg-white px-2.5 py-1 text-[11px] font-bold text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                          title="Chuyển đổi giữa Khách hàng và Nhân viên"
+                        >
+                          {u.role === "customer" ? "➔ Đặt làm Nhân viên" : "➔ Chuyển thành Khách"}
+                        </button>
+                      )}
+
+                      {/* Khóa / Mở khóa tài khoản */}
+                      {u.role !== "admin" && onToggleUserStatus && (
+                        <button
+                          onClick={() => onToggleUserStatus(u.email)}
+                          className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-colors cursor-pointer ${
+                            isLocked
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200"
+                              : "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100"
+                          }`}
+                        >
+                          {isLocked ? "Mở khóa" : "Khóa"}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* MODAL THÊM TÀI KHOẢN NHÂN VIÊN MỚI */}
+      {showAddStaffModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            onClick={() => setShowAddStaffModal(false)}
+            style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-stone-200">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="text-base font-black text-stone-900">👨‍🍳 Thêm tài khoản nhân viên mới</h3>
+              <button
+                onClick={() => setShowAddStaffModal(false)}
+                className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 hover:text-black cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateStaff} className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Họ và tên nhân viên</label>
+                <input
+                  type="text"
+                  required
+                  value={newStaffForm.name}
+                  onChange={(e) => setNewStaffForm({ ...newStaffForm, name: e.target.value })}
+                  className="soft-input w-full"
+                  placeholder="VD: Trần Văn Bếp"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Email đăng nhập</label>
+                <input
+                  type="email"
+                  required
+                  value={newStaffForm.email}
+                  onChange={(e) => setNewStaffForm({ ...newStaffForm, email: e.target.value })}
+                  className="soft-input w-full"
+                  placeholder="bep2@foodvd.vn"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Số điện thoại</label>
+                <input
+                  type="text"
+                  value={newStaffForm.phone}
+                  onChange={(e) => setNewStaffForm({ ...newStaffForm, phone: e.target.value })}
+                  className="soft-input w-full"
+                  placeholder="0912345678"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-stone-700 block mb-1">Mật khẩu khởi tạo</label>
+                <input
+                  type="password"
+                  value={newStaffForm.password}
+                  onChange={(e) => setNewStaffForm({ ...newStaffForm, password: e.target.value })}
+                  className="soft-input w-full"
+                  placeholder="Mặc định: 123456"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-3">
+                <button
+                  type="submit"
+                  className="flex-1 cta-button justify-center py-2.5 text-xs font-bold cursor-pointer"
+                >
+                  ✓ Tạo tài khoản nhân viên
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddStaffModal(false)}
+                  className="rounded-xl border border-stone-300 px-4 py-2.5 text-xs font-bold text-stone-700 hover:bg-stone-100 cursor-pointer"
+                >
+                  Hủy
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+

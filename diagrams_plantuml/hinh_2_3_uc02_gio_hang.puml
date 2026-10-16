@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Khách Hàng" as Actor
+
+usecase "Quản lý giỏ hàng &\nĐặt hàng trực tuyến" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Kiểm tra tồn kho mở bán" as UC1
+usecase "Thêm / Xóa món trong giỏ hàng" as UC2
+usecase "Tùy chọn Topping và số lượng" as UC3
+usecase "Áp dụng chính sách Freeship" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main <.. UC2 : <<extend>>
+Main <.. UC3 : <<extend>>
+Main <.. UC4 : <<extend>>
+
+@enduml

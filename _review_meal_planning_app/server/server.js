@@ -1,6 +1,6 @@
 import express from "express"
 import cors from "cors"
-import { connectDB, Dish, Order, User } from "./db.js"
+import { connectDB, Dish, Order, Review, User } from "./db.js"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -256,7 +256,78 @@ app.patch("/api/orders/:id/status", async (req, res) => {
   }
 })
 
+// ================= REVIEWS APIS =================
+
+// Get all reviews
+app.get("/api/reviews", async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 })
+    res.json(reviews)
+  } catch (error) {
+    console.error("[Reviews] Lỗi lấy danh sách đánh giá:", error)
+    res.status(500).json({ error: "Không thể lấy danh sách đánh giá từ MongoDB." })
+  }
+})
+
+// Create review (Customer)
+app.post("/api/reviews", async (req, res) => {
+  try {
+    const { dishId, dishName, customerName, rating, comment } = req.body
+    if (!dishId || !customerName || !rating || !comment) {
+      return res.status(400).json({ error: "Vui lòng nhập đầy đủ thông tin đánh giá." })
+    }
+
+    const now = new Date().toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+
+    const reviewId = `REV-${Date.now().toString().slice(-5)}`
+    const newReview = new Review({
+      id: reviewId,
+      dishId: Number(dishId),
+      dishName: dishName || "Món ăn FoodVD",
+      customerName: customerName.trim(),
+      rating: Number(rating),
+      comment: comment.trim(),
+      createdAt: now,
+      reply: "",
+    })
+
+    await newReview.save()
+    console.log(`[Reviews] ⭐ Đã lưu đánh giá mới: ${newReview.dishName} - ${newReview.rating} sao bởi ${newReview.customerName}`)
+    res.status(201).json(newReview)
+  } catch (error) {
+    console.error("[Reviews] Lỗi tạo đánh giá:", error)
+    res.status(500).json({ error: "Không thể lưu đánh giá vào cơ sở dữ liệu MongoDB." })
+  }
+})
+
+// Reply to review (Admin & Staff)
+app.patch("/api/reviews/:id/reply", async (req, res) => {
+  try {
+    const reviewId = req.params.id
+    const { reply } = req.body
+
+    const review = await Review.findOne({ id: reviewId })
+    if (!review) {
+      return res.status(404).json({ error: "Không tìm thấy đánh giá trong MongoDB." })
+    }
+
+    review.reply = reply ? reply.trim() : ""
+    await review.save()
+    console.log(`[Reviews] 💬 Đã lưu phản hồi cho đánh giá [${review.id}]: ${review.reply}`)
+    res.json(review)
+  } catch (error) {
+    res.status(500).json({ error: "Không thể lưu phản hồi đánh giá." })
+  }
+})
+
 // Start server
+
 async function startServer() {
   try {
     await connectDB()

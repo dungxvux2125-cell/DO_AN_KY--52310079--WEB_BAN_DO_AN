@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Khách Hàng" as Actor
+
+usecase "Đánh giá món ăn &\nChất lượng dịch vụ" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Kiểm tra điều kiện đơn Hoàn tất" as UC1
+usecase "Chấm điểm số sao (1 đến 5 sao)" as UC2
+usecase "Nhập nội dung nhận xét chi tiết" as UC3
+usecase "Đính kèm hình ảnh thực tế món ăn" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main <.. UC2 : <<extend>>
+Main <.. UC3 : <<extend>>
+Main <.. UC4 : <<extend>>
+
+@enduml

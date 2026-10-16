@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Nhân Viên" as Actor
+
+usecase "Điểm danh & Chấm công\ntheo ca làm việc" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Xác nhận chọn ca làm việc trong ngày" as UC1
+usecase "Ghi nhận thời gian Check-in vào ca" as UC2
+usecase "Ghi nhận thời gian Check-out kết ca" as UC3
+usecase "Lưu trữ lịch sử chấm công vào CSDL" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main ..> UC2 : <<include>>
+Main ..> UC3 : <<include>>
+Main ..> UC4 : <<include>>
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Quản Trị Viên" as Actor
+
+usecase "Quản lý danh mục 54 món &\nKiểm soát mở bán" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Thêm mới món ăn vào hệ thống" as UC1
+usecase "Chỉnh sửa thông tin, giá & dinh dưỡng" as UC2
+usecase "Khóa mở bán khi hết nguyên liệu" as UC3
+usecase "Xóa hoặc ẩn món ăn khỏi thực đơn" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main ..> UC2 : <<include>>
+Main ..> UC3 : <<include>>
+Main ..> UC4 : <<include>>
+
+@enduml

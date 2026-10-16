@@ -1,4 +1,4 @@
-import type { Dish, Order, PaymentMethod, Role, User } from "../types"
+import type { Dish, Order, PaymentMethod, Review, Role, User } from "../types"
 
 const API_BASE = "http://localhost:5000/api"
 
@@ -146,4 +146,50 @@ export async function apiUpdateOrderStatus(orderId: string, status: string): Pro
     return null
   }
 }
+
+// 4. Reviews APIs
+export async function apiGetReviews(): Promise<Review[] | null> {
+  try {
+    const res = await fetch(`${API_BASE}/reviews`)
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function apiCreateReview(reviewData: {
+  dishId: number
+  dishName: string
+  customerName: string
+  rating: number
+  comment: string
+}): Promise<Review | null> {
+  try {
+    const res = await fetch(`${API_BASE}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(reviewData),
+    })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function apiReplyReview(reviewId: string, reply: string): Promise<Review | null> {
+  try {
+    const res = await fetch(`${API_BASE}/reviews/${reviewId}/reply`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reply }),
+    })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
 

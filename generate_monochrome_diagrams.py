@@ -18,19 +18,27 @@ def save_bw(fig, filename):
     print(f"Rendered B&W: {filename}")
 
 def draw_stick_figure(ax, x, y, name, scale=1.0):
-    # Sleek, well-proportioned actor (compact & elegant like StarUML)
-    r = 0.022 * scale
-    head = patches.Circle((x, y + 0.06 * scale), r, edgecolor='black', facecolor='white', lw=1.5, zorder=5)
+    # Sleek, well-proportioned actor (aspect-ratio corrected so head is circular)
+    fig = ax.get_figure()
+    w_c, h_c = fig.get_size_inches()
+    aspect = h_c / w_c
+    
+    ry = 0.024 * scale
+    rx = ry * aspect
+    head = patches.Ellipse((x, y + 0.055 * scale), 2 * rx, 2 * ry, edgecolor='black', facecolor='white', lw=1.5, zorder=5)
     ax.add_patch(head)
     # Spine
-    ax.plot([x, x], [y + 0.038 * scale, y - 0.02 * scale], color='black', lw=1.5, zorder=5)
+    ax.plot([x, x], [y + 0.031 * scale, y - 0.02 * scale], color='black', lw=1.5, zorder=5)
     # Arms
-    ax.plot([x - 0.030 * scale, x + 0.030 * scale], [y + 0.015 * scale, y + 0.015 * scale], color='black', lw=1.5, zorder=5)
+    arm_w = 0.028 * scale * aspect
+    ax.plot([x - arm_w, x + arm_w], [y + 0.012 * scale, y + 0.012 * scale], color='black', lw=1.5, zorder=5)
     # Legs
-    ax.plot([x, x - 0.025 * scale], [y - 0.02 * scale, y - 0.075 * scale], color='black', lw=1.5, zorder=5)
-    ax.plot([x, x + 0.025 * scale], [y - 0.02 * scale, y - 0.075 * scale], color='black', lw=1.5, zorder=5)
-    # Name label
-    ax.text(x, y - 0.105 * scale, name, ha='center', va='top', fontsize=9.5 * scale, fontweight='bold', color='black', zorder=5)
+    leg_w = 0.024 * scale * aspect
+    ax.plot([x, x - leg_w], [y - 0.02 * scale, y - 0.075 * scale], color='black', lw=1.5, zorder=5)
+    ax.plot([x, x + leg_w], [y - 0.02 * scale, y - 0.075 * scale], color='black', lw=1.5, zorder=5)
+    # Name label with white box pad so overlapping lines never obscure text
+    ax.text(x, y - 0.095 * scale, name, ha='center', va='top', fontsize=8.8 * scale, fontweight='bold', color='black',
+            bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none'), zorder=6)
 
 def draw_usecase(ax, x, y, text, w=0.29, h=0.09, stereo=None, fontsize=10):
     oval = patches.Ellipse((x, y), w, h, edgecolor='black', facecolor='white', lw=1.4, zorder=4)
@@ -41,7 +49,12 @@ def draw_usecase(ax, x, y, text, w=0.29, h=0.09, stereo=None, fontsize=10):
 def draw_boundary(ax, x, y, w, h, title):
     rect = patches.Rectangle((x, y), w, h, edgecolor='black', facecolor='#FAFAFA', lw=1.4, ls='-', zorder=1)
     ax.add_patch(rect)
-    ax.text(x + 0.02, y + h - 0.03, title, ha='left', va='top', fontsize=11, fontweight='bold', color='black', zorder=2)
+    # Generous tab width to guarantee no text cutting
+    tab_w = min(w * 0.96, 0.06 + len(title) * 0.0155)
+    tab_h = 0.045
+    tab = patches.Rectangle((x, y + h - tab_h), tab_w, tab_h, edgecolor='black', facecolor='#EAEAEA', lw=1.2, zorder=2)
+    ax.add_patch(tab)
+    ax.text(x + 0.015, y + h - tab_h / 2, title, ha='left', va='center', fontsize=9.0, fontweight='bold', color='black', zorder=3)
 
 def draw_assoc(ax, x1, y1, x2, y2, label=None, ls='-', arrow=''):
     if arrow == '->':
@@ -62,52 +75,51 @@ def draw_assoc(ax, x1, y1, x2, y2, label=None, ls='-', arrow=''):
 # 1. HÌNH 3.1: USE CASE TỔNG QUÁT (MONOCHROME - PROPORTIONAL & CLEAR)
 # ==========================================
 def gen_hinh_3_1():
-    fig, ax = setup_canvas(12, 8.5)
+    fig, ax = setup_canvas(13.5, 9.2)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     
-    # Large spacious system boundary (70% of canvas width)
-    draw_boundary(ax, 0.15, 0.04, 0.70, 0.92, "HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ ẨM THỰC FOODVD")
+    # Large spacious system boundary (from x=0.16 to x=0.84)
+    draw_boundary(ax, 0.16, 0.03, 0.68, 0.94, "HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ ẨM THỰC FOODVD")
     
-    # Sleek, well-proportioned actors
-    draw_stick_figure(ax, 0.075, 0.58, "Khách Hàng\n(Customer)")
-    draw_stick_figure(ax, 0.925, 0.72, "Quản Trị Viên\n(Admin)")
-    draw_stick_figure(ax, 0.925, 0.32, "Nhân Viên\n(Staff)")
+    # Sleek, well-proportioned actors outside boundary (scale=0.82)
+    draw_stick_figure(ax, 0.08, 0.58, "Khách Hàng\n(Customer)", scale=0.82)
+    draw_stick_figure(ax, 0.92, 0.74, "Quản Trị Viên\n(Admin)", scale=0.82)
+    draw_stick_figure(ax, 0.92, 0.28, "Nhân Viên\n(Staff)", scale=0.82)
     
     # Left Column (Customer Use Cases)
     cust_ucs = [
-        (0.33, 0.88, "Xem menu & Trải nghiệm 3D"),
-        (0.33, 0.75, "Quản lý giỏ hàng & Đặt hàng"),
-        (0.33, 0.62, "Thanh toán VietQR động"),
-        (0.33, 0.49, "Theo dõi tiến trình đơn hàng"),
-        (0.33, 0.36, "Đánh giá món ăn & Số sao"),
-        (0.33, 0.23, "Tra cứu lịch sử đơn hàng")
+        (0.32, 0.88, "Xem menu & Dinh dưỡng món"),
+        (0.32, 0.75, "Quản lý giỏ hàng & Đặt hàng"),
+        (0.32, 0.62, "Thanh toán (VietQR / COD)"),
+        (0.32, 0.49, "Theo dõi tiến trình đơn hàng"),
+        (0.32, 0.36, "Đánh giá món & Kèm ảnh"),
+        (0.32, 0.23, "Tra cứu lịch sử đơn hàng")
     ]
     for cx, cy, text in cust_ucs:
-        draw_usecase(ax, cx, cy, text, w=0.29, h=0.09, fontsize=10)
-        draw_assoc(ax, 0.075, 0.58, cx - 0.145, cy)
+        draw_usecase(ax, cx, cy, text, w=0.27, h=0.088, fontsize=9.5)
+        draw_assoc(ax, 0.08, 0.58, cx - 0.135, cy)
         
     # Right Column (Admin & Staff Use Cases)
     admin_ucs = [
-        (0.67, 0.88, "Quản lý món ăn & Tồn kho"),
-        (0.67, 0.75, "Báo cáo doanh thu & KPI"),
-        (0.67, 0.62, "Quản lý mã Voucher khuyến mãi"),
-        (0.67, 0.49, "Quản lý đơn hàng & Vận hành bếp"),
-        (0.67, 0.36, "Duyệt công & Tính bảng lương"),
-        (0.67, 0.23, "Chấm công ca làm (GPS/Wi-Fi)")
+        (0.68, 0.88, "Quản lý món ăn & Tồn kho"),
+        (0.68, 0.75, "Báo cáo doanh thu & KPI"),
+        (0.68, 0.62, "Quản lý mã Voucher khuyến mãi"),
+        (0.68, 0.49, "Quản lý đơn hàng & Vận hành bếp"),
+        (0.68, 0.36, "Duyệt công & Tính bảng lương"),
+        (0.68, 0.23, "Chấm công ca làm việc")
     ]
     for ax_pos, ay, text in admin_ucs:
-        draw_usecase(ax, ax_pos, ay, text, w=0.29, h=0.09, fontsize=10)
+        draw_usecase(ax, ax_pos, ay, text, w=0.27, h=0.088, fontsize=9.5)
         if ay >= 0.36:
-            draw_assoc(ax, 0.925, 0.72, ax_pos + 0.145, ay)
+            draw_assoc(ax, 0.89, 0.74, ax_pos + 0.135, ay)
         if ay in [0.49, 0.23]:
-            draw_assoc(ax, 0.925, 0.32, ax_pos + 0.145, ay)
+            draw_assoc(ax, 0.89, 0.28, ax_pos + 0.135, ay)
             
     # Shared Bottom Use Case: Đăng nhập & Xác thực JWT
-    draw_usecase(ax, 0.50, 0.10, "Đăng nhập & Phân quyền JWT", w=0.32, h=0.085, fontsize=10.5)
-    draw_assoc(ax, 0.075, 0.58, 0.34, 0.10)
-    draw_assoc(ax, 0.925, 0.72, 0.66, 0.10)
-    draw_assoc(ax, 0.925, 0.32, 0.66, 0.10)
+    draw_usecase(ax, 0.50, 0.095, "Đăng nhập & Phân quyền JWT", w=0.30, h=0.085, fontsize=10.0)
+    draw_assoc(ax, 0.08, 0.58, 0.35, 0.095)
+    draw_assoc(ax, 0.89, 0.28, 0.65, 0.095)
     
     save_bw(fig, "Hinh_3_1_UseCase_TongQuat.png")
 
@@ -115,49 +127,49 @@ def gen_hinh_3_1():
 # 2-13. USE CASES CHI TIẾT TỪNG CHỨC NĂNG (HÌNH 3.2 -> 3.13)
 # ==========================================
 def gen_detail_usecase(filename, actor_name, main_uc, sub_ucs, title_boundary):
-    fig, ax = setup_canvas(8.5, 4.8)
+    fig, ax = setup_canvas(9.8, 5.2)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     
-    draw_boundary(ax, 0.22, 0.06, 0.74, 0.88, title_boundary)
-    draw_stick_figure(ax, 0.11, 0.52, actor_name)
+    draw_boundary(ax, 0.19, 0.05, 0.78, 0.90, title_boundary)
+    draw_stick_figure(ax, 0.095, 0.50, actor_name, scale=0.92)
     
     # Main UC
-    mx, my = 0.44, 0.52
-    draw_usecase(ax, mx, my, main_uc, 0.28, 0.14, fontsize=9.5)
-    draw_assoc(ax, 0.14, 0.52, mx - 0.14, my)
+    mx, my = 0.36, 0.50
+    draw_usecase(ax, mx, my, main_uc, 0.26, 0.13, fontsize=9.2)
+    draw_assoc(ax, 0.12, 0.50, mx - 0.13, my)
     
     # Sub UCs (include/extend)
     n = len(sub_ucs)
     if n == 1:
-        positions = [(0.79, 0.52)]
+        positions = [(0.81, 0.50)]
     elif n == 2:
-        positions = [(0.79, 0.70), (0.79, 0.34)]
+        positions = [(0.81, 0.70), (0.81, 0.30)]
     elif n == 3:
-        positions = [(0.79, 0.78), (0.79, 0.52), (0.79, 0.26)]
+        positions = [(0.81, 0.76), (0.81, 0.50), (0.81, 0.24)]
     else:
-        positions = [(0.79, 0.82 - i * 0.22) for i in range(n)]
+        positions = [(0.81, 0.82 - i * 0.22) for i in range(n)]
         
     for i, (suc, stype) in enumerate(sub_ucs):
         sx, sy = positions[i]
-        draw_usecase(ax, sx, sy, suc, 0.27, 0.12, fontsize=9.0)
+        draw_usecase(ax, sx, sy, suc, 0.26, 0.12, fontsize=8.8)
         if stype == "include":
-            draw_assoc(ax, mx + 0.14, my, sx - 0.135, sy, label="<<include>>", ls='--', arrow='->')
+            draw_assoc(ax, mx + 0.13, my, sx - 0.13, sy, label="<<include>>", ls='--', arrow='->')
         elif stype == "extend":
-            draw_assoc(ax, sx - 0.135, sy, mx + 0.14, my, label="<<extend>>", ls='--', arrow='->')
+            draw_assoc(ax, sx - 0.13, sy, mx + 0.13, my, label="<<extend>>", ls='--', arrow='->')
         else:
-            draw_assoc(ax, mx + 0.14, my, sx - 0.135, sy, ls='-', arrow='')
+            draw_assoc(ax, mx + 0.13, my, sx - 0.13, sy, ls='-', arrow='')
             
     save_bw(fig, filename)
 
 def gen_all_detail_usecases():
-    # UC01 - Hình 3.2
+    # UC01 - Hình 3.2: Bỏ 3D, thay bằng Dinh dưỡng & Nguyên liệu
     gen_detail_usecase(
         "Hinh_3_2_UseCase_XemMenu_3D.png",
         "Khách Hàng",
-        "Xem thực đơn &\nTrải nghiệm 3D",
-        [("Tải mô hình 3D WebGL", "include"), ("Lọc món theo danh mục", "extend")],
-        "Phân hệ Xem Thực Đơn & Mô Hình 3D"
+        "Xem thực đơn &\nThông tin dinh dưỡng",
+        [("Tra cứu Calo, Protein & Xuất xứ", "include"), ("Lọc món theo 11 danh mục", "extend")],
+        "Phân hệ Xem Thực Đơn & Dinh Dưỡng Món Ăn"
     )
     # UC02 - Hình 3.3
     gen_detail_usecase(
@@ -167,13 +179,13 @@ def gen_all_detail_usecases():
         [("Kiểm tra tồn kho nguyên tử", "include"), ("Áp dụng mã giảm giá", "extend")],
         "Phân hệ Giỏ Hàng & Đặt Hàng Trực Tuyến"
     )
-    # UC03 - Hình 3.4
+    # UC03 - Hình 3.4: 2 phương thức thanh toán VietQR & COD
     gen_detail_usecase(
         "Hinh_3_4_UseCase_ThanhToan_VietQR.png",
         "Khách Hàng",
         "Thanh toán đơn hàng",
-        [("Sinh mã VietQR động", "include"), ("Xác nhận chuyển khoản", "include")],
-        "Phân hệ Thanh Toán Trực Tuyến VietQR"
+        [("Chuyển khoản VietQR động", "extend"), ("Tiền mặt khi nhận (COD)", "extend"), ("Xác nhận & Lưu đơn hàng", "include")],
+        "Phân hệ Thanh Toán Đơn Hàng (VietQR & COD)"
     )
     # UC04 - Hình 3.5
     gen_detail_usecase(
@@ -183,7 +195,7 @@ def gen_all_detail_usecases():
         [("Cập nhật trạng thái thời gian thực", "include"), ("Hủy đơn chờ thanh toán", "extend")],
         "Phân hệ Tra Cứu & Lịch Sử Đơn Hàng"
     )
-    # UC05 - Hình 3.6
+    # UC05 - Hình 3.6: Đánh giá số sao (1-5) & Đính kèm ảnh thực tế
     gen_detail_usecase(
         "Hinh_3_6_UseCase_DanhGia_Rating.png",
         "Khách Hàng",
@@ -236,7 +248,7 @@ def gen_all_detail_usecases():
         "Hinh_3_12_UseCase_NhanVien_ChamCong.png",
         "Nhân Viên",
         "Điểm danh ca làm",
-        [("Xác thực vị trí GPS / Wi-Fi", "include"), ("Ghi nhận giờ Vào / Tan ca", "include")],
+        [("Xác nhận ca làm việc", "include"), ("Ghi nhận giờ Vào / Tan ca", "include")],
         "Phân hệ Điểm Danh & Chấm Công Nhân Viên"
     )
     # UC12 - Hình 3.13
@@ -274,11 +286,27 @@ def gen_hinh_3_14():
         ax.add_patch(box)
         ax.text(x, y, text, ha='center', va='center', fontsize=8, color='black', zorder=4)
 
+    # Helper functions for activity diagram nodes
+    def draw_act_start(ax, x, y, r=0.018):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        start = patches.Ellipse((x, y), 2 * r * aspect, 2 * r, facecolor='black', edgecolor='black', zorder=4)
+        ax.add_patch(start)
+
+    def draw_act_end(ax, x, y, r_out=0.02, r_in=0.012):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        end_outer = patches.Ellipse((x, y), 2 * r_out * aspect, 2 * r_out, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
+        end_inner = patches.Ellipse((x, y), 2 * r_in * aspect, 2 * r_in, facecolor='black', edgecolor='black', zorder=5)
+        ax.add_patch(end_outer)
+        ax.add_patch(end_inner)
+
     # Start
-    start = patches.Circle((0.15, 0.85), 0.018, facecolor='black', edgecolor='black', zorder=4)
-    ax.add_patch(start)
+    draw_act_start(ax, 0.15, 0.85)
     
-    act(0.15, 0.74, "Xem món 3D &\nChọn vào giỏ")
+    act(0.15, 0.74, "Xem thực đơn &\nChọn món vào giỏ")
     draw_assoc(ax, 0.15, 0.832, 0.15, 0.775, arrow='->')
     
     act(0.15, 0.60, "Xác nhận đặt hàng &\nQuét VietQR")
@@ -303,15 +331,12 @@ def gen_hinh_3_14():
     draw_assoc(ax, 0.84, 0.405, 0.84, 0.315, arrow='->')
     
     # Back to Customer
-    draw_assoc(ax, 0.75, 0.28, 0.15, 0.28, arrow='->')
+    draw_assoc(ax, 0.75, 0.28, 0.24, 0.28, arrow='->')
     act(0.15, 0.28, "Nhận món ăn &\nGửi đánh giá sao")
     
     # End node
-    end_outer = patches.Circle((0.15, 0.14), 0.02, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
-    end_inner = patches.Circle((0.15, 0.14), 0.012, facecolor='black', edgecolor='black', zorder=5)
-    ax.add_patch(end_outer)
-    ax.add_patch(end_inner)
-    draw_assoc(ax, 0.15, 0.245, 0.15, 0.16, arrow='->')
+    draw_act_end(ax, 0.15, 0.14)
+    draw_assoc(ax, 0.15, 0.245, 0.15, 0.165, arrow='->')
     
     save_bw(fig, "Hinh_3_14_Activity_TongQuat.png")
 
@@ -319,57 +344,73 @@ def gen_hinh_3_14():
 # 15. BIỂU ĐỒ HOẠT ĐỘNG: ĐẶT HÀNG & ATOMIC (HÌNH 3.15)
 # ==========================================
 def gen_hinh_3_15():
-    fig, ax = setup_canvas(8.5, 7.5)
+    fig, ax = setup_canvas(9.2, 7.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     
     draw_boundary(ax, 0.05, 0.04, 0.90, 0.92, "Quy Trình Đặt Hàng & Trừ Tồn Kho Nguyên Tử (Atomic Decrement)")
     
-    def rbox(x, y, text, w=0.28, h=0.08):
+    def draw_act_start(ax, x, y, r=0.018):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        start = patches.Ellipse((x, y), 2 * r * aspect, 2 * r, facecolor='black', edgecolor='black', zorder=4)
+        ax.add_patch(start)
+
+    def draw_act_end(ax, x, y, r_out=0.02, r_in=0.012):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        end_outer = patches.Ellipse((x, y), 2 * r_out * aspect, 2 * r_out, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
+        end_inner = patches.Ellipse((x, y), 2 * r_in * aspect, 2 * r_in, facecolor='black', edgecolor='black', zorder=5)
+        ax.add_patch(end_outer)
+        ax.add_patch(end_inner)
+
+    def rbox(x, y, text, w=0.32, h=0.08):
         box = patches.FancyBboxPatch((x - w/2, y - h/2), w, h, boxstyle='round,pad=0.015,rounding_size=0.02',
                                      edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(box)
         ax.text(x, y, text, ha='center', va='center', fontsize=8.5, color='black', zorder=4)
         
-    def diamond(x, y, text, w=0.24, h=0.09):
+    def diamond(x, y, text, w=0.36, h=0.10):
         pts = [[x, y + h/2], [x + w/2, y], [x, y - h/2], [x - w/2, y]]
         poly = patches.Polygon(pts, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(poly)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8, color='black', zorder=4)
+        ax.text(x, y, text, ha='center', va='center', fontsize=7.2, color='black', zorder=4)
 
     # Start
-    start = patches.Circle((0.5, 0.90), 0.018, facecolor='black', edgecolor='black', zorder=4)
-    ax.add_patch(start)
+    draw_act_start(ax, 0.38, 0.85)
     
-    rbox(0.5, 0.80, "Khách hàng gửi yêu cầu\nĐặt hàng (Checkout)")
-    draw_assoc(ax, 0.5, 0.882, 0.5, 0.84, arrow='->')
+    rbox(0.38, 0.75, "Khách hàng gửi yêu cầu\nĐặt hàng (Checkout)", w=0.32, h=0.08)
+    draw_assoc(ax, 0.38, 0.832, 0.38, 0.79, arrow='->')
     
-    rbox(0.5, 0.67, "Hệ thống mở giao dịch &\nThực thi findOneAndUpdate atomic")
-    draw_assoc(ax, 0.5, 0.76, 0.5, 0.71, arrow='->')
+    rbox(0.38, 0.63, "Hệ thống mở giao dịch &\nThực thi atomic: findOneAndUpdate()", w=0.34, h=0.08)
+    draw_assoc(ax, 0.38, 0.71, 0.38, 0.67, arrow='->')
     
-    diamond(0.5, 0.53, "Số lượng tồn kho\n>= Số lượng đặt?")
-    draw_assoc(ax, 0.5, 0.63, 0.5, 0.575, arrow='->')
+    diamond(0.38, 0.51, "Số lượng tồn kho\n>= Số lượng đặt?", w=0.36, h=0.10)
+    draw_assoc(ax, 0.38, 0.59, 0.38, 0.562, arrow='->')
     
     # Branch No
-    draw_assoc(ax, 0.62, 0.53, 0.82, 0.53, label="[Không đủ]", arrow='->')
-    rbox(0.82, 0.40, "Hủy giao dịch (Rollback)\nBáo lỗi 'Món đã hết'")
-    draw_assoc(ax, 0.82, 0.53, 0.82, 0.44, arrow='->')
+    draw_assoc(ax, 0.56, 0.51, 0.78, 0.51, arrow='->')
+    ax.text(0.67, 0.525, "[Không đủ]", ha='center', va='bottom', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
+    rbox(0.78, 0.39, "Hủy giao dịch (Rollback)\nBáo lỗi 'Món đã hết'", w=0.26, h=0.08)
+    draw_assoc(ax, 0.78, 0.51, 0.78, 0.43, arrow='->')
     
     # Branch Yes
-    draw_assoc(ax, 0.5, 0.485, 0.5, 0.42, label="[Thỏa mãn]", arrow='->')
-    rbox(0.5, 0.38, "Trừ kho nguyên tử (stock -= qty)\nKhóa đơn hàng ở DB")
+    draw_assoc(ax, 0.38, 0.458, 0.38, 0.41, arrow='->')
+    ax.text(0.40, 0.435, "[Thỏa mãn]", ha='left', va='center', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
+    rbox(0.38, 0.37, "Trừ kho nguyên tử (stock -= qty)\nKhóa đơn hàng ở DB", w=0.32, h=0.08)
     
-    rbox(0.5, 0.25, "Sinh mã thanh toán VietQR động\nChờ xác nhận thanh toán")
-    draw_assoc(ax, 0.5, 0.34, 0.5, 0.29, arrow='->')
+    rbox(0.38, 0.25, "Sinh mã thanh toán VietQR động\nChờ xác nhận thanh toán", w=0.32, h=0.08)
+    draw_assoc(ax, 0.38, 0.33, 0.38, 0.29, arrow='->')
     
     # End
-    end_outer = patches.Circle((0.5, 0.12), 0.02, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
-    end_inner = patches.Circle((0.5, 0.12), 0.012, facecolor='black', edgecolor='black', zorder=5)
-    ax.add_patch(end_outer)
-    ax.add_patch(end_inner)
-    draw_assoc(ax, 0.5, 0.21, 0.5, 0.14, arrow='->')
-    draw_assoc(ax, 0.82, 0.36, 0.82, 0.12, arrow='->')
-    draw_assoc(ax, 0.82, 0.12, 0.52, 0.12, arrow='->')
+    draw_act_end(ax, 0.38, 0.12)
+    draw_assoc(ax, 0.38, 0.21, 0.38, 0.142, arrow='->')
+    draw_assoc(ax, 0.78, 0.35, 0.78, 0.12)
+    draw_assoc(ax, 0.78, 0.12, 0.405, 0.12, arrow='->')
     
     save_bw(fig, "Hinh_3_15_Activity_DatHang_Atomic.png")
 
@@ -377,55 +418,60 @@ def gen_hinh_3_15():
 # 16. BIỂU ĐỒ HOẠT ĐỘNG: CHẤM CÔNG & LƯƠNG (HÌNH 3.16)
 # ==========================================
 def gen_hinh_3_16():
-    fig, ax = setup_canvas(8.5, 7.5)
+    fig, ax = setup_canvas(9.2, 7.8)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     
-    draw_boundary(ax, 0.05, 0.04, 0.90, 0.92, "Quy Trình Chấm Công Nhân Viên & Tính Bảng Lương Tự Động")
+    draw_boundary(ax, 0.05, 0.03, 0.90, 0.94, "Quy Trình Chấm Công Theo Ca & Tính Bảng Lương Nhân Viên")
     
-    def rbox(x, y, text, w=0.28, h=0.08):
+    def draw_act_start(ax, x, y, r=0.018):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        start = patches.Ellipse((x, y), 2 * r * aspect, 2 * r, facecolor='black', edgecolor='black', zorder=4)
+        ax.add_patch(start)
+
+    def draw_act_end(ax, x, y, r_out=0.02, r_in=0.012):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        end_outer = patches.Ellipse((x, y), 2 * r_out * aspect, 2 * r_out, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
+        end_inner = patches.Ellipse((x, y), 2 * r_in * aspect, 2 * r_in, facecolor='black', edgecolor='black', zorder=5)
+        ax.add_patch(end_outer)
+        ax.add_patch(end_inner)
+
+    def rbox(x, y, text, w=0.55, h=0.082):
         box = patches.FancyBboxPatch((x - w/2, y - h/2), w, h, boxstyle='round,pad=0.015,rounding_size=0.02',
                                      edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(box)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8.5, color='black', zorder=4)
-        
-    def diamond(x, y, text, w=0.24, h=0.09):
-        pts = [[x, y + h/2], [x + w/2, y], [x, y - h/2], [x - w/2, y]]
-        poly = patches.Polygon(pts, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
-        ax.add_patch(poly)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8, color='black', zorder=4)
+        ax.text(x, y, text, ha='center', va='center', fontsize=8.6, color='black', zorder=4)
 
-    start = patches.Circle((0.5, 0.90), 0.018, facecolor='black', edgecolor='black', zorder=4)
-    ax.add_patch(start)
+    # Start
+    draw_act_start(ax, 0.50, 0.89)
     
-    rbox(0.5, 0.80, "Nhân viên bấm Check-in\ngửi tọa độ GPS & BSSID Wi-Fi")
-    draw_assoc(ax, 0.5, 0.882, 0.5, 0.84, arrow='->')
+    # Step 1: Login & Select shift
+    rbox(0.50, 0.79, "Nhân viên đăng nhập hệ thống tại quán &\nChọn ca làm việc (Ca sáng / Ca chiều / Ca tối)", w=0.55, h=0.078)
+    draw_assoc(ax, 0.50, 0.872, 0.50, 0.83, arrow='->')
     
-    diamond(0.5, 0.67, "Khoảng cách GPS <= 50m\nhoặc khớp Wi-Fi quán?")
-    draw_assoc(ax, 0.5, 0.76, 0.5, 0.715, arrow='->')
+    # Step 2: Check-in
+    rbox(0.50, 0.65, "Bấm 'Vào ca làm việc' (Check-in):\nHệ thống ghi nhận InTime & Trạng thái 'Đang làm việc'", w=0.55, h=0.078)
+    draw_assoc(ax, 0.50, 0.75, 0.50, 0.69, arrow='->')
     
-    # Ineligible
-    draw_assoc(ax, 0.62, 0.67, 0.82, 0.67, label="[Ngoài phạm vi]", arrow='->')
-    rbox(0.82, 0.53, "Từ chối chấm công\nBáo lỗi 'Không đúng vị trí'")
-    draw_assoc(ax, 0.82, 0.67, 0.82, 0.57, arrow='->')
+    # Step 3: Shift duties
+    rbox(0.50, 0.51, "Thực hiện nhiệm vụ ca làm việc tại quán ăn\n(Phục vụ / Thu ngân / Pha chế / Bếp / Điều phối)", w=0.55, h=0.078)
+    draw_assoc(ax, 0.50, 0.61, 0.50, 0.55, arrow='->')
     
-    # Eligible
-    draw_assoc(ax, 0.5, 0.625, 0.5, 0.55, label="[Hợp lệ]", arrow='->')
-    rbox(0.5, 0.51, "Ghi nhận giờ vào ca (InTime)\nvà trạng thái ca làm việc")
+    # Step 4: Check-out
+    rbox(0.50, 0.37, "Kết thúc ca: Bấm 'Điểm danh tan ca' (Check-out):\nGhi nhận OutTime & Cập nhật trạng thái 'Hoàn thành ca'", w=0.55, h=0.078)
+    draw_assoc(ax, 0.50, 0.47, 0.50, 0.41, arrow='->')
     
-    rbox(0.5, 0.38, "Kết thúc ca: Check-out &\nTính số giờ công thực tế")
-    draw_assoc(ax, 0.5, 0.47, 0.5, 0.42, arrow='->')
+    # Step 5: Payroll sync
+    rbox(0.50, 0.23, "Quản trị viên đồng bộ dữ liệu chấm công &\nHệ thống tính lương: Lương = Số ca * Đơn giá ca + Phụ cấp", w=0.58, h=0.078)
+    draw_assoc(ax, 0.50, 0.33, 0.50, 0.27, arrow='->')
     
-    rbox(0.5, 0.25, "Hệ thống tự động tính lương:\nLương = Tổng giờ * Lương ca + Thưởng")
-    draw_assoc(ax, 0.5, 0.34, 0.5, 0.29, arrow='->')
-    
-    end_outer = patches.Circle((0.5, 0.12), 0.02, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
-    end_inner = patches.Circle((0.5, 0.12), 0.012, facecolor='black', edgecolor='black', zorder=5)
-    ax.add_patch(end_outer)
-    ax.add_patch(end_inner)
-    draw_assoc(ax, 0.5, 0.21, 0.5, 0.14, arrow='->')
-    draw_assoc(ax, 0.82, 0.49, 0.82, 0.12, arrow='->')
-    draw_assoc(ax, 0.82, 0.12, 0.52, 0.12, arrow='->')
+    # End
+    draw_act_end(ax, 0.50, 0.10)
+    draw_assoc(ax, 0.50, 0.19, 0.50, 0.122, arrow='->')
     
     save_bw(fig, "Hinh_3_16_Activity_ChamCong_Luong.png")
 
@@ -433,55 +479,71 @@ def gen_hinh_3_16():
 # 17. BIỂU ĐỒ HOẠT ĐỘNG: ĐÁNH GIÁ & RATING (HÌNH 3.17)
 # ==========================================
 def gen_hinh_3_17():
-    fig, ax = setup_canvas(8.5, 7.5)
+    fig, ax = setup_canvas(9.2, 7.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     
     draw_boundary(ax, 0.05, 0.04, 0.90, 0.92, "Quy Trình Khách Hàng Đánh Giá Món Ăn & Cập Nhật Sao Động")
     
-    def rbox(x, y, text, w=0.28, h=0.08):
+    def draw_act_start(ax, x, y, r=0.018):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        start = patches.Ellipse((x, y), 2 * r * aspect, 2 * r, facecolor='black', edgecolor='black', zorder=4)
+        ax.add_patch(start)
+
+    def draw_act_end(ax, x, y, r_out=0.02, r_in=0.012):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        end_outer = patches.Ellipse((x, y), 2 * r_out * aspect, 2 * r_out, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
+        end_inner = patches.Ellipse((x, y), 2 * r_in * aspect, 2 * r_in, facecolor='black', edgecolor='black', zorder=5)
+        ax.add_patch(end_outer)
+        ax.add_patch(end_inner)
+
+    def rbox(x, y, text, w=0.32, h=0.08):
         box = patches.FancyBboxPatch((x - w/2, y - h/2), w, h, boxstyle='round,pad=0.015,rounding_size=0.02',
                                      edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(box)
         ax.text(x, y, text, ha='center', va='center', fontsize=8.5, color='black', zorder=4)
         
-    def diamond(x, y, text, w=0.24, h=0.09):
+    def diamond(x, y, text, w=0.36, h=0.10):
         pts = [[x, y + h/2], [x + w/2, y], [x, y - h/2], [x - w/2, y]]
         poly = patches.Polygon(pts, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(poly)
-        ax.text(x, y, text, ha='center', va='center', fontsize=8, color='black', zorder=4)
+        ax.text(x, y, text, ha='center', va='center', fontsize=7.2, color='black', zorder=4)
 
-    start = patches.Circle((0.5, 0.90), 0.018, facecolor='black', edgecolor='black', zorder=4)
-    ax.add_patch(start)
+    draw_act_start(ax, 0.38, 0.85)
     
-    rbox(0.5, 0.80, "Khách hàng chọn đơn hàng\nđã giao thành công (Delivered)")
-    draw_assoc(ax, 0.5, 0.882, 0.5, 0.84, arrow='->')
+    rbox(0.38, 0.75, "Khách hàng chọn đơn hàng\nđã giao thành công (Delivered)", w=0.32, h=0.08)
+    draw_assoc(ax, 0.38, 0.832, 0.38, 0.79, arrow='->')
     
-    diamond(0.5, 0.67, "Đơn hàng đã được\nđánh giá trước đó chưa?")
-    draw_assoc(ax, 0.5, 0.76, 0.5, 0.715, arrow='->')
+    diamond(0.38, 0.62, "Đơn hàng đã được\nđánh giá trước đó chưa?", w=0.36, h=0.10)
+    draw_assoc(ax, 0.38, 0.71, 0.38, 0.672, arrow='->')
     
     # Already reviewed
-    draw_assoc(ax, 0.62, 0.67, 0.82, 0.67, label="[Đã đánh giá]", arrow='->')
-    rbox(0.82, 0.53, "Hiển thị đánh giá cũ\nKhông cho tạo trùng lặp")
-    draw_assoc(ax, 0.82, 0.67, 0.82, 0.57, arrow='->')
+    draw_assoc(ax, 0.56, 0.62, 0.78, 0.62, arrow='->')
+    ax.text(0.67, 0.635, "[Đã đánh giá]", ha='center', va='bottom', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
+    rbox(0.78, 0.49, "Hiển thị đánh giá cũ\nKhông cho tạo trùng lặp", w=0.26, h=0.08)
+    draw_assoc(ax, 0.78, 0.62, 0.78, 0.53, arrow='->')
     
     # Not yet
-    draw_assoc(ax, 0.5, 0.625, 0.5, 0.55, label="[Chưa đánh giá]", arrow='->')
-    rbox(0.5, 0.51, "Nhập số sao (1-5), lời bình luận\nvà tải ảnh món ăn kèm theo")
+    draw_assoc(ax, 0.38, 0.568, 0.38, 0.51, arrow='->')
+    ax.text(0.40, 0.54, "[Chưa đánh giá]", ha='left', va='center', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
+    rbox(0.38, 0.47, "Nhập số sao (1-5), lời bình luận\nvà tải ảnh món ăn kèm theo", w=0.32, h=0.08)
     
-    rbox(0.5, 0.38, "Lưu bản ghi vào Collection Reviews\nvới UserId và ProductId")
-    draw_assoc(ax, 0.5, 0.47, 0.5, 0.42, arrow='->')
+    rbox(0.38, 0.35, "Lưu bản ghi vào Collection Reviews\nvới UserId và ProductId", w=0.34, h=0.08)
+    draw_assoc(ax, 0.38, 0.43, 0.38, 0.39, arrow='->')
     
-    rbox(0.5, 0.25, "MongoDB Aggregation Pipeline:\nTính lại số sao trung bình món ăn")
-    draw_assoc(ax, 0.5, 0.34, 0.5, 0.29, arrow='->')
+    rbox(0.38, 0.23, "MongoDB Aggregation Pipeline:\nTính lại số sao trung bình món ăn", w=0.34, h=0.08)
+    draw_assoc(ax, 0.38, 0.31, 0.38, 0.27, arrow='->')
     
-    end_outer = patches.Circle((0.5, 0.12), 0.02, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
-    end_inner = patches.Circle((0.5, 0.12), 0.012, facecolor='black', edgecolor='black', zorder=5)
-    ax.add_patch(end_outer)
-    ax.add_patch(end_inner)
-    draw_assoc(ax, 0.5, 0.21, 0.5, 0.14, arrow='->')
-    draw_assoc(ax, 0.82, 0.49, 0.82, 0.12, arrow='->')
-    draw_assoc(ax, 0.82, 0.12, 0.52, 0.12, arrow='->')
+    draw_act_end(ax, 0.38, 0.11)
+    draw_assoc(ax, 0.38, 0.19, 0.38, 0.132, arrow='->')
+    draw_assoc(ax, 0.78, 0.45, 0.78, 0.11)
+    draw_assoc(ax, 0.78, 0.11, 0.405, 0.11, arrow='->')
     
     save_bw(fig, "Hinh_3_17_Activity_DanhGia_Rating.png")
 
@@ -489,16 +551,28 @@ def gen_hinh_3_17():
 # 18-23. BIỂU ĐỒ TRÌNH TỰ (SEQUENCE DIAGRAMS - HÌNH 3.18 -> 3.23)
 # ==========================================
 def draw_sequence_base(ax, actors, title):
-    draw_boundary(ax, 0.04, 0.04, 0.92, 0.92, title)
-    n = len(actors)
-    step = 0.84 / (n - 1)
-    xs = [0.08 + i * step for i in range(n)]
+    # Boundary
+    rect = patches.Rectangle((0.02, 0.02), 0.96, 0.96, edgecolor='black', facecolor='#FAFAFA', lw=1.4, zorder=1)
+    ax.add_patch(rect)
     
+    # Dedicated StarUML frame header tab at top-left
+    tab_w = min(0.85, 0.06 + len(title) * 0.0125)
+    tab_h = 0.042
+    tab = patches.Rectangle((0.02, 0.98 - tab_h), tab_w, tab_h, edgecolor='black', facecolor='#EAEAEA', lw=1.2, zorder=2)
+    ax.add_patch(tab)
+    ax.text(0.035, 0.98 - tab_h/2, f"sd  {title}", ha='left', va='center', fontsize=9.0, fontweight='bold', color='black', zorder=3)
+    
+    n = len(actors)
+    step = (0.865 - 0.135) / (n - 1)
+    xs = [0.135 + i * step for i in range(n)]
+    
+    # Actors lowered to y=0.79 -> 0.845 (leaving clear space below title tab 0.938)
     for x, act in zip(xs, actors):
-        rect = patches.Rectangle((x - 0.07, 0.85), 0.14, 0.06, edgecolor='black', facecolor='white', lw=1.2, zorder=3)
-        ax.add_patch(rect)
-        ax.text(x, 0.88, act, ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=4)
-        ax.plot([x, x], [0.85, 0.08], color='black', lw=1.0, ls='--', zorder=2)
+        box_w = 0.145
+        box = patches.Rectangle((x - box_w/2, 0.79), box_w, 0.055, edgecolor='black', facecolor='white', lw=1.3, zorder=4)
+        ax.add_patch(box)
+        ax.text(x, 0.8175, act, ha='center', va='center', fontsize=7.4, fontweight='bold', color='black', zorder=5)
+        ax.plot([x, x], [0.79, 0.05], color='black', lw=1.0, ls='--', zorder=2)
     return xs
 
 def draw_seq_msg(ax, x1, x2, y, text, is_reply=False, is_async=False):
@@ -511,115 +585,117 @@ def draw_seq_msg(ax, x1, x2, y, text, is_reply=False, is_async=False):
             bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), color='black', zorder=5)
 
 def gen_hinh_3_18():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     actors = ["Khách A & B", "Web Client", "Order Controller", "Product Model", "MongoDB Database"]
     xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Xử Lý Tranh Chấp Kho Đồng Thời (Atomic Lock)")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Cùng bấm 'Thanh toán' (Qty=1, Tồn=1)")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Gửi đồng thời 2 request POST /orders")
-    draw_seq_msg(ax, xs[2], xs[3], 0.64, "3. Khách A chạm DB trước: findOneAndUpdate({_id, stock: {$gte: 1}})")
-    draw_seq_msg(ax, xs[3], xs[4], 0.57, "4. DB khóa tài liệu, trừ stock: 1 -> 0 thành công")
-    draw_seq_msg(ax, xs[4], xs[2], 0.50, "5. Trả về doc hợp lệ cho Khách A", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[3], 0.43, "6. Khách B chạm DB sau: findOneAndUpdate({_id, stock: {$gte: 1}})")
-    draw_seq_msg(ax, xs[3], xs[4], 0.36, "7. DB kiểm tra: stock=0 (<1) -> Không thỏa điều kiện")
-    draw_seq_msg(ax, xs[4], xs[2], 0.29, "8. DB trả về null (Atomic Conflict Rejected)", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.22, "9. Khách A: Mã QR | Khách B: Lỗi 409 'Món đã hết'")
-    draw_seq_msg(ax, xs[1], xs[0], 0.15, "10. Thông báo kết quả trực quan trên giao diện", is_reply=True)
+    draw_seq_msg(ax, xs[0], xs[1], 0.720, "1. Cùng bấm 'Thanh toán' (Qty=1, Tồn=1)")
+    draw_seq_msg(ax, xs[1], xs[2], 0.655, "2. Gửi đồng thời 2 request POST /orders")
+    draw_seq_msg(ax, xs[2], xs[3], 0.590, "3. Khách A chạm DB trước: findOneAndUpdate({_id, stock: {$gte: 1}})")
+    draw_seq_msg(ax, xs[3], xs[4], 0.525, "4. DB khóa tài liệu, trừ stock: 1 -> 0 thành công")
+    draw_seq_msg(ax, xs[4], xs[2], 0.460, "5. Trả về doc hợp lệ cho Khách A", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[3], 0.395, "6. Khách B chạm DB sau: findOneAndUpdate({_id, stock: {$gte: 1}})")
+    draw_seq_msg(ax, xs[3], xs[4], 0.330, "7. DB kiểm tra: stock=0 (<1) -> Không thỏa điều kiện")
+    draw_seq_msg(ax, xs[4], xs[2], 0.265, "8. DB trả về null (Atomic Conflict Rejected)", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.200, "9. Khách A: Mã QR | Khách B: Lỗi 409 'Món đã hết'")
+    draw_seq_msg(ax, xs[1], xs[0], 0.135, "10. Thông báo kết quả trực quan trên giao diện", is_reply=True)
     
     save_bw(fig, "Hinh_3_18_Sequence_RaceCondition.png")
 
 def gen_hinh_3_19():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     actors = ["Khách Hàng", "Giao Diện App", "Payment Service", "VietQR Gateway", "Database"]
     xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Sinh Mã VietQR Động & Xác Nhận Webhook Tự Động")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Chọn phương thức 'Chuyển khoản VietQR'")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Request POST /api/payment/vietqr")
-    draw_seq_msg(ax, xs[2], xs[3], 0.64, "3. Tạo mã QR động kèm nội dung đơn (VD: FOODVD_OD123)")
-    draw_seq_msg(ax, xs[3], xs[2], 0.57, "4. Trả về hình ảnh QR Code & URL", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.50, "5. Hiển thị mã QR và thời gian đếm ngược", is_reply=True)
-    draw_seq_msg(ax, xs[0], xs[3], 0.43, "6. Quét QR trên ứng dụng ngân hàng và chuyển khoản")
-    draw_seq_msg(ax, xs[3], xs[2], 0.36, "7. Ngân hàng bắn IPN / Webhook báo chuyển tiền thành công")
-    draw_seq_msg(ax, xs[2], xs[4], 0.29, "8. Cập nhật Order status = 'Paid', lưu TransactionId")
-    draw_seq_msg(ax, xs[4], xs[2], 0.22, "9. DB ghi nhận thành công", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.15, "10. Realtime thông báo: 'Thanh toán thành công!'")
+    draw_seq_msg(ax, xs[0], xs[1], 0.720, "1. Chọn phương thức 'Chuyển khoản VietQR'")
+    draw_seq_msg(ax, xs[1], xs[2], 0.655, "2. Request POST /api/payment/vietqr")
+    draw_seq_msg(ax, xs[2], xs[3], 0.590, "3. Tạo mã QR động kèm nội dung đơn (VD: FOODVD_OD123)")
+    draw_seq_msg(ax, xs[3], xs[2], 0.525, "4. Trả về hình ảnh QR Code & URL", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.460, "5. Hiển thị mã QR và thời gian đếm ngược", is_reply=True)
+    draw_seq_msg(ax, xs[0], xs[3], 0.395, "6. Quét QR trên ứng dụng ngân hàng và chuyển khoản")
+    draw_seq_msg(ax, xs[3], xs[2], 0.330, "7. Ngân hàng bắn IPN / Webhook báo chuyển tiền thành công")
+    draw_seq_msg(ax, xs[2], xs[4], 0.265, "8. Cập nhật Order status = 'Paid', lưu TransactionId")
+    draw_seq_msg(ax, xs[4], xs[2], 0.200, "9. DB ghi nhận thành công", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.135, "10. Realtime thông báo: 'Thanh toán thành công!'")
     
     save_bw(fig, "Hinh_3_19_Sequence_ThanhToan_VietQR.png")
 
 def gen_hinh_3_20():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    actors = ["Nhân Viên", "Mobile/Web Client", "Attendance Service", "Geo/Wi-Fi Engine", "Database"]
-    xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Điểm Danh & Chấm Công Xác Thực Vị Trí")
+    actors = ["Nhân Viên", "Web Client (Quán)", "Attendance Controller", "Shift Service", "Database"]
+    xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Điểm Danh Chấm Công Nhân Viên Theo Ca")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Nhấn nút 'Chấm công Vào ca'")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Gửi tọa độ GPS + BSSID mạng Wi-Fi")
-    draw_seq_msg(ax, xs[2], xs[3], 0.64, "3. Tính khoảng cách Haversine tới quán ăn")
-    draw_seq_msg(ax, xs[3], xs[2], 0.57, "4. Kết quả: Khoảng cách = 18m (< 50m) -> Hợp lệ", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[4], 0.50, "5. Ghi nhận bản ghi Attendance (InTime, Date, Status='OnTime')")
-    draw_seq_msg(ax, xs[4], xs[2], 0.43, "6. Bản ghi được lưu trữ thành công", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.36, "7. Trả về thông báo Check-in thành công", is_reply=True)
-    draw_seq_msg(ax, xs[1], xs[0], 0.29, "8. Hiển thị giờ vào ca và trạng thái hợp lệ trên màn hình")
+    draw_seq_msg(ax, xs[0], xs[1], 0.720, "1. Chọn ca làm (Sáng/Tối) & Bấm 'Vào ca làm việc'")
+    draw_seq_msg(ax, xs[1], xs[2], 0.655, "2. Request POST /api/attendance/check-in {staffId, shiftId}")
+    draw_seq_msg(ax, xs[2], xs[3], 0.590, "3. Xác thực tài khoản nhân viên & ca làm việc hợp lệ")
+    draw_seq_msg(ax, xs[3], xs[4], 0.525, "4. Lưu bản ghi Attendance (InTime, Date, Status='Working')")
+    draw_seq_msg(ax, xs[4], xs[2], 0.460, "5. DB ghi nhận bản ghi chấm công thành công", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.395, "6. Trả về trạng thái 'Đang làm việc' trên giao diện", is_reply=True)
+    draw_seq_msg(ax, xs[0], xs[1], 0.330, "7. Hết giờ: Bấm 'Điểm danh tan ca' (Check-out)")
+    draw_seq_msg(ax, xs[1], xs[2], 0.265, "8. Request POST /api/attendance/check-out")
+    draw_seq_msg(ax, xs[2], xs[4], 0.200, "9. Ghi nhận OutTime & cập nhật Status='Completed'")
+    draw_seq_msg(ax, xs[4], xs[1], 0.135, "10. Thông báo hoàn thành ca & đồng bộ bảng lương", is_reply=True)
     
     save_bw(fig, "Hinh_3_20_Sequence_ChamCong.png")
 
 def gen_hinh_3_21():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     actors = ["Quản Trị Viên", "Admin Dashboard", "Inventory Controller", "Product Model", "Database"]
     xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Quản Lý Món Ăn & Kiểm Soát Tồn Kho")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Cập nhật số lượng nhập kho hoặc thông tin món")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Request PUT /api/products/:id/stock")
-    draw_seq_msg(ax, xs[2], xs[3], 0.64, "3. Validate dữ liệu & kiểm tra quyền Admin")
-    draw_seq_msg(ax, xs[3], xs[4], 0.57, "4. updateOne({_id}, {$set: {stock: newStock, isAvailable}})")
-    draw_seq_msg(ax, xs[4], xs[3], 0.50, "5. MongoDB xác nhận cập nhật thành công", is_reply=True)
-    draw_seq_msg(ax, xs[3], xs[2], 0.43, "6. Kích hoạt sự kiện WebSocket đồng bộ kho tới Client")
-    draw_seq_msg(ax, xs[2], xs[1], 0.36, "7. Trả về thông tin sản phẩm mới nhất", is_reply=True)
-    draw_seq_msg(ax, xs[1], xs[0], 0.29, "8. Bảng dữ liệu tự động làm mới, hiển thị tồn kho mới")
+    draw_seq_msg(ax, xs[0], xs[1], 0.71, "1. Cập nhật số lượng nhập kho hoặc thông tin món")
+    draw_seq_msg(ax, xs[1], xs[2], 0.63, "2. Request PUT /api/products/:id/stock")
+    draw_seq_msg(ax, xs[2], xs[3], 0.55, "3. Validate dữ liệu & kiểm tra quyền Admin")
+    draw_seq_msg(ax, xs[3], xs[4], 0.47, "4. updateOne({_id}, {$set: {stock: newStock, isAvailable}})")
+    draw_seq_msg(ax, xs[4], xs[3], 0.39, "5. MongoDB xác nhận cập nhật thành công", is_reply=True)
+    draw_seq_msg(ax, xs[3], xs[2], 0.31, "6. Kích hoạt sự kiện WebSocket đồng bộ kho tới Client")
+    draw_seq_msg(ax, xs[2], xs[1], 0.23, "7. Trả về thông tin sản phẩm mới nhất", is_reply=True)
+    draw_seq_msg(ax, xs[1], xs[0], 0.15, "8. Bảng dữ liệu tự động làm mới, hiển thị tồn kho mới")
     
     save_bw(fig, "Hinh_3_21_Sequence_Admin_Kho.png")
 
 def gen_hinh_3_22():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     actors = ["Khách Hàng", "Chi Tiết Đơn Hàng", "Review Controller", "Aggregation Engine", "Database"]
     xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Gửi Đánh Giá Món Ăn & Tính Sao Động")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Nhập 5 sao, viết nhận xét và đính kèm ảnh")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Gửi POST /api/reviews kèm thông tin đơn hàng")
-    draw_seq_msg(ax, xs[2], xs[4], 0.64, "3. Lưu bản ghi đánh giá vào Collection Reviews")
-    draw_seq_msg(ax, xs[4], xs[2], 0.57, "4. Ghi nhận thành công", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[3], 0.50, "5. Chạy Aggregation: Tính avgRating của ProductId")
-    draw_seq_msg(ax, xs[3], xs[4], 0.43, "6. Cập nhật rating và numReviews vào Product")
-    draw_seq_msg(ax, xs[4], xs[2], 0.36, "7. DB phản hồi kết quả tính toán", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.29, "8. Trả về kết quả đánh giá thành công", is_reply=True)
-    draw_seq_msg(ax, xs[1], xs[0], 0.22, "9. Hiển thị lời cảm ơn và số sao mới trên trang món ăn")
+    draw_seq_msg(ax, xs[0], xs[1], 0.71, "1. Nhập 5 sao, viết nhận xét và đính kèm ảnh")
+    draw_seq_msg(ax, xs[1], xs[2], 0.64, "2. Gửi POST /api/reviews kèm thông tin đơn hàng")
+    draw_seq_msg(ax, xs[2], xs[4], 0.57, "3. Lưu bản ghi đánh giá vào Collection Reviews")
+    draw_seq_msg(ax, xs[4], xs[2], 0.50, "4. Ghi nhận thành công", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[3], 0.43, "5. Chạy Aggregation: Tính avgRating của ProductId")
+    draw_seq_msg(ax, xs[3], xs[4], 0.36, "6. Cập nhật rating và numReviews vào Product")
+    draw_seq_msg(ax, xs[4], xs[2], 0.29, "7. DB phản hồi kết quả tính toán", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.22, "8. Trả về kết quả đánh giá thành công", is_reply=True)
+    draw_seq_msg(ax, xs[1], xs[0], 0.15, "9. Hiển thị lời cảm ơn và số sao mới trên trang món ăn")
     
     save_bw(fig, "Hinh_3_22_Sequence_DanhGia_Rating.png")
 
 def gen_hinh_3_23():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(10.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     actors = ["Quản Trị Viên", "Trang Báo Cáo", "Analytics Controller", "MongoDB Aggregation", "Database"]
     xs = draw_sequence_base(ax, actors, "Biểu Đồ Tuần Tự: Tổng Hợp Doanh Thu & Báo Cáo Kinh Doanh")
     
-    draw_seq_msg(ax, xs[0], xs[1], 0.78, "1. Chọn khoảng thời gian báo cáo (Hôm nay / Tuần / Tháng)")
-    draw_seq_msg(ax, xs[1], xs[2], 0.71, "2. Request GET /api/admin/reports/revenue?from=...&to=...")
-    draw_seq_msg(ax, xs[2], xs[3], 0.64, "3. Gọi pipeline: $match -> $unwind -> $group -> $sort")
-    draw_seq_msg(ax, xs[3], xs[4], 0.57, "4. Truy vấn tính tổng tiền và thống kê top món bán chạy")
-    draw_seq_msg(ax, xs[4], xs[3], 0.50, "5. Trả về mảng dữ liệu phân tích", is_reply=True)
-    draw_seq_msg(ax, xs[3], xs[2], 0.43, "6. Đóng gói kết quả doanh thu, đơn hàng, KPI", is_reply=True)
-    draw_seq_msg(ax, xs[2], xs[1], 0.36, "7. Trả về JSON chứa số liệu biểu đồ", is_reply=True)
-    draw_seq_msg(ax, xs[1], xs[0], 0.29, "8. Render biểu đồ trực quan (Cột, Đường, Tròn)")
+    draw_seq_msg(ax, xs[0], xs[1], 0.71, "1. Chọn khoảng thời gian báo cáo (Hôm nay / Tuần / Tháng)")
+    draw_seq_msg(ax, xs[1], xs[2], 0.63, "2. Request GET /api/admin/reports/revenue?from=...&to=...")
+    draw_seq_msg(ax, xs[2], xs[3], 0.55, "3. Gọi pipeline: $match -> $unwind -> $group -> $sort")
+    draw_seq_msg(ax, xs[3], xs[4], 0.47, "4. Truy vấn tính tổng tiền và thống kê top món bán chạy")
+    draw_seq_msg(ax, xs[4], xs[3], 0.39, "5. Trả về mảng dữ liệu phân tích", is_reply=True)
+    draw_seq_msg(ax, xs[3], xs[2], 0.31, "6. Đóng gói kết quả doanh thu, đơn hàng, KPI", is_reply=True)
+    draw_seq_msg(ax, xs[2], xs[1], 0.23, "7. Trả về JSON chứa số liệu biểu đồ", is_reply=True)
+    draw_seq_msg(ax, xs[1], xs[0], 0.15, "8. Render biểu đồ trực quan (Cột, Đường, Tròn)")
     
     save_bw(fig, "Hinh_3_23_Sequence_Admin_DoanhThu.png")
 
@@ -627,50 +703,82 @@ def gen_hinh_3_23():
 # 24. BIỂU ĐỒ TRẠNG THÁI VÒNG ĐỜI ĐƠN HÀNG (HÌNH 3.24)
 # ==========================================
 def gen_hinh_3_24():
-    fig, ax = setup_canvas(9.5, 6)
+    fig, ax = setup_canvas(10.5, 6.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    draw_boundary(ax, 0.05, 0.05, 0.90, 0.90, "Biểu Đồ Trạng Thái: Vòng Đời Đơn Hàng (Order State Machine)")
+    draw_boundary(ax, 0.03, 0.03, 0.94, 0.94, "Biểu Đồ Trạng Thái: Vòng Đời Đơn Hàng (Order State Machine)")
     
-    def state_box(x, y, title, actions=""):
-        w, h = 0.22, 0.11
+    def state_box(x, y, title, actions="", w=0.25, h=0.11):
         box = patches.FancyBboxPatch((x - w/2, y - h/2), w, h, boxstyle='round,pad=0.015,rounding_size=0.03',
                                      edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(box)
-        ax.text(x, y + 0.02, title, ha='center', va='center', fontsize=9, fontweight='bold', color='black', zorder=4)
+        ax.text(x, y + 0.022, title, ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=4)
         if actions:
-            ax.plot([x - w/2 + 0.01, x + w/2 - 0.01], [y, y], color='black', lw=0.8, zorder=4)
-            ax.text(x, y - 0.03, actions, ha='center', va='center', fontsize=7.5, color='black', zorder=4)
+            ax.plot([x - w/2 + 0.01, x + w/2 - 0.01], [y + 0.005, y + 0.005], color='black', lw=0.8, zorder=4)
+            ax.text(x, y - 0.025, actions, ha='center', va='center', fontsize=7.5, color='black', zorder=4)
+
+    def draw_act_start(ax, x, y, r=0.018):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        start = patches.Ellipse((x, y), 2 * r * aspect, 2 * r, facecolor='black', edgecolor='black', zorder=4)
+        ax.add_patch(start)
+
+    def draw_act_end(ax, x, y, r_out=0.02, r_in=0.012):
+        fig = ax.get_figure()
+        w_c, h_c = fig.get_size_inches()
+        aspect = h_c / w_c
+        end_outer = patches.Ellipse((x, y), 2 * r_out * aspect, 2 * r_out, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
+        end_inner = patches.Ellipse((x, y), 2 * r_in * aspect, 2 * r_in, facecolor='black', edgecolor='black', zorder=5)
+        ax.add_patch(end_outer)
+        ax.add_patch(end_inner)
 
     # Start
-    start = patches.Circle((0.10, 0.72), 0.018, facecolor='black', edgecolor='black', zorder=4)
-    ax.add_patch(start)
+    draw_act_start(ax, 0.07, 0.72, r=0.018)
     
-    state_box(0.28, 0.72, "Pending (Chờ thanh toán)", "entry: Giữ tồn kho\ndo: Đếm ngược VietQR")
-    draw_assoc(ax, 0.118, 0.72, 0.17, 0.72, label="Đặt hàng", arrow='->')
+    # Pending (Chờ thanh toán)
+    state_box(0.28, 0.72, "Pending (Chờ thanh toán)", "entry: Giữ tồn kho\ndo: Đếm ngược VietQR", w=0.25)
+    draw_assoc(ax, 0.088, 0.72, 0.155, 0.72, arrow='->')
+    ax.text(0.12, 0.735, "Đặt hàng", ha='center', va='bottom', fontsize=7.5,
+            bbox=dict(boxstyle='square,pad=0.1', fc='white', ec='none'), zorder=5)
     
-    state_box(0.62, 0.72, "Paid (Đã thanh toán)", "entry: Xác nhận GD\ndo: Thông báo bếp")
-    draw_assoc(ax, 0.39, 0.72, 0.51, 0.72, label="Quét VietQR thành công", arrow='->')
+    # Paid (Đã thanh toán)
+    state_box(0.72, 0.72, "Paid (Đã thanh toán)", "entry: Xác nhận GD\ndo: Thông báo bếp", w=0.25)
+    draw_assoc(ax, 0.405, 0.72, 0.595, 0.72, arrow='->')
+    ax.text(0.50, 0.735, "Quét VietQR thành công", ha='center', va='bottom', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
     
-    state_box(0.62, 0.44, "Preparing (Đang nấu)", "entry: In phiếu bếp\ndo: Đầu bếp nấu món")
-    draw_assoc(ax, 0.62, 0.665, 0.62, 0.495, label="Bếp nhận đơn", arrow='->')
+    # Preparing (Đang nấu)
+    state_box(0.72, 0.44, "Preparing (Đang nấu)", "entry: In phiếu bếp\ndo: Đầu bếp nấu món", w=0.25)
+    draw_assoc(ax, 0.72, 0.665, 0.72, 0.495, arrow='->')
+    ax.text(0.72, 0.58, "Bếp nhận đơn", ha='center', va='center', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
     
-    state_box(0.62, 0.20, "Delivering (Đang giao)", "entry: Giao Shipper\ndo: Di chuyển tới khách")
-    draw_assoc(ax, 0.62, 0.385, 0.62, 0.255, label="Đóng gói xong", arrow='->')
+    # Delivering (Đang giao)
+    state_box(0.72, 0.18, "Delivering (Đang giao)", "entry: Giao Shipper\ndo: Di chuyển tới khách", w=0.25)
+    draw_assoc(ax, 0.72, 0.385, 0.72, 0.235, arrow='->')
+    ax.text(0.72, 0.31, "Đóng gói xong", ha='center', va='center', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
     
-    state_box(0.28, 0.20, "Delivered (Hoàn tất)", "entry: Khách nhận món\ndo: Mở tính năng đánh giá")
-    draw_assoc(ax, 0.51, 0.20, 0.39, 0.20, label="Giao thành công", arrow='->')
+    # Delivered (Hoàn tất)
+    state_box(0.28, 0.18, "Delivered (Hoàn tất)", "entry: Khách nhận món\ndo: Mở tính năng đánh giá", w=0.25)
+    draw_assoc(ax, 0.595, 0.18, 0.405, 0.18, arrow='->')
+    ax.text(0.50, 0.195, "Giao thành công", ha='center', va='bottom', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
     
-    state_box(0.28, 0.44, "Cancelled (Đã hủy)", "entry: Hoàn trả tồn kho\ndo: Báo lý do hủy")
-    draw_assoc(ax, 0.28, 0.665, 0.28, 0.495, label="Quá hạn / Hủy", arrow='->')
+    # Cancelled (Đã hủy)
+    state_box(0.28, 0.44, "Cancelled (Đã hủy)", "entry: Hoàn trả tồn kho\ndo: Báo lý do hủy", w=0.25)
+    draw_assoc(ax, 0.28, 0.665, 0.28, 0.495, arrow='->')
+    ax.text(0.28, 0.58, "Quá hạn / Hủy", ha='center', va='center', fontsize=8,
+            bbox=dict(boxstyle='square,pad=0.15', fc='white', ec='none'), zorder=5)
     
     # End node
-    end_outer = patches.Circle((0.10, 0.20), 0.02, facecolor='white', edgecolor='black', lw=1.5, zorder=4)
-    end_inner = patches.Circle((0.10, 0.20), 0.012, facecolor='black', edgecolor='black', zorder=5)
-    ax.add_patch(end_outer)
-    ax.add_patch(end_inner)
-    draw_assoc(ax, 0.17, 0.20, 0.12, 0.20, arrow='->')
-    draw_assoc(ax, 0.28, 0.385, 0.12, 0.21, arrow='->')
+    draw_act_end(ax, 0.07, 0.18, r_out=0.02, r_in=0.012)
+    draw_assoc(ax, 0.155, 0.18, 0.095, 0.18, arrow='->')
+    
+    # Cancelled to End node (orthogonal path avoiding Delivered box)
+    draw_assoc(ax, 0.155, 0.44, 0.07, 0.44)
+    draw_assoc(ax, 0.07, 0.44, 0.07, 0.205, arrow='->')
     
     save_bw(fig, "Hinh_3_24_State_DonHang.png")
 
@@ -678,60 +786,70 @@ def gen_hinh_3_24():
 # 25. BIỂU ĐỒ LỚP MIỀN NGHIỆP VỤ (HÌNH 3.25)
 # ==========================================
 def gen_hinh_3_25():
-    fig, ax = setup_canvas(10, 7.5)
+    fig, ax = setup_canvas(11.5, 7.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    draw_boundary(ax, 0.04, 0.04, 0.92, 0.92, "Biểu Đồ Lớp Miền Nghiệp Vụ (Domain Class Model)")
+    draw_boundary(ax, 0.03, 0.03, 0.94, 0.94, "Biểu Đồ Lớp Miền Nghiệp Vụ (Domain Class Model)")
     
-    def uml_class(x, y, name, attrs, methods, w=0.25, h=0.24):
+    def uml_class(x, y, name, attrs, methods, w=0.23, h=0.27):
         rect = patches.Rectangle((x, y), w, h, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(rect)
         # Header
-        ax.text(x + w/2, y + h - 0.03, name, ha='center', va='center', fontsize=9, fontweight='bold', color='black', zorder=4)
-        ax.plot([x, x + w], [y + h - 0.05, y + h - 0.05], color='black', lw=1.0, zorder=4)
+        ax.text(x + w/2, y + h - 0.028, name, ha='center', va='center', fontsize=9, fontweight='bold', color='black', zorder=4)
+        ax.plot([x, x + w], [y + h - 0.048, y + h - 0.048], color='black', lw=1.0, zorder=4)
         # Attributes
-        ay = y + h - 0.07
+        ay = y + h - 0.068
         for a in attrs:
-            ax.text(x + 0.015, ay, a, ha='left', va='center', fontsize=7.5, color='black', zorder=4)
-            ay -= 0.024
+            ax.text(x + 0.010, ay, a, ha='left', va='center', fontsize=7.0, color='black', zorder=4)
+            ay -= 0.023
         # Divider
         ax.plot([x, x + w], [ay - 0.005, ay - 0.005], color='black', lw=1.0, zorder=4)
         # Methods
-        my = ay - 0.024
+        my = ay - 0.023
         for m in methods:
-            ax.text(x + 0.015, my, m, ha='left', va='center', fontsize=7.5, color='black', zorder=4)
-            my -= 0.024
+            ax.text(x + 0.010, my, m, ha='left', va='center', fontsize=7.0, color='black', zorder=4)
+            my -= 0.023
 
-    uml_class(0.06, 0.65, "User", 
+    uml_class(0.05, 0.63, "User", 
               ["- id: ObjectId", "- fullName: String", "- email: String", "- role: String"], 
-              ["+ login(): Boolean", "+ updateProfile()", "+ getPermissions()"], 0.25, 0.24)
+              ["+ login(): Boolean", "+ updateProfile()", "+ getPermissions()"], 0.23, 0.27)
               
-    uml_class(0.38, 0.65, "Product", 
-              ["- id: ObjectId", "- name: String", "- price: Number", "- stock: Number", "- model3dUrl: String"], 
-              ["+ checkStock(qty): Bool", "+ atomicDecStock(qty)", "+ updateRating()"], 0.26, 0.26)
+    uml_class(0.385, 0.63, "Product", 
+              ["- id: ObjectId", "- name: String", "- price: Number", "- stock: Number", "- imageUrl: String"], 
+              ["+ checkStock(qty): Bool", "+ atomicDecStock(qty)", "+ updateRating()"], 0.23, 0.29)
               
-    uml_class(0.70, 0.65, "Order", 
+    uml_class(0.72, 0.63, "Order", 
               ["- id: ObjectId", "- userId: ObjectId", "- totalAmount: Number", "- status: String"], 
-              ["+ calculateTotal()", "+ applyVoucher(code)", "+ updateStatus(st)"], 0.25, 0.24)
+              ["+ calculateTotal()", "+ applyVoucher(code)", "+ updateStatus(st)"], 0.23, 0.27)
               
-    uml_class(0.06, 0.20, "Attendance", 
-              ["- id: ObjectId", "- staffId: ObjectId", "- checkInTime: Date", "- gpsLat / Long: Num"], 
-              ["+ verifyLocation(): Bool", "+ recordCheckOut()"], 0.25, 0.22)
+    uml_class(0.05, 0.18, "Attendance", 
+              ["- id: ObjectId", "- staffId: ObjectId", "- checkInTime: Date", "- shiftType: String"], 
+              ["+ recordCheckIn()", "+ recordCheckOut()"], 0.23, 0.25)
               
-    uml_class(0.38, 0.20, "Payroll", 
+    uml_class(0.385, 0.18, "Payroll", 
               ["- id: ObjectId", "- staffId: ObjectId", "- totalHours: Number", "- finalSalary: Number"], 
-              ["+ syncAttendance()", "+ calculateSalary()", "+ exportPayslip()"], 0.26, 0.24)
+              ["+ syncAttendance()", "+ calculateSalary()", "+ exportPayslip()"], 0.23, 0.27)
               
-    uml_class(0.70, 0.20, "Review", 
+    uml_class(0.72, 0.18, "Review", 
               ["- id: ObjectId", "- orderId: ObjectId", "- rating: Number", "- comment: String"], 
-              ["+ submitReview()", "+ validateOrderDelivered()"], 0.25, 0.22)
+              ["+ submitReview()", "+ validateOrderDelivered()"], 0.23, 0.25)
               
-    # Associations
-    draw_assoc(ax, 0.31, 0.77, 0.38, 0.77, label="1..* xem 1..*", ls='-')
-    draw_assoc(ax, 0.64, 0.77, 0.70, 0.77, label="1 chứa 1..*", ls='-')
-    draw_assoc(ax, 0.18, 0.65, 0.18, 0.42, label="1 có 0..*", ls='-')
-    draw_assoc(ax, 0.31, 0.31, 0.38, 0.31, label="tổng hợp", ls='--', arrow='->')
-    draw_assoc(ax, 0.82, 0.65, 0.82, 0.42, label="1 tạo 0..1", ls='-')
+    # Associations with clear gap labels
+    draw_assoc(ax, 0.28, 0.77, 0.385, 0.77, ls='-')
+    ax.text(0.3325, 0.79, "1..* xem 1..*", ha='center', va='bottom', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.615, 0.77, 0.72, 0.77, ls='-')
+    ax.text(0.6675, 0.79, "1 chứa 1..*", ha='center', va='bottom', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.165, 0.63, 0.165, 0.43, label="1 có 0..*", ls='-')
+    
+    draw_assoc(ax, 0.28, 0.31, 0.385, 0.31, ls='--', arrow='->')
+    ax.text(0.3325, 0.33, "tổng hợp", ha='center', va='bottom', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.835, 0.63, 0.835, 0.43, label="1 tạo 0..1", ls='-')
 
     save_bw(fig, "Hinh_3_25_Class_Diagram.png")
 
@@ -739,59 +857,59 @@ def gen_hinh_3_25():
 # 26. BIỂU ĐỒ CƠ SỞ DỮ LIỆU MONGODB (HÌNH 3.26)
 # ==========================================
 def gen_hinh_3_26():
-    fig, ax = setup_canvas(10, 7.5)
+    fig, ax = setup_canvas(10.5, 7.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    draw_boundary(ax, 0.04, 0.04, 0.92, 0.92, "Cấu Trúc Các Document Collection Trong MongoDB (Database Schema)")
+    draw_boundary(ax, 0.03, 0.03, 0.94, 0.94, "Cấu Trúc Các Document Collection Trong MongoDB (Database Schema)")
     
-    def mongo_coll(x, y, coll_name, fields, w=0.26, h=0.23):
+    def mongo_coll(x, y, coll_name, fields, w=0.27, h=0.26):
         rect = patches.Rectangle((x, y), w, h, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(rect)
-        hdr = patches.Rectangle((x, y + h - 0.045), w, 0.045, edgecolor='black', facecolor='#EEEEEE', lw=1.0, zorder=3)
+        hdr = patches.Rectangle((x, y + h - 0.042), w, 0.042, edgecolor='black', facecolor='#EEEEEE', lw=1.0, zorder=3)
         ax.add_patch(hdr)
-        ax.text(x + w/2, y + h - 0.023, f"Collection: {coll_name}", ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=4)
+        ax.text(x + w/2, y + h - 0.021, f"Collection: {coll_name}", ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=4)
         
-        fy = y + h - 0.07
+        fy = y + h - 0.065
         for f in fields:
-            ax.text(x + 0.015, fy, f, ha='left', va='center', fontsize=7.5, color='black', zorder=4)
-            fy -= 0.024
+            ax.text(x + 0.012, fy, f, ha='left', va='center', fontsize=7.2, color='black', zorder=4)
+            fy -= 0.023
 
-    mongo_coll(0.06, 0.67, "users", [
+    mongo_coll(0.05, 0.64, "users", [
         "_id: ObjectId (PK)", "email: String (Indexed)", "passwordHash: String", 
         "role: Enum['customer', 'staff', 'admin']", "fullName: String", "createdAt: ISODate"
-    ], 0.26, 0.22)
+    ], 0.27, 0.25)
     
-    mongo_coll(0.37, 0.67, "products", [
+    mongo_coll(0.365, 0.62, "products", [
         "_id: ObjectId (PK)", "name: String (Indexed)", "price: Number", "stock: Number (Int32)", 
-        "category: String", "model3dUrl: String (GLB)", "rating: Number", "numReviews: Number"
-    ], 0.26, 0.24)
+        "category: String", "imageUrl: String (JPG/PNG)", "rating: Number", "numReviews: Number"
+    ], 0.27, 0.28)
     
-    mongo_coll(0.68, 0.67, "orders", [
+    mongo_coll(0.68, 0.64, "orders", [
         "_id: ObjectId (PK)", "userId: ObjectId (FK)", "items: Array<OrderItem>", 
         "totalAmount: Number", "paymentMethod: String", "paymentStatus: String", "status: String (Indexed)"
-    ], 0.26, 0.24)
+    ], 0.27, 0.26)
     
-    mongo_coll(0.06, 0.24, "attendances", [
+    mongo_coll(0.05, 0.20, "attendances", [
         "_id: ObjectId (PK)", "staffId: ObjectId (FK)", "checkInTime: ISODate", 
-        "checkOutTime: ISODate", "workHours: Number", "gpsLatitude / Longitude: Number", "verified: Boolean"
-    ], 0.26, 0.24)
+        "checkOutTime: ISODate", "workHours: Number", "shiftType: String", "isApproved: Boolean"
+    ], 0.27, 0.26)
     
-    mongo_coll(0.37, 0.24, "payrolls", [
+    mongo_coll(0.365, 0.20, "payrolls", [
         "_id: ObjectId (PK)", "staffId: ObjectId (FK)", "monthYear: String", 
         "totalWorkHours: Number", "hourlyRate: Number", "bonus: Number", "netSalary: Number", "isApproved: Boolean"
-    ], 0.26, 0.25)
+    ], 0.27, 0.27)
     
-    mongo_coll(0.68, 0.24, "reviews", [
+    mongo_coll(0.68, 0.20, "reviews", [
         "_id: ObjectId (PK)", "userId: ObjectId (FK)", "productId: ObjectId (FK)", 
         "orderId: ObjectId (FK)", "rating: Number (1-5)", "comment: String", "images: Array<String>"
-    ], 0.26, 0.24)
+    ], 0.27, 0.26)
     
     # DB Relations
-    draw_assoc(ax, 0.32, 0.78, 0.37, 0.78, ls='--', arrow='->')
-    draw_assoc(ax, 0.63, 0.78, 0.68, 0.78, ls='--', arrow='->')
-    draw_assoc(ax, 0.19, 0.67, 0.19, 0.48, ls='--', arrow='->')
-    draw_assoc(ax, 0.32, 0.36, 0.37, 0.36, ls='--', arrow='->')
-    draw_assoc(ax, 0.81, 0.67, 0.81, 0.48, ls='--', arrow='->')
+    draw_assoc(ax, 0.32, 0.77, 0.365, 0.77, ls='--', arrow='->')
+    draw_assoc(ax, 0.635, 0.77, 0.68, 0.77, ls='--', arrow='->')
+    draw_assoc(ax, 0.185, 0.64, 0.185, 0.46, ls='--', arrow='->')
+    draw_assoc(ax, 0.32, 0.33, 0.365, 0.33, ls='--', arrow='->')
+    draw_assoc(ax, 0.815, 0.64, 0.815, 0.46, ls='--', arrow='->')
 
     save_bw(fig, "Hinh_3_26_MongoDB_Schema.png")
 
@@ -799,35 +917,41 @@ def gen_hinh_3_26():
 # 27. BIỂU ĐỒ THÀNH PHẦN KIẾN TRÚC (HÌNH 3.27)
 # ==========================================
 def gen_hinh_3_27():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(11.5, 6.5)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    draw_boundary(ax, 0.04, 0.04, 0.92, 0.92, "Biểu Đồ Thành Phần Kiến Trúc Hệ Thống (Component Diagram)")
+    draw_boundary(ax, 0.03, 0.03, 0.94, 0.94, "Biểu Đồ Thành Phần Kiến Trúc Hệ Thống (Component Diagram)")
     
-    def comp(x, y, name, details, w=0.24, h=0.18):
+    def comp(x, y, name, details, w=0.23, h=0.22):
         rect = patches.Rectangle((x, y), w, h, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(rect)
-        # 2 port tabs
-        p1 = patches.Rectangle((x - 0.015, y + h - 0.05), 0.03, 0.025, edgecolor='black', facecolor='white', lw=1.0, zorder=4)
-        p2 = patches.Rectangle((x - 0.015, y + h - 0.09), 0.03, 0.025, edgecolor='black', facecolor='white', lw=1.0, zorder=4)
+        # 2 port tabs on left
+        p1 = patches.Rectangle((x - 0.012, y + h - 0.055), 0.024, 0.022, edgecolor='black', facecolor='white', lw=1.0, zorder=4)
+        p2 = patches.Rectangle((x - 0.012, y + h - 0.095), 0.024, 0.022, edgecolor='black', facecolor='white', lw=1.0, zorder=4)
         ax.add_patch(p1); ax.add_patch(p2)
         ax.text(x + w/2, y + h - 0.035, f"<<component>>\n{name}", ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=5)
-        ax.text(x + w/2, y + 0.045, details, ha='center', va='center', fontsize=7.5, color='black', zorder=5)
+        ax.text(x + w/2, y + 0.05, details, ha='center', va='center', fontsize=7.2, color='black', zorder=5)
 
-    comp(0.08, 0.65, "Frontend SPA", "React 19 + TypeScript\nVite + Tailwind CSS\nGoogle Model-Viewer 3D", 0.25, 0.22)
-    comp(0.42, 0.65, "API Gateway", "Express.js REST Engine\nJWT Auth & Masking\nRate Limiter & CORS", 0.25, 0.22)
-    comp(0.74, 0.65, "Core Services", "Order & Inventory Service\nPayroll & Geo Service\nVoucher Engine", 0.22, 0.22)
+    comp(0.05, 0.64, "Frontend SPA", "React 19 + TypeScript\nVite + Tailwind CSS\nCanvas UI & Lucide Icons", 0.23, 0.22)
+    comp(0.385, 0.64, "API Gateway", "Express.js REST Engine\nJWT Auth & Masking\nRate Limiter & CORS", 0.23, 0.22)
+    comp(0.72, 0.64, "Core Services", "Order & Inventory Service\nPayroll & Shift Service\nVoucher Engine", 0.23, 0.22)
     
-    comp(0.08, 0.16, "VietQR Service", "Banking Webhook Listener\nDynamic QR Generator\nTransaction Reconcile", 0.25, 0.20)
-    comp(0.42, 0.16, "Database Layer", "MongoDB Community Server\nMongoose ODM Models\nAtomic Transactions", 0.25, 0.20)
-    comp(0.74, 0.16, "Storage / Assets", "Static 3D GLB Files\nFood Product Media\nPayslip Documents", 0.22, 0.20)
+    comp(0.05, 0.16, "VietQR Service", "Banking Webhook Listener\nDynamic QR Generator\nTransaction Reconcile", 0.23, 0.21)
+    comp(0.385, 0.16, "Database Layer", "MongoDB Community Server\nMongoose ODM Models\nAtomic Transactions", 0.23, 0.21)
+    comp(0.72, 0.16, "Storage / Assets", "Food Product Photos\nUser Review Media\nPayslip Documents", 0.23, 0.21)
     
-    # Connectors
-    draw_assoc(ax, 0.33, 0.76, 0.42, 0.76, label="HTTPS / JSON", ls='-', arrow='->')
-    draw_assoc(ax, 0.67, 0.76, 0.74, 0.76, label="Internal Call", ls='-', arrow='->')
-    draw_assoc(ax, 0.20, 0.65, 0.20, 0.36, label="Payment Intent", ls='--', arrow='->')
-    draw_assoc(ax, 0.54, 0.65, 0.54, 0.36, label="Mongoose Connection", ls='-', arrow='->')
-    draw_assoc(ax, 0.85, 0.65, 0.85, 0.36, label="Static Fetch", ls='--', arrow='->')
+    # Connectors with generous margins
+    draw_assoc(ax, 0.28, 0.75, 0.373, 0.75, arrow='->')
+    ax.text(0.3265, 0.78, "HTTPS/JSON", ha='center', va='bottom', fontsize=7.5,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.615, 0.75, 0.708, 0.75, arrow='->')
+    ax.text(0.6615, 0.78, "Internal Call", ha='center', va='bottom', fontsize=7.5,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.165, 0.64, 0.165, 0.37, label="Payment Intent", ls='--', arrow='->')
+    draw_assoc(ax, 0.50, 0.64, 0.50, 0.37, label="Mongoose ODM", ls='-', arrow='->')
+    draw_assoc(ax, 0.835, 0.64, 0.835, 0.37, label="Static Fetch", ls='--', arrow='->')
 
     save_bw(fig, "Hinh_3_27_Component_Diagram.png")
 
@@ -835,32 +959,40 @@ def gen_hinh_3_27():
 # 28. BIỂU ĐỒ TRIỂN KHAI HỆ THỐNG (HÌNH 3.28)
 # ==========================================
 def gen_hinh_3_28():
-    fig, ax = setup_canvas(10, 6.5)
+    fig, ax = setup_canvas(11.5, 7.0)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    draw_boundary(ax, 0.04, 0.04, 0.92, 0.92, "Biểu Đồ Triển Khai Hệ Thống (Deployment Diagram)")
+    draw_boundary(ax, 0.03, 0.03, 0.94, 0.94, "Biểu Đồ Triển Khai Hệ Thống (Deployment Diagram)")
     
     def node_3d(x, y, w, h, name, desc=""):
         rect = patches.Rectangle((x, y), w, h, edgecolor='black', facecolor='white', lw=1.3, zorder=3)
         ax.add_patch(rect)
         # 3D isometric roof
-        dx, dy = 0.02, 0.025
+        dx, dy = 0.016, 0.020
         roof = patches.Polygon([[x, y+h], [x+dx, y+h+dy], [x+w+dx, y+h+dy], [x+w, y+h]], edgecolor='black', facecolor='#F0F0F0', lw=1.2, zorder=2)
         side = patches.Polygon([[x+w, y], [x+w+dx, y+dy], [x+w+dx, y+h+dy], [x+w, y+h]], edgecolor='black', facecolor='#E0E0E0', lw=1.2, zorder=2)
         ax.add_patch(roof); ax.add_patch(side)
         ax.text(x + w/2, y + h - 0.035, f"<<device>>\n{name}", ha='center', va='center', fontsize=8.5, fontweight='bold', color='black', zorder=5)
-        ax.text(x + w/2, y + 0.06, desc, ha='center', va='center', fontsize=7.5, color='black', zorder=5)
+        ax.text(x + w/2, y + 0.065, desc, ha='center', va='center', fontsize=7.2, color='black', zorder=5)
 
-    node_3d(0.08, 0.52, 0.25, 0.34, "Client Device", "Web Browser (Chrome, Safari)\n<<artifact>>\nFoodVD React App (SPA)\nThree.js / Model-Viewer")
-    node_3d(0.42, 0.52, 0.26, 0.34, "Application Server", "Node.js v20.x Runtime\n<<artifact>>\nExpress Server (Port 5000)\nAPI Gateway & Business Logic")
-    node_3d(0.75, 0.52, 0.18, 0.34, "Database Server", "MongoDB 7.x Community\n<<artifact>>\nfoodvd_database\nCollections & B-Tree Indexes")
+    node_3d(0.05, 0.52, 0.23, 0.36, "Client Device", "Web Browser (Chrome, Safari)\n<<artifact>>\nFoodVD React App (SPA)\nResponsive UI Components")
+    node_3d(0.395, 0.52, 0.24, 0.36, "Application Server", "Node.js v20.x Runtime\n<<artifact>>\nExpress Server (Port 5000)\nAPI Gateway & Business Logic")
+    node_3d(0.74, 0.52, 0.20, 0.36, "Database Server", "MongoDB 7.x Community\n<<artifact>>\nfoodvd_database\nCollections & B-Tree Indexes")
     
-    node_3d(0.42, 0.08, 0.26, 0.28, "Payment Gateway Node", "VietQR Banking API\n<<artifact>>\nWebhook Listener (IPN)\nSecure HMAC Verification")
+    node_3d(0.395, 0.08, 0.24, 0.28, "Payment Gateway Node", "VietQR Banking API\n<<artifact>>\nWebhook Listener (IPN)\nSecure HMAC Verification")
     
-    # Deployment links
-    draw_assoc(ax, 0.33, 0.69, 0.42, 0.69, label="TCP/IP (Port 5000)\nHTTPS / REST", ls='-', arrow='<->')
-    draw_assoc(ax, 0.68, 0.69, 0.75, 0.69, label="TCP/IP (Port 27017)\nMongodb Protocol", ls='-', arrow='<->')
-    draw_assoc(ax, 0.55, 0.52, 0.55, 0.36, label="HTTPS Webhook\nCallback", ls='-', arrow='<->')
+    # Deployment links with centered bboxes in generous gaps
+    draw_assoc(ax, 0.296, 0.70, 0.395, 0.70, arrow='<->')
+    ax.text(0.3455, 0.73, "TCP/IP (Port 5000)\nHTTPS / REST", ha='center', va='bottom', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.651, 0.70, 0.74, 0.70, arrow='<->')
+    ax.text(0.6955, 0.73, "TCP/IP (27017)\nMongoDB", ha='center', va='bottom', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
+            
+    draw_assoc(ax, 0.515, 0.52, 0.515, 0.36, arrow='<->')
+    ax.text(0.515, 0.44, "HTTPS Webhook\nCallback", ha='center', va='center', fontsize=7.2,
+            bbox=dict(boxstyle='square,pad=0.12', fc='white', ec='none'), zorder=5)
 
     save_bw(fig, "Hinh_3_28_Deployment_Diagram.png")
 

@@ -7,29 +7,35 @@ import {
   STAFF_ACCOUNT,
   initialDishes,
   initialOrders,
+  initialReviews,
   initialSalaries,
   initialTimekeeping,
+  initialUsers,
   initialVouchers,
   getToppingPrice,
 } from "./data"
 import { AuthPage } from "./pages/TrangTaiKhoan"
 import { DeliveryPage } from "./pages/TrangGiaoHang"
 import { HomePage } from "./pages/TrangChu"
-import { ManagementPage, type ManagementView } from "./pages/TrangQuanLy"
+import { ManagementPage } from "./pages/TrangQuanLy"
 import { OrderPage } from "./pages/TrangDatHang"
 import { PaymentPage } from "./pages/TrangThanhToan"
-import type { CartDetail, CartItem, Category, Dish, Order, OrderStatus, Page, PaymentMethod, Role, StaffSalary, TimekeepingRecord, User, Voucher } from "./types"
+import type { CartDetail, CartItem, Category, Dish, ManagementView, Order, OrderStatus, Page, PaymentMethod, Review, Role, StaffSalary, TimekeepingRecord, User, Voucher } from "./types"
 import { maskAddress, maskPhone } from "./utils"
 import {
   apiAddDish,
   apiCreateOrder,
+  apiCreateReview,
   apiGetDishes,
   apiGetOrders,
+  apiGetReviews,
   apiLogin,
   apiRegister,
+  apiReplyReview,
   apiUpdateOrderStatus,
   checkServerHealth,
 } from "./services/api"
+
 
 const statusFlow: OrderStatus[] = ["Chờ duyệt", "Đang chuẩn bị", "Đang giao", "Hoàn tất"]
 
@@ -75,6 +81,8 @@ function App() {
     note: "Ít hành, giao giờ trưa.",
   })
   const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [usersList, setUsersList] = useState<User[]>(initialUsers)
+  const [reviews, setReviews] = useState<Review[]>(initialReviews)
   const [newDish, setNewDish] = useState({
     name: "",
     category: "Món chính" as Exclude<Category, "Tất cả">,
@@ -96,16 +104,65 @@ function App() {
         if (dbOrders && dbOrders.length > 0) {
           setOrders(dbOrders)
         }
+        const dbReviews = await apiGetReviews()
+        if (dbReviews && dbReviews.length > 0) {
+          setReviews(dbReviews)
+        }
       }
     }
     initMongoDB()
   }, [])
 
+  const handleAddReview = async (reviewData: {
+    dishId: number
+    dishName: string
+    customerName: string
+    rating: number
+    comment: string
+    image?: string
+  }) => {
+    const newRev: Review = {
+      id: `REV-${Date.now().toString().slice(-5)}`,
+      dishId: reviewData.dishId,
+      dishName: reviewData.dishName,
+      customerName: reviewData.customerName,
+      rating: reviewData.rating,
+      comment: reviewData.comment,
+      image: reviewData.image,
+      createdAt: new Date().toLocaleString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    }
+    setReviews((prev) => [newRev, ...prev])
+    if (isMongoConnected) {
+      await apiCreateReview(reviewData)
+    }
+  }
+
+  const handleReplyReview = async (id: string, reply: string) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, reply } : r))
+    )
+    if (isMongoConnected) {
+      await apiReplyReview(id, reply)
+    }
+  }
+
+
   const filteredDishes = useMemo(() => {
     const normalized = query.trim().toLowerCase()
     return dishes.filter((dish) => {
       const price = dish.promoPrice ?? dish.price
-      const matchCategory = category === "Tất cả" || dish.category === category
+      const matchCategory =
+        category === "Tất cả"
+          ? true
+          : category === "Ưu đãi"
+          ? Boolean(dish.promoPrice && dish.promoPrice < dish.price)
+          : dish.category === category
       const matchQuery =
         !normalized ||
         dish.name.toLowerCase().includes(normalized) ||
@@ -270,7 +327,12 @@ function App() {
     go("order")
   }
 
-  function addToCart(dish: Dish, toppingOrToppings?: string | string[]) {
+  function addToCart(
+    dish: Dish,
+    toppingOrToppings?: string | string[],
+    note?: string,
+    quantity: number = 1,
+  ) {
     if (!dish.available) return
     setOrderSuccess("")
     const selectedToppings = Array.isArray(toppingOrToppings)
@@ -279,16 +341,23 @@ function App() {
       ? [toppingOrToppings]
       : []
     const toppingKey = [...selectedToppings].sort().join("|")
+    const itemNote = note?.trim() || ""
     setCart((current) => {
       const match = current.find(
-        (item) => item.dishId === dish.id && [...item.toppings].sort().join("|") === toppingKey,
+        (item) =>
+          item.dishId === dish.id &&
+          [...item.toppings].sort().join("|") === toppingKey &&
+          (item.note || "") === itemNote,
       )
       if (match) {
         return current.map((item) =>
-          item === match ? { ...item, quantity: item.quantity + 1 } : item,
+          item === match ? { ...item, quantity: item.quantity + quantity } : item,
         )
       }
-      return [...current, { dishId: dish.id, quantity: 1, toppings: selectedToppings }]
+      return [
+        ...current,
+        { dishId: dish.id, quantity, toppings: selectedToppings, note: itemNote || undefined },
+      ]
     })
   }
 
@@ -337,12 +406,15 @@ function App() {
 
     if (!cart.length || !form.name || !form.phone || !form.address || !form.email) return
 
+    const orderCustomerName = user?.name || form.name
+    const orderEmail = user?.email || form.email
+
     // 1. Try creating order in MongoDB
     const apiOrder = await apiCreateOrder({
-      customerName: form.name,
+      customerName: orderCustomerName,
       phoneMasked: maskPhone(form.phone),
       addressMasked: maskAddress(form.address),
-      email: form.email,
+      email: orderEmail,
       payment,
       total,
       items: cart,
@@ -350,10 +422,10 @@ function App() {
 
     const createdOrder: Order = apiOrder || {
       id: `FVD-${String(Date.now()).slice(-6)}`,
-      customerName: form.name,
+      customerName: orderCustomerName,
       phoneMasked: maskPhone(form.phone),
       addressMasked: maskAddress(form.address),
-      email: form.email,
+      email: orderEmail,
       payment,
       total,
       status: "Chờ duyệt",
@@ -370,9 +442,9 @@ function App() {
     setOrders((current) => [createdOrder, ...current])
     setCart([])
     setOrderSuccess(
-      `Đặt hàng thành công. Mã đơn của bạn là ${createdOrder.id}. Dữ liệu đã lưu vào MongoDB!`,
+      `🎉 Đặt hàng thành công! Mã đơn: ${createdOrder.id}. Nhà bếp đang chuẩn bị món cho bạn.`,
     )
-    go("home")
+    go("order")
   }
 
   async function advanceOrder(id: string) {
@@ -430,8 +502,78 @@ function App() {
     setNewDish({ ...newDish, name: "" })
   }
 
+  function handleEditDish(updatedDish: Dish) {
+    setDishes((prev) => prev.map((d) => (d.id === updatedDish.id ? updatedDish : d)))
+  }
+
+  function handleDeleteDish(dishId: number) {
+    setDishes((prev) => prev.filter((d) => d.id !== dishId))
+  }
+
+  async function handleCancelOrder(orderId: string, reason?: string) {
+    await apiUpdateOrderStatus(orderId, "Đã hủy")
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: "Đã hủy" } : o))
+    )
+  }
+
+  function handleUpdateUserRole(email: string, role: Role) {
+    setUsersList((prev) =>
+      prev.map((u) => (u.email.toLowerCase() === email.toLowerCase() ? { ...u, role } : u))
+    )
+  }
+
+  function handleToggleUserStatus(email: string) {
+    setUsersList((prev) =>
+      prev.map((u) =>
+        u.email.toLowerCase() === email.toLowerCase()
+          ? { ...u, status: u.status === "locked" ? "active" : "locked" }
+          : u
+      )
+    )
+  }
+
+  function handleAddStaff(staffData: { name: string; email: string; phone: string; password?: string }) {
+    const newStaff: User = {
+      id: `usr_staff_${Date.now()}`,
+      name: staffData.name,
+      email: staffData.email,
+      role: "staff",
+      phone: staffData.phone,
+      address: "Cửa hàng FoodVD",
+      status: "active",
+      createdAt: new Date().toLocaleDateString("vi-VN"),
+    }
+    setUsersList((prev) => [newStaff, ...prev])
+  }
+
+  function handleUpdateProfile(profile: { name: string; phone?: string; address?: string }) {
+    if (user) {
+      const updated: User = {
+        ...user,
+        name: profile.name,
+        phone: profile.phone,
+        address: profile.address,
+      }
+      setUser(updated)
+      setUsersList((prev) =>
+        prev.map((u) =>
+          u.email.toLowerCase() === user.email.toLowerCase()
+            ? { ...u, name: profile.name, phone: profile.phone, address: profile.address }
+            : u
+        )
+      )
+      setForm((prev) => ({
+        ...prev,
+        name: profile.name,
+        phone: profile.phone || prev.phone,
+        address: profile.address || prev.address,
+      }))
+    }
+  }
+
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#fbf7ef] text-[#211a16]">
+    <main className="min-h-screen overflow-x-clip bg-[#fbfbfb] text-stone-900">
       <div className="site-ambient" aria-hidden="true" />
       <Header
         page={page}
@@ -441,10 +583,17 @@ function App() {
         setUser={setUser}
         managementView={managementView}
         setManagementView={setManagementView}
+        query={query}
+        setQuery={setQuery}
+        category={category}
+        setCategory={setCategory}
+        cartDetails={cartDetails}
+        changeQuantity={changeQuantity}
+        subtotal={subtotal}
       />
 
       {page === "home" && (
-        <HomePage go={go} orderSuccess={orderSuccess} featuredDishes={dishes.slice(0, 4)} />
+        <HomePage go={go} orderSuccess={orderSuccess} featuredDishes={dishes.slice(0, 4)} user={user} />
       )}
 
       {page === "order" && (
@@ -461,6 +610,10 @@ function App() {
           changeQuantity={changeQuantity}
           subtotal={subtotal}
           go={go}
+          reviews={reviews}
+          onAddReview={handleAddReview}
+          user={user}
+          orderSuccess={orderSuccess}
         />
       )}
 
@@ -475,6 +628,11 @@ function App() {
           total={total}
           hasCart={Boolean(cart.length)}
           go={go}
+          orders={orders}
+          dishes={dishes}
+          reviews={reviews}
+          onAddReview={handleAddReview}
+          onAdvanceOrder={advanceOrder}
         />
       )}
 
@@ -506,6 +664,8 @@ function App() {
           setUser={setUser}
           orders={orders}
           dishes={dishes}
+          reviews={reviews}
+          onAddReview={handleAddReview}
           onReorder={(items) => {
             items.forEach((item) => {
               const dish = dishes.find((d) => d.id === item.dishId)
@@ -513,6 +673,9 @@ function App() {
             })
             go("order")
           }}
+          onCancelOrder={handleCancelOrder}
+          onUpdateProfile={handleUpdateProfile}
+          vouchers={vouchersList}
           mode={page}
           loginForm={loginForm}
           setLoginForm={setLoginForm}
@@ -548,8 +711,19 @@ function App() {
           setOrders={setOrders}
           advanceOrder={advanceOrder}
           addDishFromAdmin={addDishFromAdmin}
+          reviews={reviews}
+          setReviews={setReviews}
+          onReplyReview={handleReplyReview}
+          usersList={usersList}
+          onUpdateUserRole={handleUpdateUserRole}
+          onToggleUserStatus={handleToggleUserStatus}
+          onAddStaff={handleAddStaff}
+          onEditDish={handleEditDish}
+          onDeleteDish={handleDeleteDish}
+          onCancelOrder={handleCancelOrder}
         />
       )}
+
 
       {user?.role !== "admin" && user?.role !== "staff" && <SiteFooter />}
     </main>

@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Quản Trị Viên" as Actor
+
+usecase "Báo cáo phân tích doanh thu &\nLịch sử đơn hoàn tất" as Main #E8F4F8
+usecase "Đăng nhập" as Login
+
+usecase "Tổng hợp doanh thu theo ngày/tháng" as UC1
+usecase "Thống kê 4 thẻ chỉ số KPI tài chính" as UC2
+usecase "Đối soát danh sách đơn hoàn tất & hủy" as UC3
+usecase "Lọc báo cáo theo khoảng thời gian" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main ..> UC2 : <<include>>
+Main ..> UC3 : <<include>>
+Main <.. UC4 : <<extend>>
+
+@enduml

@@ -1,8 +1,6 @@
-import { useState } from "react"
 import { CheckoutSteps } from "../components/CacBuocDatHang"
 import { OrderSideCard } from "../components/TienIchDonHang"
 import { SectionHeading } from "../components/TieuDePhan"
-import { Xem3DSanPham } from "../components/Xem3DSanPham"
 import type { CartDetail, Page, PaymentMethod, User } from "../types"
 import { formatCurrency } from "../utils"
 
@@ -43,9 +41,6 @@ export function PaymentPage({
   hasCart: boolean
   placeOrder: () => void
 }) {
-  const [selected3DIndex, setSelected3DIndex] = useState(0)
-
-  const activeCartItem = cartDetails[selected3DIndex] || cartDetails[0]
 
   return (
     <section className="page-shell page-shell-wide">
@@ -140,80 +135,70 @@ export function PaymentPage({
             )}
           </div>
 
-          {/* 3D Model Inspection & Product List Panel */}
+          {/* Product List Panel */}
           <div className="soft-panel">
-            <div className="payment-order-title">
+            <div className="flex items-center justify-between border-b border-stone-200 pb-4">
               <div>
-                <p className="eyebrow">Trực quan hóa món ăn 3D & Giỏ hàng</p>
-                <h2>Kiểm tra chi tiết món ăn trong đơn</h2>
+                <p className="eyebrow">Danh sách món ăn</p>
+                <h2 className="text-xl font-black text-stone-900">Chi tiết các món trong đơn hàng</h2>
               </div>
-              <span className="flex items-center gap-1.5 font-black">
-                ✨ {cartDetails.reduce((sum, item) => sum + item.quantity, 0)} món
+              <span className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3.5 py-1.5 text-xs font-black text-stone-800">
+                🛍️ {cartDetails.reduce((sum, item) => sum + item.quantity, 0)} phần ăn
               </span>
             </div>
 
             {cartDetails.length ? (
-              <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_1fr]">
-                {/* Left: Product List with selector */}
-                <div className="space-y-3">
-                  <p className="text-xs font-black uppercase tracking-wider text-stone-600">
-                    Chọn món để xem hiệu ứng 3D sống động:
-                  </p>
-                  <div className="payment-order-list max-h-[38rem] overflow-y-auto pr-1">
-                    {cartDetails.map((item, index) => {
-                      const isSelected = selected3DIndex === index
-
-                      return (
-                        <div
-                          key={`${item.dish.id}-${index}`}
-                          onClick={() => setSelected3DIndex(index)}
-                          className={`payment-order-item cursor-pointer transition-all ${
-                            isSelected
-                              ? "border-2 border-[#b42318] bg-[#fff5f1] shadow-md ring-2 ring-[#b42318]/20"
-                              : "border border-[#efe4d6] bg-white hover:border-[#b42318]/50 hover:bg-[#fffcf8]"
-                          }`}
-                        >
-                          <img src={item.dish.image} alt={item.dish.name} className="h-16 w-16 rounded-xl object-cover" />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="truncate font-black">{item.dish.name}</h3>
-                              {isSelected && (
-                                <span
-                                  className={`rounded-full px-2 py-0.5 text-[10px] font-black text-white ${
-                                    item.dish.model3d ? "bg-[#b42318]" : "bg-stone-700"
-                                  }`}
-                                >
-                                  {item.dish.model3d ? "Đang xem 3D" : "Đang xem ảnh"}
-                                </span>
-                              )}
-                            </div>
-                            <p className="truncate text-xs text-stone-600">
-                              {item.toppings.join(", ") || "Không topping"}
-                            </p>
-                            <div className="mt-1 flex items-center justify-between">
-                              <small className="font-bold text-stone-600">SL: {item.quantity}</small>
-                              <strong className="text-[#b42318]">{formatCurrency(item.lineTotal)}</strong>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Right: Live Interactive 3D Model Display */}
-                <div className="flex flex-col">
-                  {activeCartItem && (
-                    <Xem3DSanPham
-                      dish={activeCartItem.dish}
-                      cartItem={activeCartItem}
+              <div className="mt-5 space-y-3 max-h-[30rem] overflow-y-auto pr-1">
+                {cartDetails.map((item, index) => (
+                  <div
+                    key={`${item.dish.id}-${index}`}
+                    className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3.5 sm:p-4 shadow-2xs hover:border-stone-300 transition-all"
+                  >
+                    <img
+                      src={item.dish.image}
+                      alt={item.dish.name}
+                      className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover shrink-0"
                     />
-                  )}
-                </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-black text-stone-900 text-sm sm:text-base leading-snug">
+                            {item.dish.name}
+                          </h3>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {item.dish.category}
+                          </p>
+                        </div>
+                        <strong className="text-base font-black text-stone-900 shrink-0">
+                          {formatCurrency(item.lineTotal)}
+                        </strong>
+                      </div>
+
+                      {item.toppings.length > 0 && (
+                        <p className="text-xs text-amber-800 font-medium mt-1">
+                          Topping: {item.toppings.join(", ")}
+                        </p>
+                      )}
+
+                      {item.note && (
+                        <p className="text-xs text-rose-700 font-semibold mt-1 bg-rose-50 px-2 py-0.5 rounded-md inline-block">
+                          📝 Ghi chú bếp: {item.note}
+                        </p>
+                      )}
+
+                      <div className="mt-2 flex items-center justify-between text-xs text-stone-600">
+                        <span className="font-bold bg-stone-100 px-2 py-0.5 rounded-md">
+                          Số lượng: {item.quantity}
+                        </span>
+                        <span>Đơn giá: {formatCurrency(item.dish.promoPrice ?? item.dish.price)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="mt-6 rounded-2xl border border-dashed border-[#e6d7c7] bg-[#fff8ef] p-8 text-center text-sm font-semibold text-stone-600">
-                Chưa có sản phẩm nào trong đơn hàng để xem mô hình 3D.
+              <div className="mt-6 rounded-2xl border border-dashed border-stone-200 bg-stone-50 p-8 text-center text-sm font-semibold text-stone-600">
+                Chưa có món ăn nào trong đơn hàng.
               </div>
             )}
           </div>

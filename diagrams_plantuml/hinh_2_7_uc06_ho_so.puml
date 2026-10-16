@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+
+skinparam actor {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BorderColor #333333
+    BackgroundColor #FFFFFF
+    ArrowColor #333333
+}
+
+left to right direction
+
+actor "Người Dùng" as Actor
+
+usecase "Đăng ký, Đăng nhập &\nQuản lý hồ sơ cá nhân" as Main #E8F4F8
+usecase "Đăng nhập hệ thống" as Login
+
+usecase "Xác thực tài khoản và cấp JWT" as UC1
+usecase "Đăng ký tài khoản mới" as UC2
+usecase "Cập nhật thông tin hồ sơ & Địa chỉ" as UC3
+usecase "Đổi mật khẩu bảo mật" as UC4
+
+Actor -- Main
+
+Main ..> Login : <<include>>
+
+Main ..> UC1 : <<include>>
+Main <.. UC2 : <<extend>>
+Main <.. UC3 : <<extend>>
+Main <.. UC4 : <<extend>>
+
+@enduml

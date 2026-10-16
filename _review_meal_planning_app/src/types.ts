@@ -7,16 +7,42 @@ export type Page =
   | "register"
   | "management"
 
-export type Category = "Tất cả" | "Món chính" | "Ăn nhẹ" | "Đồ uống" | "Combo"
+export type Category =
+  | "Tất cả"
+  | "Ưu đãi"
+  | "Món chính"
+  | "Món Việt"
+  | "Hoa quả"
+  | "Đồ uống"
+  | "Ăn nhẹ"
+  | "Tráng miệng"
+  | "Healthy & Ăn kiêng"
+  | "Gia vị & Đồ khô"
+  | "Combo"
 export type PaymentMethod = "COD" | "VietQR"
 export type OrderStatus = "Chờ duyệt" | "Đang chuẩn bị" | "Đang giao" | "Hoàn tất" | "Đã hủy"
 export type Role = "customer" | "staff" | "admin"
 
 export type User = {
+  id?: string
   name: string
   email: string
   role: Role
+  phone?: string
+  address?: string
+  status?: "active" | "locked"
+  createdAt?: string
 }
+
+export type ManagementView =
+  | "orders"
+  | "menu"
+  | "reports"
+  | "salary"
+  | "vouchers"
+  | "timekeeping"
+  | "reviews"
+  | "users"
 
 export type Dish = {
   id: number
@@ -25,8 +51,15 @@ export type Dish = {
   price: number
   promoPrice?: number
   image: string
-  model3d?: string
   description: string
+  ingredients?: string[]
+  nutritionInfo?: {
+    portion?: string
+    calories?: string
+    protein?: string
+    origin?: string
+    preservation?: string
+  }
   toppings: string[]
   available: boolean
   sold: number
@@ -36,6 +69,7 @@ export type CartItem = {
   dishId: number
   quantity: number
   toppings: string[]
+  note?: string
 }
 
 export type CartDetail = CartItem & {
@@ -87,4 +121,18 @@ export type TimekeepingRecord = {
   checkOutTime?: string
   status: "Đang làm" | "Hoàn thành"
 }
+
+export type Review = {
+  id: string
+  dishId: number
+  dishName: string
+  customerName: string
+  rating: number
+  comment: string
+  createdAt: string
+  reply?: string
+  avatar?: string
+  image?: string // Đính kèm ảnh chụp thực tế món ăn
+}
+
 
